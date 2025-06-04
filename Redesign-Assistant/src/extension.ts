@@ -2,8 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// In matcha/Redesign-Assistant
-// Run "npm run compile"
+// To compile and run matcha/Redesign-Assistant:
+// Run "npm run compile" in terminal
 // "F5"
 
 // This method is called when your extension is activated
