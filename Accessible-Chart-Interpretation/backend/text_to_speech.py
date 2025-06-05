@@ -34,9 +34,11 @@ def tts_repeat():
     if tts_text:
         tts_play(tts_text)
 
+# Example usage
 if __name__ == "__main__":
     tts_play("Hello, this is a test message. Hello, this is a test message. Hello, this is a test message. Hello, this is a test message. Hello, this is a test message.")
     time.sleep(2)
+    
     tts_pause()
     print("Paused")
 
