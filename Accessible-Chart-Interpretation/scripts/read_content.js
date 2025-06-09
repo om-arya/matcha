@@ -4,20 +4,21 @@ let currentUtterance = null;
 readContent();
 
 async function readContent() {
-    const elements = document.body.querySelectorAll("*");
+  const elements = document.body.querySelectorAll("*");
 
-    for (const element of elements) {
-      let text = null;
-      if (element.tagName === "IMG") {
-        text = await summarizeChartFromDOM(element);
-      } else if (element.textContent && element.textContent.trim()) {
-        text = element.textContent.trim();
-      }
+  for (const element of elements) {
+    if (element.tagName === "IMG") {
+      try {
+        const text = await summarizeChartFromDOM(element);
 
-      if (text) {
-        await ttsRead(text);
+        if (text !== "N/A") {
+          await ttsRead(text);
+        }
+      } catch (error) {
+        console.error("Failed to process element:", error);
       }
     }
+  }
 }
 
 /**
@@ -65,7 +66,7 @@ async function summarizeChartFromDOM(imgElement) {
 
     // Send to Gemini
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
