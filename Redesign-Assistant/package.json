@@ -9,15 +9,32 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:redesignAssistantSidebar",
+    "onStartupFinished",
+    "onLanguage:python"
+  ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "Redesign-Assistant.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "redesignAssistant",
+          "title": "Matcha Redesign Assistant",
+          "icon": "src/media/Matcha_Mochi.png"
+        }
+      ]
+    },
+    "views": {
+      "redesignAssistant": [
+        {
+          "id": "redesignAssistantSidebar",
+          "name": "Accessibility Panel",
+          "type": "webview",
+          "icon": "src/media/Matcha_Mochi.png"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

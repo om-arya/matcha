@@ -10,6 +10,7 @@ async function readContent() {
     if (element.tagName === "IMG") {
       try {
         const text = await summarizeChartFromDOM(element);
+        console.log(text);
 
         if (text !== "N/A") {
           await ttsRead(text);
@@ -27,9 +28,11 @@ async function readContent() {
  */
 async function summarizeChartFromDOM(imgElement) {
   try {
+    // Resolve relative path to absolute URL
+    const imgSrc = new URL(imgElement.src, window.location.href).href;
+
     // Convert image URL to Blob
-    const imageBlob = await fetchImageAsBlob(imgElement.src);
-    const mimeType = imageBlob.type;
+    const imageBlob = await fetchImageAsBlob(imgSrc);
 
     // Convert Blob to base64
     const base64Image = await blobToBase64(imageBlob);
@@ -45,14 +48,13 @@ async function summarizeChartFromDOM(imgElement) {
           Simply output "N/A"
     `;
 
-    // Prepare request body
-    const body = {
+    const requestBody = {
       contents: [
         {
           parts: [
             {
               inlineData: {
-                mimeType,
+                mimeType: imageBlob.type,
                 data: base64Image,
               },
             },
@@ -72,13 +74,12 @@ async function summarizeChartFromDOM(imgElement) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(requestBody),
       }
     );
 
     const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "N/A";
-    return text;
+    return data.candidates[0].content.parts[0].text || "N/A";
   } catch (err) {
     console.error("Summarization failed:", err);
     return "N/A";
@@ -88,7 +89,9 @@ async function summarizeChartFromDOM(imgElement) {
 // Helper to fetch image from src to Blob
 async function fetchImageAsBlob(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to fetch image");
+  if (!res.ok) {
+    throw new Error("Failed to fetch image");
+  }
   return await res.blob();
 }
 
@@ -104,7 +107,6 @@ function blobToBase64(blob) {
     reader.readAsDataURL(blob);
   });
 }
-
 
 function ttsRead(text) {
   return new Promise((resolve) => {
