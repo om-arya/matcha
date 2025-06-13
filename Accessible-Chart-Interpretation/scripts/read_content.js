@@ -3,22 +3,24 @@ let currentUtterance = null;
 
 readContent();
 
-async function readContent() {
+function readContent() {
   const elements = document.body.querySelectorAll("*");
 
   for (const element of elements) {
-    if (element.tagName === "IMG") {
-      try {
-        const text = await summarizeChartFromDOM(element);
-        console.log(text);
+    setTimeout(async () => {
+      if (element.tagName === "IMG") {
+        try {
+          const text = await summarizeChartFromDOM(element);
+          console.log(text);
 
-        if (text !== "N/A") {
-          await ttsRead(text);
+          if (text !== "N/A") {
+            await ttsRead(text);
+          }
+        } catch (error) {
+          console.error("Failed to process element:", error);
         }
-      } catch (error) {
-        console.error("Failed to process element:", error);
       }
-    }
+    }, 200);
   }
 }
 

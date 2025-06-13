@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 
+import { rules } from "./accessibilityRules";
+
 class SidebarProvider implements vscode.WebviewViewProvider {
 	private _view?: vscode.WebviewView;
 	private _issues: string[] = [];
@@ -29,7 +31,15 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 			return `<html><body><h3>No accessibility issues found 🎉</h3></body></html>`;
 		}
 
-		const issueList = issues.map(issue => `<li>${issue}</li>`).join("");
+		const issueList = issues.map((issue) => {
+			const formattedIssue = issue
+				.replaceAll("_", " ")
+				.split(" ")
+				.map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()) // to PascalCase
+				.join(" ");
+
+			return `<li>${formattedIssue}: ${rules.get(issue)}</li>`;
+		});
 
 		return `
 			<html>

@@ -23,6 +23,12 @@
     }
   ],
   "permissions": [
-    "accessibilityFeatures.read"
+    "activeTab",
+    "scripting",
+    "storage",
+    "tts"
+  ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
   ]
 }

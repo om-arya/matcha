@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { rules } from "./accessibilityRules";
+
 import SidebarProvider from './SidebarProvider';
 
 // To compile and run the VSCode extension:
@@ -35,11 +35,11 @@ function activate(context: vscode.ExtensionContext) {
 		const issues: string[] = [];
 
 		if (!(scanText.includes("legend()"))) {
-			issues.push(rules.get("MISSING_LEGEND")!);
+			issues.push("MISSING_LEGEND");
 		}
 
 		if (!(scanText.includes("ax.set(title"))) {
-			issues.push(rules.get("MISSING_TITLE")!);
+			issues.push("MISSING_TITLE");
 		}
 
 		// Send issues to the sidebar WebView
@@ -47,6 +47,8 @@ function activate(context: vscode.ExtensionContext) {
 	};
 
 	context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((e) => analyzeDocument(e.document)));
+
+	analyzeDocument(vscode.window.activeTextEditor!.document); // Analyze the currently active document at activation time
 }
 
 // This function is called when the extension is deactivated

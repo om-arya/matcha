@@ -1,9 +1,12 @@
 import subprocess
-import os
 import random
 import string
 
-def generate_random_matplotlib_script(filename):
+def generate_random_matplotlib_script():
+    # Create a unique filename to avoid conflicts
+    random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+    filename = f"temp_plot_{random_suffix}.py"
+
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', '#FF5733', '#33FFCE']
     linestyles = ['-', '--', '-.', ':']
     markers = ['o', 's', 'D', '^', '*', 'x', '+', 'p']
@@ -87,10 +90,6 @@ def generate_random_matplotlib_script(filename):
         # Tight layout
         if chance():
             f.write("plt.tight_layout()\n")
-
-        # Save figure
-        if chance():
-            f.write("plt.savefig('output.png')\n")
 
         # Show plot
         f.write("plt.show()\n")
@@ -260,13 +259,11 @@ def generate_random_matplotlib_script(filename):
             f.write("    axx.plot(x, np.sin(x + random.uniform(0, 2*np.pi)))\n")
             f.write("    axx.set_title('Title')\n")
 
-def save_random_matplotlib_image():
-    # Create a unique filename to avoid conflicts
-    random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
-    script_filename = f"temp_plot_{random_suffix}.py"
+        return filename
 
+def save_random_matplotlib_image():
     # Generate the script
-    generate_random_matplotlib_script(script_filename)
+    script_filename = generate_random_matplotlib_script()
 
     # Run the script to produce the image
     try:
@@ -276,5 +273,4 @@ def save_random_matplotlib_image():
         print(f"Error executing {script_filename}: {e}")
 
 if __name__ == "__main__":
-    for i in range(10):
-        save_random_matplotlib_image()
+    generate_random_matplotlib_script()
