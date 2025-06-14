@@ -21,7 +21,7 @@
         {
           "id": "redesignAssistant",
           "title": "Matcha Redesign Assistant",
-          "icon": "src/media/Matcha_Mochi.png"
+          "icon": "src/media/Matcha_Mochi_crop.png"
         }
       ]
     },
@@ -31,7 +31,7 @@
           "id": "redesignAssistantSidebar",
           "name": "Accessibility Panel",
           "type": "webview",
-          "icon": "src/media/Matcha_Mochi.png"
+          "icon": "src/media/Matcha_Mochi_crop.png"
         }
       ]
     }

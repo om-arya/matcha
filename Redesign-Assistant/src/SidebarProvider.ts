@@ -28,7 +28,12 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 
 	private getHtmlForWebview(issues: string[]): string {
 		if (issues.length === 0) {
-			return `<html><body><h3>No accessibility issues found 🎉</h3></body></html>`;
+			return `
+				<html>
+				<body>
+					<h3>No accessibility issues found 🎉</h3>
+				</body>
+				</html>`;
 		}
 
 		const issueList = issues.map((issue) => {
