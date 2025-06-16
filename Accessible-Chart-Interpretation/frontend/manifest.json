@@ -1,10 +1,38 @@
 {
-  "name": "Hello Extensions",
-  "description": "Base Level Extension",
+  "name": "Matcha Screen Reader: Automatic Summaries for Data Visualizations",
+  "description": "A screen reader that summarizes data visualizations for you.",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
     "default_popup": "matcha.html",
-    "default_icon": "../../Matcha_Mochi.png"
-  }
+    "default_icon": "images/Matcha_Mochi.png"
+  },
+  "icons": {
+    "16": "images/Matcha_Mochi.png",
+    "32": "images/Matcha_Mochi.png",
+    "48": "images/Matcha_Mochi.png",
+    "128": "images/Matcha_Mochi.png"
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/read_content.js"],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tts"
+  ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "web_accessible_resources": [{
+    "matches": ["<all_urls>"],
+    "resources": ["node:fs"]
+  }]
 }
