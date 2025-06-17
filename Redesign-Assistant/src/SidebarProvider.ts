@@ -5,6 +5,7 @@ import { rules } from "./accessibilityRules";
 class SidebarProvider implements vscode.WebviewViewProvider {
 	private _view?: vscode.WebviewView;
 	private _issues: string[] = [];
+	private _filename: string = "";
 
 	constructor(private readonly _extensionUri: vscode.Uri) { }
 
@@ -15,42 +16,86 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 			enableScripts: true
 		};
 		
-		webviewView.webview.html = this.getHtmlForWebview(this._issues);
+		webviewView.webview.html = this.getHtmlForWebview(this._issues, this._filename);
 		
 	}
 
-	public setIssues(issues: string[]) {
+	public setIssues(issues: string[], filename: string) {
 		this._issues = issues;
+		this._filename = filename;
 		if (this._view) {
-			this._view!.webview.html = this.getHtmlForWebview(this._issues);
+			this._view!.webview.html = this.getHtmlForWebview(this._issues, this._filename);
 		}
 	}
 
-	private getHtmlForWebview(issues: string[]): string {
-		if (issues.length === 0) {
+	private getHtmlForWebview(issues: string[], filename: string): string {
+		if (!filename) {
 			return `
-				<html>
+				<!DOCTYPE html>
+				<html lang="en">
+				<head>
+					<meta charset="UTF-8">
+					<style>
+						body {
+							font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+							padding: 16px;
+							color: #cccccc;
+							background-color: #1e1e1e;
+						}
+					</style>
+				</head>
 				<body>
-					<h3>No accessibility issues found 🎉</h3>
+					<p>No Matplotlib code detected.</p>
 				</body>
 				</html>`;
 		}
 
-		const issueList = issues.map((issue) => {
-			const formattedIssue = issue
-				.replaceAll("_", " ")
-				.split(" ")
-				.map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()) // to PascalCase
-				.join(" ");
-
-			return `<li>${formattedIssue}: ${rules.get(issue)}</li>`;
-		});
-
 		return `
-			<html>
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<style>
+					body {
+						font-family: 'Segoe UI', sans-serif;
+						padding: 12px;
+						background-color: #1e1e1e;
+						color: #cccccc;
+					}
+					h3 {
+						color:rgb(66, 178, 247);
+					}
+					.issue {
+						margin-bottom: 20px;
+						padding: 12px;
+						border-radius: 6px;
+						background-color: #2c2c2c;
+						box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+					}
+					.issue h3 {
+						margin: 0 0 8px 0;
+						color:rgb(240, 163, 91);
+					}
+					.no-issues {
+						color: #4caf50;
+						font-size: 1.2em;
+					}
+				</style>
+			</head>
 			<body>
-				<h3>Accessibility Issues</h3>
-				<ul>${issueList}</ul>
+				<h3>Accessibility issues in <code>${filename}</code>:</h3>
+				${issues.length === 0
+					? `<p class="no-issues">No accessibility issues found! 🎉</p>`
+					: issues.map(issue => {
+						const rule = rules.get(issue)!;
+						return `
+							<div class="issue">
+								<h3>${rule.title}</h3>
+								<p>${rule.description}</p>
+							</div>
+						`;
+					}).join("")}
 			</body>
 			</html>
 		`;

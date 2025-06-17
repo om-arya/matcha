@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 import SidebarProvider from './SidebarProvider';
 
@@ -10,7 +11,7 @@ import SidebarProvider from './SidebarProvider';
 // This function is called when the extension is activated, i.e.,
 // the very first time the command is executed
 function activate(context: vscode.ExtensionContext) {
-	console.log('The extension "Redesign-Assistant" is now active!');
+	console.log('The extension "MATCHA Redesign Assistant" is now active!');
 
 	const sidebarProvider = new SidebarProvider(context.extensionUri);
 	context.subscriptions.push(
@@ -34,30 +35,8 @@ function activate(context: vscode.ExtensionContext) {
 		const scanText = text.substring(mplIndex);
 		const issues: string[] = [];
 
-		// Minimum Figure Size (>= (8 × 5))
-		const figMatch = scanText.match(/figsize\s*=\s*\(\s*([\d.]+)\s*,\s*([\d.]+)\s*\)/);
-		if (figMatch) {
-			const w = parseFloat(figMatch[1]);
-			const h = parseFloat(figMatch[2]);
-			if (w < 8 || h < 5) {
-				issues.push("FIGSIZE_TOO_SMALL");
-			}
-		} else {
-			issues.push("MISSING_FIGSIZE");
-		}
-
-		// Minimum Font Size (>= 15)
-		const fsMatches = scanText.match(/fontsize\s*=\s*(\d+)/g);
-		if (fsMatches) {
-			if (fsMatches.some(m => parseInt(m.match(/=(\d+)/)![1]) < 15)) {
-				issues.push("FONTSIZE_TOO_SMALL");
-			}
-		} else {
-			issues.push("MISSING_FONT_SIZE");
-		}
-
 		// Descriptive Labels
-		(["xlabel", "ylabel", "title"] as const).forEach(fn => {
+		(["title", "xlabel", "ylabel"] as const).forEach(fn => {
 			const m = scanText.match(new RegExp(`${fn}\\s*\\(\\s*['"]([^'"]*)['"]`));
 			if (m) {
 				const txt = m[1].trim().toLowerCase();
@@ -74,6 +53,24 @@ function activate(context: vscode.ExtensionContext) {
 		const scatterCount = (scanText.match(/scatter\s*\(/g) || []).length;
 		if (plotCount + scatterCount > 1 && !scanText.includes("legend(")) {
 			issues.push("MISSING_LEGEND");
+		}
+		
+		// Minimum Font Size (>= 15)
+		const fsMatches = scanText.match(/fontsize\s*=\s*(\d+)/g);
+		if (fsMatches) {
+			if (fsMatches.some(m => parseInt(m.match(/=(\d+)/)![1]) < 15)) {
+				issues.push("FONTSIZE_TOO_SMALL");
+			}
+		}
+		
+		// Minimum Figure Size (>= (8 × 5))
+		const figMatch = scanText.match(/figsize\s*=\s*\(\s*([\d.]+)\s*,\s*([\d.]+)\s*\)/);
+		if (figMatch) {
+			const w = parseFloat(figMatch[1]);
+			const h = parseFloat(figMatch[2]);
+			if (w < 8 || h < 5) {
+				issues.push("FIGSIZE_TOO_SMALL");
+			}
 		}
 
 		// High-contrast colors only
@@ -95,15 +92,21 @@ function activate(context: vscode.ExtensionContext) {
 			issues.push("ANIMATIONS");
 		}
 
-		console.log(issues);
-
 		// Send issues to the sidebar WebView
-		sidebarProvider.setIssues(issues);
+		sidebarProvider.setIssues(issues, path.basename(doc.uri.fsPath));
 	};
 
 	context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((e) => analyzeDocument(e.document)));
+	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((e) => {
+		if (e) {
+			analyzeDocument(e.document)
+		}
+	}));
 
-	analyzeDocument(vscode.window.activeTextEditor!.document); // Analyze the currently active document at activation time
+	// Analyze the currently active document at activation time
+	if (vscode.window.activeTextEditor) {
+		analyzeDocument(vscode.window.activeTextEditor.document);
+	}
 }
 
 // This function is called when the extension is deactivated
