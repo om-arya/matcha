@@ -1,5 +1,5 @@
 {
-  "name": "Redesign-Assistant",
+  "name": "MATCHA-Redesign-Assistant",
   "displayName": "Matcha Redesign Assistant",
   "description": "",
   "version": "0.0.1",
@@ -54,5 +54,9 @@
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.25.1",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@vscode/vsce": "^3.5.0",
+    "node": "^20.18.1"
   }
 }
