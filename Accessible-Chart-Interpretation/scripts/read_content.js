@@ -5,8 +5,6 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 readContent();
 
-GEMINI_API_KEY = "AIzaSyCFJ_mWfpkTvYzriuqKLjlPDjvcrYqFyyk";
-
 async function readContent() {
   const images = document.body.querySelectorAll("img");
 
