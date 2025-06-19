@@ -13,6 +13,8 @@ jobs:
 
             - name: Checkout repository code
               uses: actions/checkout@v4
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
@@ -29,6 +31,14 @@ jobs:
             - name: Bump version
               run: npm version patch --no-git-tag-version # "major", "minor", or "patch" depending on the size of the update
               working-directory: Redesign-Assistant
+
+            - name: Commit version bump
+              run: |
+                git config --local user.email "action@github.com"
+                git config --local user.name "GitHub Action"
+                git add Redesign-Assistant/package.json
+                git commit -m "Bump version [skip ci]" || exit 0
+                git push
 
             - name: Package extension
               run: vsce package --allow-missing-repository
