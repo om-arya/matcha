@@ -9,13 +9,27 @@ jobs:
             - name: Checkout repository code
               uses: actions/checkout@v4
 
+            - name: Move into Redesign-Assistant directory
+              run: cd Redesign-Assistant
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: '20'
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Install vsce
+              run: npm install -g @vscode/vsce
+
             - name: Set up VSCE PAT
               run: echo "// Set up done"
               env:
                 VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
             - name: Package extension
-              run: cd Redesign-Assistant && vsce package --allow-missing-repository
+              run: vsce package --allow-missing-repository
 
             - name: Publish extension
               run: vsce publish --allow-missing-repository
