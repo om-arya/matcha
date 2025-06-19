@@ -1,5 +1,10 @@
 name: Publish VSCode Extension
-on: [push]
+
+on:
+  push:
+    paths:
+      - 'Redesign-Assistant/**'
+
 jobs:
     publish:
         runs-on: ubuntu-latest
@@ -21,10 +26,9 @@ jobs:
             - name: Install vsce
               run: npm install -g @vscode/vsce
 
-            - name: Set up VSCE PAT
-              run: echo "// Set up done"
-              env:
-                VSCE_PAT: ${{ secrets.VSCE_PAT }}
+            - name: Bump version
+              run: npm version patch --no-git-tag-version
+              working-directory: Redesign-Assistant
 
             - name: Package extension
               run: vsce package --allow-missing-repository
