@@ -1,0 +1,58 @@
+/* Center everything vertically and horizontally */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #f9f9f9;
+    font-family: sans-serif;
+}
+
+/* Add spacing between blocks */
+h1, input, img, .columns {
+    margin: 20px 0;
+}
+
+img {
+    max-width: 80%;
+    height: auto;
+    display: block;
+}
+
+/* Container to hold both columns side by side */
+.columns {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 900px;
+}
+
+/* Individual column styles */
+.column1, .column2 {
+    flex: 1;
+    max-width: 400px;
+    min-width: 250px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Dropdown and output styling */
+select {
+    width: 100%;
+    margin: 10px 0;
+    padding: 8px;
+}
+
+.output {
+    margin-top: 10px;
+    text-align: center;
+    color: #333;
+}

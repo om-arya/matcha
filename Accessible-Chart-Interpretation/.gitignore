@@ -6,3 +6,7 @@ HUGGINGFACE_HUB_TOKEN.*
 .venv
 
 .DS_Store
+
+*.sh
+
+__pycache__

@@ -98,13 +98,9 @@ async function summarizeChartFromDOM(imgElement) {
 
 function ttsRead(text) {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage({ action: "speak", text }, (response) => {
-      if (response && response.success) {
-        resolve();
-      } else {
-        console.error("TTS failed");
-        resolve();
-      }
-    });
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    currentUtterance.lang = "en-US";
+    currentUtterance.onend = resolve;
+    synth.speak(currentUtterance);
   });
 }
