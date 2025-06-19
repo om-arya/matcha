@@ -2,7 +2,7 @@
   "name": "MATCHA-Redesign-Assistant",
   "displayName": "Matcha Redesign Assistant",
   "description": "",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "team-matcha",
   "files": [
     "src/media/**",
