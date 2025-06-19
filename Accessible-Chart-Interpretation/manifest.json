@@ -22,17 +22,14 @@
       ]
     }
   ],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
   "permissions": [
     "activeTab",
     "scripting",
     "storage",
     "tts"
   ],
-  "host_permissions": [
-    "https://generativelanguage.googleapis.com/*"
-  ],
-  "web_accessible_resources": [{
-    "matches": ["<all_urls>"],
-    "resources": ["node:fs"]
-  }]
+  "host_permissions": ["<all_urls>"]
 }

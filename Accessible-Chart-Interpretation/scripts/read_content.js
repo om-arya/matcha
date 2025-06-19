@@ -11,9 +11,8 @@ async function readContent() {
   for (const image of images) {
     try {
       const text = await summarizeChartFromDOM(image);
-      console.log(text);
 
-      if (text !== "N/A") {
+      if (text !== "N/A" && text !== "ERR") {
         await ttsRead(text);
       }
     } catch (error) {
@@ -30,22 +29,17 @@ async function readContent() {
  */
 async function summarizeChartFromDOM(imgElement) {
   try {
-    // Resolve relative path to absolute URL
     const imageUrl = new URL(imgElement.src, window.location.href).href;
-
-    console.log(imageUrl);
-
-    // Fetch image as blob
-    const imageResponse = await fetch(imageUrl);
-    const imageBlob = await imageResponse.blob();
-
-    // Convert blob to base64
-    const base64ImageData = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]); // Strip off the data URI prefix
-      reader.onerror = reject;
-      reader.readAsDataURL(imageBlob);
+    const { success, base64, type } = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({
+        action: "fetchImageAsBlob",
+        url: imageUrl,
+      }, resolve);
     });
+
+    if (!success) {
+      throw new Error("Image fetch failed due to CORS.");
+    }
 
     // Construct prompt
     const prompt = "You are a screen reader and came across this image. " +
@@ -56,19 +50,27 @@ async function summarizeChartFromDOM(imgElement) {
       "Otherwise: " +
           "Simply output \"N/A\"";
 
+    const GEMINI_API_KEY = await new Promise((resolve, reject) => {
+      chrome.storage.sync.get("GEMINI_API_KEY", (result) => {
+        if (chrome.runtime.lastError || !result.GEMINI_API_KEY) {
+          reject("API key not found");
+        } else {
+          resolve(result.GEMINI_API_KEY);
+        }
+      });
+    });
+
     const requestBody = {
       contents: [
         {
           parts: [
             {
               inlineData: {
-                mimeType: imageBlob.type,
-                data: base64ImageData,
+                mimeType: type,
+                data: base64,
               },
             },
-            {
-              text: prompt,
-            },
+            { text: prompt },
           ],
         },
       ],
@@ -87,18 +89,22 @@ async function summarizeChartFromDOM(imgElement) {
     );
 
     const data = await response.json();
-    return data.candidates[0].content.parts[0].text || "N/A";
+    return data.candidates[0]?.content.parts[0]?.text || "ERR";
   } catch (err) {
     console.error("Summarization failed:", err);
-    return "N/A";
+    return "ERR";
   }
 }
 
 function ttsRead(text) {
   return new Promise((resolve) => {
-    currentUtterance = new SpeechSynthesisUtterance(text);
-    currentUtterance.lang = "en-US";
-    currentUtterance.onend = resolve;
-    synth.speak(currentUtterance);
+    chrome.runtime.sendMessage({ action: "speak", text }, (response) => {
+      if (response && response.success) {
+        resolve();
+      } else {
+        console.error("TTS failed");
+        resolve();
+      }
+    });
   });
 }
