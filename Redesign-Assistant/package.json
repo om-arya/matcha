@@ -16,10 +16,6 @@
     "onLanguage:python"
   ],
   "main": "./out/extension.js",
-  "files": [
-    "out",
-    "src/media"
-  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [

@@ -15,7 +15,7 @@ jobs:
                 VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
             - name: Package extension
-              run: vsce package --allow-missing-repository
+              run: cd Redesign-Assistant && vsce package --allow-missing-repository
 
             - name: Publish extension
               run: vsce publish --allow-missing-repository
