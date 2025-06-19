@@ -2,8 +2,9 @@
   "name": "MATCHA-Redesign-Assistant",
   "displayName": "Matcha Redesign Assistant",
   "description": "",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "team-matcha",
+  "icon": "src/media/Matcha_Mochi.png",
   "files": [
     "src/media/**",
     "out"
