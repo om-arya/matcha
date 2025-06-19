@@ -8,11 +8,6 @@ import SidebarProvider from './SidebarProvider';
 // 2. Run 'npm run compile' in terminal
 // 3. Press F5 in "extension.ts"
 
-// To package and publish the VSCode extension:
-// 1. 'cd' into the directory containing "package.json"
-// 2. Run 'vsce package --allow-missing-repository' in terminal
-// 3. Run 'vsce publish' in terminal
-
 // This function is called when the extension is activated, i.e.,
 // the very first time the command is executed
 function activate(context: vscode.ExtensionContext) {

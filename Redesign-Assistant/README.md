@@ -10,7 +10,7 @@ The MATCHA Redesign Assistant indicates accessibility issues in Matplotlib code.
 
 Release notes will be added as we update this extension.
 
-### 1.0.0
+### 0.0.1
 
 Initial release.
 

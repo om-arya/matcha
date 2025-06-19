@@ -1,0 +1,25 @@
+name: Publish VSCode Extension
+on: [push]
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+
+            - name: Checkout repository code
+              run: actions/checkout@v4
+
+            - name: Set up VSCE PAT
+              run: echo "// Set up done"
+              env:
+                VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+            - name: Package extension
+              run: vsce package --allow-missing-repository
+
+            - name: Publish extension
+              run: vsce publish --allow-missing-repository
+              env:
+                VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+            - run: echo "This job's status is ${{ job.status }}."

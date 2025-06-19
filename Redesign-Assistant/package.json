@@ -3,6 +3,7 @@
   "displayName": "Matcha Redesign Assistant",
   "description": "",
   "version": "0.0.1",
+  "publisher": "team-matcha",
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -15,6 +16,10 @@
     "onLanguage:python"
   ],
   "main": "./out/extension.js",
+  "files": [
+    "out",
+    "src/media"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
