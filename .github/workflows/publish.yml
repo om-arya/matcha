@@ -27,7 +27,7 @@ jobs:
               run: npm install -g @vscode/vsce
 
             - name: Bump version
-              run: npm version patch --no-git-tag-version
+              run: npm version patch --no-git-tag-version # "major", "minor", or "patch" depending on the size of the update
               working-directory: Redesign-Assistant
 
             - name: Package extension

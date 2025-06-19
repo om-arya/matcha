@@ -4,6 +4,10 @@
   "description": "",
   "version": "0.0.2",
   "publisher": "team-matcha",
+  "files": [
+    "src/media/**",
+    "out"
+  ],
   "engines": {
     "vscode": "^1.100.0"
   },
