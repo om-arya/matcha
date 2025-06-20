@@ -12,8 +12,22 @@
   "engines": {
     "vscode": "^1.100.0"
   },
+  "keywords": [
+    "python",
+    "matplotlib",
+    "data visualization",
+    "accessibility",
+    "plotting",
+    "linting",
+    "visualization",
+    "readability",
+    "charts",
+    "graph quality"
+  ],
   "categories": [
-    "Other"
+    "Linters",
+    "Visualization",
+    "Programming Languages"
   ],
   "activationEvents": [
     "onView:redesignAssistantSidebar",
