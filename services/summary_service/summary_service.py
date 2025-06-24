@@ -29,7 +29,7 @@ return a text summary of the key features.
 Otherwise, return "N/A".
 """
 @app.get("/get_summary")
-def summarize_chart(image_path: str):
+def summarize_chart(image_path: str, prompt: str):
     try:
         # Fetch the image over HTTP
         r = requests.get(image_path, timeout=10)
@@ -40,16 +40,6 @@ def summarize_chart(image_path: str):
         mime_type = r.headers.get("Content-Type") or mimetypes.guess_type(image_path)[0] or "application/octet-stream"
 
         b64_data = base64.b64encode(image_data).decode()
-
-        # Construct the prompt for the Gemini API
-        prompt = (
-            "You are a screen reader and came across this image. "
-            "If it is a data visualization (e.g. graph, chart, etc.): "
-            "Give 1-2 sentences about the main features of the visualization including the title (if applicable), "
-            "maximum(s), minimum(s), and general trend(s), as well as any key insight(s). "
-            "Start it with \"A [visualization type] shows…\" or \"A [visualization type] titled [title] shows…\" "
-            "Otherwise: Simply output \"N/A\""
-        )
 
         # Build the request body to send to the Gemini API
         request_body = {

@@ -6,7 +6,7 @@ name: Publish VSCode Extension
 on:
   push:
     paths:
-      - 'Redesign-Assistant/package.json'
+      - 'redesign-assistant/package.json'
 
 jobs:
     publish:
@@ -24,19 +24,19 @@ jobs:
 
             - name: Install dependencies
               run: npm install
-              working-directory: Redesign-Assistant
+              working-directory: redesign-assistant
 
             - name: Install vsce
               run: npm install -g @vscode/vsce
 
             - name: Package extension
               run: vsce package --allow-missing-repository
-              working-directory: Redesign-Assistant
+              working-directory: redesign-assistant
 
             - name: Publish extension
               run: vsce publish --allow-missing-repository
               env:
                 VSCE_PAT: ${{ secrets.VSCE_PAT }}
-              working-directory: Redesign-Assistant
+              working-directory: redesign-assistant
 
             - run: echo "This job's status is ${{ job.status }}."

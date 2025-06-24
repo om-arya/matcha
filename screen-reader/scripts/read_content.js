@@ -30,8 +30,18 @@ async function readContent() {
 async function summarizeChartFromDOM(imgElement) {
     const imageUrl = new URL(imgElement.src, window.location.href).href;
 
+    const prompt = (
+        "You are a screen reader and came across this image. " +
+        "If it is a data visualization (e.g. graph, chart, etc.): " +
+        "Give 1-2 sentences about the main features of the visualization including the title (if applicable), " +
+        "maximum(s), minimum(s), and general trend(s), as well as any key insight(s). " +
+        "Start it with \"A [visualization type] shows…\" or \"A [visualization type] titled [title] shows…\" " +
+        "Otherwise: Simply output \"N/A\""
+    );
+
     const params = new URLSearchParams({
-      image_path: imageUrl
+      image_path: imageUrl,
+      prompt
     });
 
     const url = `http://127.0.0.1:8000/get_summary?${params.toString()}`;
