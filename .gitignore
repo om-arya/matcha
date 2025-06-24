@@ -1,14 +1,17 @@
 node_modules
 
-GEMINI_API_KEY.*
-HUGGINGFACE_HUB_TOKEN.*
+__pycache__
 
 .venv
 
-.DS_Store
+out
 
 *.sh
+*.vsix
 
-__pycache__
+.DS_Store
 
+GEMINI_API_KEY.*
+HUGGINGFACE_HUB_TOKEN.*
 GITHUB_TOKEN.*
+VSCE_PAT.*
