@@ -5,11 +5,11 @@ import torch
 import requests, mimetypes, base64
 import json
 
-from GEMINI_API_KEY import GEMINI_API_KEY
-
-origins = ['*']
+from services.summary_service.GEMINI_API_KEY import GEMINI_API_KEY
 
 app = FastAPI()
+
+origins = ['*']
 
 app.add_middleware(
     CORSMiddleware,
@@ -94,6 +94,9 @@ def summarize_chart(image_path: str):
 
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
+"""
+Compute the semantic similarity between 2 sentences.
+"""
 @app.get("/compute_semantic_similarity")
 def compute_semantic_similarity(sentence1: str, sentence2: str):
     # Encode sentences

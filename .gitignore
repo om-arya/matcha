@@ -10,3 +10,5 @@ HUGGINGFACE_HUB_TOKEN.*
 *.sh
 
 __pycache__
+
+GITHUB_TOKEN.*
