@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sentence_transformers import SentenceTransformer
+import torch
 import requests, mimetypes, base64
 import json
+
 from GEMINI_API_KEY import GEMINI_API_KEY
 
 origins = ['*']
@@ -26,7 +29,7 @@ return a text summary of the key features.
 Otherwise, return "N/A".
 """
 @app.get("/get_summary")
-def summarize_chart(image_path):
+def summarize_chart(image_path: str):
     try:
         # Fetch the image over HTTP
         r = requests.get(image_path, timeout=10)
@@ -88,3 +91,17 @@ def summarize_chart(image_path):
     except Exception as err:
         print("Summarization failed:", err)
         return "ERR"
+
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
+@app.get("/compute_semantic_similarity")
+def compute_semantic_similarity(sentence1: str, sentence2: str):
+    # Encode sentences
+    embeddings1 = model.encode([sentence1], convert_to_tensor=True)
+    embeddings2 = model.encode([sentence2], convert_to_tensor=True)
+
+    # Compute similarity score
+    cosine_similarities = torch.nn.functional.cosine_similarity(embeddings1, embeddings2)
+    similarity_score = cosine_similarities.item()
+
+    return similarity_score
