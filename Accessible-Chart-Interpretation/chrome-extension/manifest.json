@@ -28,7 +28,6 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "storage",
     "tts"
   ],
   "host_permissions": ["<all_urls>"]

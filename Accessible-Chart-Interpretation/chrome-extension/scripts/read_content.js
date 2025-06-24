@@ -28,34 +28,34 @@ async function readContent() {
  * returns a summary. Otherwise, returns "N/A".
  */
 async function summarizeChartFromDOM(imgElement) {
-  try {
     const imageUrl = new URL(imgElement.src, window.location.href).href;
 
     const params = new URLSearchParams({
-      imageUrl
+      image_path: imageUrl
     });
 
     const url = `http://127.0.0.1:8000/get_summary?${params.toString()}`;
 
-    const summary = await fetch(url, {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    return summary;
-  } catch (err) {
-    console.error("Retrieving summarization failed:", err);
-    return "ERR";
-  }
+    return await fetch(url)
+      .then (async (res) => {
+        const summary = JSON.parse(await res.text());
+        return summary;
+      })
+      .catch((err) => {
+        console.error("Retrieving summarization failed:", err);
+        return "ERR";
+      })
 }
 
 function ttsRead(text) {
   return new Promise((resolve) => {
-    currentUtterance = new SpeechSynthesisUtterance(text);
-    currentUtterance.lang = "en-US";
-    currentUtterance.onend = resolve;
-    synth.speak(currentUtterance);
+    chrome.runtime.sendMessage({ action: "speak", text }, (response) => {
+      if (response && response.success) {
+        resolve();
+      } else {
+        console.error("TTS failed");
+        resolve();
+      }
+    });
   });
 }

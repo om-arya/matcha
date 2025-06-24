@@ -1,9 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import base64
-import mimetypes
+import requests, mimetypes, base64
 import json
-import requests
 from GEMINI_API_KEY import GEMINI_API_KEY
 
 origins = ['*']
@@ -30,17 +28,15 @@ Otherwise, return "N/A".
 @app.get("/get_summary")
 def summarize_chart(image_path):
     try:
-        # Open the image file in binary mode
-        with open(image_path, "rb") as f:
-            image_data = f.read()
+        # Fetch the image over HTTP
+        r = requests.get(image_path, timeout=10)
+        r.raise_for_status()
+        image_data = r.content # bytes
 
-        # Determine the MIME type (e.g., "image/png", "image/jpeg") from the file extension.
-        mime_type, _ = mimetypes.guess_type(image_path)
-        if not mime_type:
-            mime_type = "application/octet-stream"
+        # Guess MIME type from the URL if the server didn’t send one
+        mime_type = r.headers.get("Content-Type") or mimetypes.guess_type(image_path)[0] or "application/octet-stream"
 
-        # Encode the binary image data in base64
-        b64_data = base64.b64encode(image_data).decode("utf-8")
+        b64_data = base64.b64encode(image_data).decode()
 
         # Construct the prompt for the Gemini API
         prompt = (
@@ -87,6 +83,7 @@ def summarize_chart(image_path):
                 .get("parts", [{}])[0]
                 .get("text", "ERR")
         )
+
         return summary
     except Exception as err:
         print("Summarization failed:", err)
