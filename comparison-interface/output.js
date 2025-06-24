@@ -1,5 +1,3 @@
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
 document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("graph-input");
   const graphImage = document.getElementById("graph-image");
@@ -43,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         const responseText = await summarizeChartFromPrompt(uploadedImageURL, basePrompt[mode]);
+        console.log(responseText);
         outputElements[index].textContent = responseText;
       } catch (err) {
         outputElements[index].textContent = "Failed to summarize.";

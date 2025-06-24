@@ -5,7 +5,7 @@ import torch
 import requests, mimetypes, base64
 import json
 
-from services.summary_service.GEMINI_API_KEY import GEMINI_API_KEY
+from GEMINI_API_KEY import GEMINI_API_KEY
 
 app = FastAPI()
 
@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],    # Allow all headers in the request
 )
 
-# Run on a local server via 'uvicorn summary_api:app --reload'
+# Run on a local server via 'uvicorn summary_service:app --reload'
 # Then, go to the URL Uvicorn indicates its running on; mine is http://127.0.0.1:8000
 
 """
