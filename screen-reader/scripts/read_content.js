@@ -10,10 +10,10 @@ async function readContent() {
 
   for (const image of images) {
     try {
-      const summary = await summarizeChartFromDOM(image);
+      const text = await summarizeChartFromDOM(image);
 
-      if (summary !== "N/A" && summary !== "ERR") {
-        await ttsRead(summary);
+      if (text !== "N/A" && text !== "ERR") {
+        await ttsRead(text);
       }
     } catch (error) {
       console.error("Failed to process element:", error);
@@ -28,33 +28,71 @@ async function readContent() {
  * returns a summary. Otherwise, returns "N/A".
  */
 async function summarizeChartFromDOM(imgElement) {
+  try {
     const imageUrl = new URL(imgElement.src, window.location.href).href;
-
-    const prompt = (
-        "You are a screen reader and came across this image. " +
-        "If it is a data visualization (e.g. graph, chart, etc.): " +
-        "Give 1-2 sentences about the main features of the visualization including the title (if applicable), " +
-        "maximum(s), minimum(s), and general trend(s), as well as any key insight(s). " +
-        "Start it with \"A [visualization type] shows…\" or \"A [visualization type] titled [title] shows…\" " +
-        "Otherwise: Simply output \"N/A\""
-    );
-
-    const params = new URLSearchParams({
-      image_path: imageUrl,
-      prompt
+    const { success, base64, type } = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({
+        action: "fetchImageAsBlob",
+        url: imageUrl,
+      }, resolve);
     });
 
-    const url = `http://127.0.0.1:8000/get_summary?${params.toString()}`;
+    if (!success) {
+      throw new Error("Image fetch failed due to CORS.");
+    }
 
-    return await fetch(url)
-      .then (async (res) => {
-        const summary = JSON.parse(await res.text());
-        return summary;
+    // Construct prompt
+    const prompt = "You are a screen reader and came across this image. " +
+      "If it is a data visualization (e.g. graph, chart, etc.): " +
+          "Give 1-2 sentences about the main features of the visualization including the title (if applicable), " +
+          "maximum(s), minimum(s), and general trend(s), as well as any key insight(s). " +
+          "Start it with \"A [visualization type] shows…\" or \"A [visualization type] titled [title] shows…\" " +
+      "Otherwise: " +
+          "Simply output \"N/A\"";
+
+    const GEMINI_API_KEY = await fetch(`http://127.0.0.1:8000/get_gemini_api_key`)
+      .then(async (res) => {
+        return JSON.parse(await res.text());
       })
       .catch((err) => {
-        console.error("Retrieving summarization failed:", err);
+        console.error("Retrieving Gemini API key failed:", err);
         return "ERR";
-      })
+      });
+
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              inlineData: {
+                mimeType: type,
+                data: base64,
+              },
+            },
+            { text: prompt },
+          ],
+        },
+      ],
+    };
+
+    // Send to Gemini
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
+
+    const data = await response.json();
+    return data.candidates[0]?.content.parts[0]?.text || "ERR";
+  } catch (err) {
+    console.error("Summarization failed:", err);
+    return "ERR";
+  }
 }
 
 function ttsRead(text) {
