@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { rules } from "./accessibilityRules";
+import { rules } from "./rules";
 
 class SidebarProvider implements vscode.WebviewViewProvider {
 	private _view?: vscode.WebviewView;
