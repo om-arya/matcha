@@ -1,3 +1,12 @@
+const GEMINI_API_KEY = await fetch(`http://127.0.0.1:8000/get_gemini_api_key`)
+  .then(async (res) => {
+    return JSON.parse(await res.text());
+  })
+  .catch((err) => {
+    console.error("Retrieving Gemini API key failed:", err);
+    return "ERR";
+  });
+
 document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("graph-input");
   const graphImage = document.getElementById("graph-image");
@@ -41,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         const responseText = await summarizeChartFromPrompt(uploadedImageURL, basePrompt[mode]);
-        console.log(responseText);
         outputElements[index].textContent = responseText;
       } catch (err) {
         outputElements[index].textContent = "Failed to summarize.";
@@ -55,20 +63,50 @@ document.addEventListener("DOMContentLoaded", () => {
  * Adapted summarization function that accepts a custom prompt.
  */
 async function summarizeChartFromPrompt(imageUrl, customPrompt) {
-  const params = new URLSearchParams({
-    image_path: imageUrl,
-    prompt: customPrompt
-  });
+  try {
+    // Fetch image as blob
+    const imageResponse = await fetch(imageUrl);
+    const imageBlob = await imageResponse.blob();
 
-  const url = `http://127.0.0.1:8000/get_summary?${params.toString()}`;
+    // Convert blob to base64
+    const base64ImageData = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]); // Strip off the data URI prefix
+      reader.onerror = reject;
+      reader.readAsDataURL(imageBlob);
+    });
 
-  return await fetch(url)
-    .then (async (res) => {
-      const summary = JSON.parse(await res.text());
-      return summary;
-    })
-    .catch((err) => {
-      console.error("Retrieving summarization failed:", err);
-      return "ERR";
-    })
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              inlineData: {
+                mimeType: imageBlob.type,
+                data: base64ImageData,
+              },
+            },
+            { text: customPrompt },
+          ],
+        },
+      ],
+    };
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
+
+    const data = await response.json();
+    return data.candidates[0]?.content.parts[0]?.text || "ERR";
+  } catch (err) {
+    console.error("Summarization failed:", err);
+    return "ERR";
+  }
 }
