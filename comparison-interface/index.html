@@ -1,49 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        Match Screen Reader Comparison Interface
-    </title>
-    <link rel="stylesheet" href="./styles.css">
-</head>
-
-<body>
-    <h1>
-        Upload a graph
-    </h1>
-    <input
-        type="file"
-        id="graph-input"
-        name="graph-input"
-        accept=".png, .jpg, .jpeg"
-    >
-    <img src="" id="graph-image" />
-
-    <div class="columns">
-        <div class="column1">
-            <label for="prompts">Choose a prompt:</label>
-
-            <select name="prompts" id="prompts">
-                <option value="" selected="selected" disabled>Select...</option>
-                <option value="casual">Casual</option>
-                <option value="detailed">Detailed</option>
-            </select>
-
-            <p id="column1-output" class="output"></p>
-        </div>
-
-        <div class="column2">
-            <label for="prompts">Choose a prompt:</label>
-
-            <select name="prompts" id="prompts">
-                <option value="" selected="selected" disabled>Select...</option>
-                <option value="casual">Casual</option>
-                <option value="detailed">Detailed</option>
-            </select>
-
-            <p id="column2-output" class="output"></p>
-        </div>
-    </div>
-</body>
-<script src="./output.js" type="module"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ACI Comparison Interface</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

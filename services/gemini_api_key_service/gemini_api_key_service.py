@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],    # Allow all headers in the request
 )
 
-# Run on a local server via 'uvicorn summary_service:app --reload'
+# Run on a local server via 'uvicorn gemini_api_key_service:app --reload'
 # Then, go to the URL Uvicorn indicates its running on; mine is http://127.0.0.1:8000
 
 """

@@ -11,7 +11,7 @@ COPY . .
 
 EXPOSE 80
 
-CMD ["uvicorn", "summary_service:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "gemini_api_key_service:app", "--host", "0.0.0.0", "--port", "80"]
 
 # How to deploy on AWS ECR:
 
@@ -23,8 +23,8 @@ CMD ["uvicorn", "summary_service:app", "--host", "0.0.0.0", "--port", "80"]
 # docker login --username AWS --password-stdin 891377042509.dkr.ecr.us-east-1.amazonaws.com
 
 # 3.
-# docker build -t summary-service .
-# docker tag summary-service:latest 891377042509.dkr.ecr.us-east-1.amazonaws.com/summary-service:latest
+# docker build -t gemini_api_key_service .
+# docker tag gemini_api_key_service:latest 891377042509.dkr.ecr.us-east-1.amazonaws.com/gemini_api_key_service:latest
 
 # 4.
-# docker push 891377042509.dkr.ecr.us-east-1.amazonaws.com/summary-service:latest
+# docker push 891377042509.dkr.ecr.us-east-1.amazonaws.com/gemini_api_key_service:latest
