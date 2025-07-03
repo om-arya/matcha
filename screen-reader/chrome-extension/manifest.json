@@ -26,8 +26,6 @@
     "service_worker": "scripts/background.js"
   },
   "permissions": [
-    "activeTab",
-    "scripting",
     "tts"
   ],
   "host_permissions": ["<all_urls>"]

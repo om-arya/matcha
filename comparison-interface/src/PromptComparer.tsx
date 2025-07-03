@@ -10,7 +10,7 @@ const PromptComparer = () => {
 
   const basePrompt = {
     casual:
-      'You are a screen reader. Summarize this graph in a casual tone: highlight the main trends or insights in 1-2 sentences.',
+      'You are a screen reader and came across this image. Output a summary of this graph that has a casual tone by highlighting the main trends or insights in 1-2 sentences.',
     detailed:
       'You are a screen reader and came across this image. If it is a data visualization (e.g. graph, chart, etc.): ' +
       'Give 1-2 sentences about the main features of the visualization including the title (if applicable), ' +

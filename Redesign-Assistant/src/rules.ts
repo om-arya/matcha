@@ -64,11 +64,6 @@ rules.set("3D_EFFECTS", {
     description: "Adding depth to charts (like in 3D pie charts) can skew proportions and make certain slices look larger just because of how they’re angled."
 });
 
-rules.set("AREA_AS_QUANTITY", {
-    title: "Do not use size to represent a value.",
-    description: "Using bubbles or shapes where size represents value often misleads because people aren’t great at judging area. This makes big values seem even bigger (or smaller ones disappear)."
-});
-
 rules.set("TAMPERED_ASPECT_RATIO", {
     title: "Do not stretch or squish the aspect ratio.",
     description: "Changing the shape of the graph (tall vs. wide) alters the slope and exaggerates trends that aren't really that steep."
