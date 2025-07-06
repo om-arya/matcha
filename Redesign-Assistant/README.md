@@ -14,4 +14,8 @@ Release notes will be added as we update this extension.
 
 Initial release.
 
+### 0.1.0
+
+Added detection for "misleading" flaws - flaws that distort the message of a data visualization, such as tampered axes or aspect ratios.
+
 **Enjoy!**
