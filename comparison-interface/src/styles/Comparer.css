@@ -4,7 +4,7 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: 4rem 2rem 2rem 2rem;
     background-color: #f9f9f9;
     color: black;
     font-family: sans-serif;
@@ -12,7 +12,7 @@ body {
 
 /* Add spacing between blocks */
 h1, input, img, .columns {
-    margin: 20px 0;
+    margin: 2rem 0;
 }
 
 img {

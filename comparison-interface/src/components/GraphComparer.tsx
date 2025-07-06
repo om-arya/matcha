@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react';
-import './GraphComparer.css';
+import '../styles/Comparer.css';
 
-/**
- * GraphComparer
- * Allows users to upload two graphs and generates **two separate summaries**—one for each graph—
- * using the **same prompt**. Class names/IDs remain unchanged so existing CSS continues to work.
- */
 const GraphComparer = () => {
   const [imageUrls, setImageUrls] = useState<(string | null)[]>([null, null]);
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [outputs, setOutputs] = useState(['', '']);
+  const [similarity, setSimilarity] = useState(0);
 
   // A single prompt that will be applied to both images
   const basePrompt =
@@ -19,9 +15,7 @@ const GraphComparer = () => {
     'Start it with "A [visualization type] shows…" or "A [visualization type] titled [title] shows…" ' +
     'Otherwise: Simply output "N/A"';
 
-  /* ------------------------------------------------------------------ */
-  /*  Fetch Gemini API key once on mount                                */
-  /* ------------------------------------------------------------------ */
+  // Fetch Gemini API key once on mount
   useEffect(() => {
     const fetchApiKey = async () => {
       try {
@@ -37,9 +31,7 @@ const GraphComparer = () => {
     fetchApiKey();
   }, []);
 
-  /* ------------------------------------------------------------------ */
-  /*  Handle file uploads                                               */
-  /* ------------------------------------------------------------------ */
+  // Handle when the user uploads a file
   const handleFileChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -53,9 +45,7 @@ const GraphComparer = () => {
     reader.readAsDataURL(file);
   };
 
-  /* ------------------------------------------------------------------ */
-  /*  Button click – generate summaries for each image separately       */
-  /* ------------------------------------------------------------------ */
+  // Button click – generate summaries for each image separately
   const handleGenerateSummaries = async () => {
     const newOutputs = [...outputs];
 
@@ -75,12 +65,30 @@ const GraphComparer = () => {
       })
     );
 
+    const sentence1 = newOutputs[0];
+    const sentence2 = newOutputs[1];
+
+    const params = new URLSearchParams({ sentence1, sentence2 });
+    const BASE_URL = "http://127.0.0.1:8002/compute_semantic_similarity";
+
+    const response = await fetch(`${BASE_URL}?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const similarityScore = await response.json();
+    setSimilarity(similarityScore);
+
     setOutputs(newOutputs);
   };
 
-  /* ------------------------------------------------------------------ */
-  /*  Summarize a single chart                                          */
-  /* ------------------------------------------------------------------ */
+  // Summarize a single chart
   const summarizeChart = async (imageUrl: string, customPrompt: string) => {
     try {
       // Fetch the image and convert to base64 (strip the prefix)
@@ -126,14 +134,10 @@ const GraphComparer = () => {
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /*  JSX                                                                */
-  /* ------------------------------------------------------------------ */
   return (
     <div>
       <h1>Compare Two Graphs</h1>
 
-      {/* Upload Inputs + Previews */}
       <div className="columns">
         {[0, 1].map((i) => (
           <div className={`column${i + 1}`} key={i}>
@@ -146,7 +150,7 @@ const GraphComparer = () => {
               onChange={(e) => handleFileChange(i, e)}
             />
             <img
-              src={imageUrls[i] || ''}
+              src={imageUrls[i] || undefined}
               id={`graph-image-${i}`}
               alt={`Graph ${i + 1}`}
             />
@@ -156,6 +160,8 @@ const GraphComparer = () => {
           </div>
         ))}
       </div>
+
+      <p>Semantic similarity score: {similarity === 0 ? "N/A" : similarity}</p>
 
       <button onClick={handleGenerateSummaries}>Generate Summaries</button>
     </div>

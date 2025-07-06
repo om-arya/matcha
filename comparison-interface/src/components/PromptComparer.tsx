@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import './PromptComparer.css';
+import '../styles/Comparer.css';
 
 const PromptComparer = () => {
   const fileInputRef = useRef(null);
@@ -125,7 +125,7 @@ const PromptComparer = () => {
         ref={fileInputRef}
         onChange={handleFileChange}
       />
-      <img src={imageUrl || ''} id="graph-image" ref={graphImageRef} alt="Uploaded graph" />
+      <img src={imageUrl || undefined} id="graph-image" ref={graphImageRef} alt="Uploaded graph" />
 
       <div className="columns">
         {[0, 1].map((col) => (

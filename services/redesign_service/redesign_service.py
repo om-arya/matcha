@@ -24,3 +24,7 @@ def find_misleading_flaws(mpl_file: str):
 @app.get("/insert_flaws")
 def insert_flaws(mpl_file: str, flaws: list[str]):
     pass
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("semantic_similarity_service:app", host="127.0.0.1", port=8001, reload=True)

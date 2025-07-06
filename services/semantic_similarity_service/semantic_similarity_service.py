@@ -15,8 +15,7 @@ app.add_middleware(
     allow_headers=["*"],    # Allow all headers in the request
 )
 
-# Run on a local server via 'uvicorn semantic_similarity_service:app --reload'
-# Then, go to the URL Uvicorn indicates its running on; mine is http://127.0.0.1:8000
+# Run on a local server via 'python semantic_similarity_service.py'
 
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
@@ -31,3 +30,7 @@ def compute_semantic_similarity(sentence1: str, sentence2: str):
     similarity_score = cosine_similarities.item()
 
     return similarity_score
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("semantic_similarity_service:app", host="127.0.0.1", port=8002, reload=True)

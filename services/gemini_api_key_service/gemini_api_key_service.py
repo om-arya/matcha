@@ -15,8 +15,7 @@ app.add_middleware(
     allow_headers=["*"],    # Allow all headers in the request
 )
 
-# Run on a local server via 'uvicorn gemini_api_key_service:app --reload'
-# Then, go to the URL Uvicorn indicates its running on; mine is http://127.0.0.1:8000
+# Run on a local server via 'python gemini_api_key_service.py'
 
 """
 Returns a Gemini API key.
@@ -24,3 +23,7 @@ Returns a Gemini API key.
 @app.get("/get_gemini_api_key")
 def get_gemini_api_key():
     return GEMINI_API_KEY
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("gemini_api_key_service:app", host="127.0.0.1", port=8000, reload=True)

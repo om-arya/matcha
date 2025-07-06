@@ -1,0 +1,74 @@
+/* ===== Base Navbar Styling ===== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  backdrop-filter: blur(10px);
+  background: rgba(31, 41, 55, 0.85); /* semi-transparent dark */
+  color: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Apply margin to the page content after the navbar */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.main-content {
+  padding-top: 64px; /* equal to navbar height */
+}
+
+/* ===== Nav Links ===== */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #f9fafb;
+  font-weight: 500;
+  font-size: 1rem;
+  position: relative;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+}
+
+/* Hover underline */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: #38bdf8;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Active link underline */
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* Responsive touch: stack links on small screens if needed */
+@media (max-width: 640px) {
+  .nav-links {
+    gap: 1rem;
+    font-size: 0.9rem;
+  }
+}
