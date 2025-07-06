@@ -107,10 +107,10 @@ const PromptComparer = () => {
       );
 
       const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || 'ERR';
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Summarization failed. Is the server running?';
     } catch (err) {
-      console.error('Summarization failed:', err);
-      return 'ERR';
+      console.error(`Summarization failed: ${err}`);
+      return `Summarization failed: ${err}`;
     }
   };
 
