@@ -13,8 +13,12 @@ app.add_middleware(
     allow_headers=["*"],    # Allow all headers in the request
 )
 
-@app.get("/find_flaws")
-def find_flaws(mpl_file: str):
+@app.get("/find_accessibility_flaws")
+def find_accessibility_flaws(mpl_file: str):
+    pass
+
+@app.get("/find_misleading_flaws")
+def find_misleading_flaws(mpl_file: str):
     pass
 
 @app.get("/insert_flaws")

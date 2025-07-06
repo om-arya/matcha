@@ -35,37 +35,6 @@ function activate(context: vscode.ExtensionContext) {
 		const scanText = text.substring(mplIndex);
 		const issues: string[] = [];
 
-		const res = await fetch('http://127.0.0.1:8000/get_gemini_api_key');
-		const GEMINI_API_KEY = await res.json();
-
-		const prompt = `Graphical Integrity: Graphs should follow conventional design norms that align with how people usually interpret visuals. When a graph strays from these norms, like flipping the y-axis so it starts at the top instead of the bottom, it messes with people’s expectations and can lead to false conclusions. These kinds of visual tricks break graphical integrity and distort the true message. Misleading Elements Inverted Axes Y-axes that go from top to bottom (instead of bottom to top) can make increases look like decreases, flipping the meaning of the data. Truncated Axes Cutting off the bottom of a y-axis makes small differences between bars or lines look way bigger than they are. 3D Effects Adding depth to charts (like in 3D pie charts) can skew proportions and make certain slices look larger just because of how they’re angled. Area as Quantity Using bubbles or shapes where size represents value often misleads because people aren’t great at judging area. This makes big values seem even bigger (or smaller ones disappear). Stretched or Squished Aspect Ratios Changing the shape of the graph (tall vs. wide) alters the slope and exaggerates trends that aren't really that steep. Dual Axes Graphs that use two different y-axes with different scales can create fake correlations between lines that don’t actually relate. Logarithmic Scales (Without Context) Log scales can make exponential growth look flat. Without clear labeling, people might think the trend is mild when it's actually exploding. Contextual Bias Outside of the visuals, context clues like annotations, titles, or extra text can mislead too. If a graph has a dramatic or slanted title (“COVID cases exploded after vaccines!”) or annotations that suggest a cause-effect relationship that isn’t backed by the data, people might interpret it wrong even if the chart itself is fine. Misleading Contextual Elements (Narrative Biases) Mentioned in (Exploring Educational Approaches to Addressing Misleading Visualizations) the top-down processing is how viewers use prior knowledge or external cues: Biased or Slanted Titles Steer viewers’ interpretation before they even analyze the data. Misleading Annotations Emphasize or fabricate causal relationships (e.g., law passed → drop in deaths). Deceptive Legends or Labels Omit key categories, reverse meanings, or use vague groupings. Framing in the Accompanying Text Selective wording outside the graph (e.g., on social media) adds persuasive bias. Assess this file based on the given guidelines: ${scanText}`;
-
-		let response;
-		try {
-			const requestBody = {
-				contents: [
-					{
-						parts: [
-							{ text: prompt },
-						],
-					},
-				],
-			};
-
-			const res = await fetch(
-				`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-				{
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(requestBody),
-				}
-			);
-
-			response = await res.json();
-		} catch (err) {
-			console.error('Summarization failed:', err);
-		}
-
 		// Descriptive Labels
 		(["title", "xlabel", "ylabel"] as const).forEach(fn => {
 			const m = scanText.match(new RegExp(`${fn}\\s*\\(\\s*['"]([^'"]*)['"]`));
@@ -122,8 +91,6 @@ function activate(context: vscode.ExtensionContext) {
 		if (scanText.includes("FuncAnimation") || scanText.includes("animation.")) {
 			issues.push("ANIMATIONS");
 		}
-
-		issues.push(response);
 
 		// Send issues to the sidebar WebView
 		sidebarProvider.setIssues(issues, path.basename(doc.uri.fsPath));
