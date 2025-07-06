@@ -75,7 +75,7 @@ rules.set("DUAL_Y_AXES", {
 });
 
 rules.set("BIASED_TITLE", {
-    title: "Do not use a biased title.",
+    title: "Do not use a biased or slanted title.",
     description: "This steers viewers’ interpretation before they even analyze the data."
 });
 

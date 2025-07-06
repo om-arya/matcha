@@ -92,6 +92,52 @@ function activate(context: vscode.ExtensionContext) {
 			issues.push("ANIMATIONS");
 		}
 
+		// Inverted Y‑axis
+		if (/\.\s*invert_yaxis\s*\(/.test(scanText)) {
+			issues.push("INVERTED_Y_AXIS");
+		}
+
+		// Truncated Y‑axis (y‑axis not starting at 0)
+		const ylimRe = /(?:set_)?ylim\s*\(\s*([\-]?\d+(?:\.\d+)?)\s*,\s*([\-]?\d+(?:\.\d+)?)/g;
+		let mY;
+		while ((mY = ylimRe.exec(scanText)) !== null) {
+			const lower = parseFloat(mY[1]);
+			if (!isNaN(lower) && Math.abs(lower) > 1e-6) {
+				issues.push("TRUNCATED_Y_AXIS");
+				break;
+			}
+		}
+
+		// 3‑D effects
+		if (/['"]\s*3d\s*['"]/.test(scanText) // projection='3d'
+		    || /Axes3D/.test(scanText) // from mpl_toolkits.mplot3d import Axes3D
+		    || /plot_surface\s*\(/.test(scanText) // ax.plot_surface(...)
+		) {
+			issues.push("3D_EFFECTS");
+		}
+
+		// Tampered aspect ratio (extreme figsize or explicit aspect)
+		const figRe = /figsize\s*=\s*\(\s*([\d.]+)\s*,\s*([\d.]+)\s*\)/;
+		const figM  = scanText.match(figRe);
+		if (figM) {
+			const w = parseFloat(figM[1])
+			const h = parseFloat(figM[2]);
+			if (w && h) {
+				const ratio = w / h;
+				if (ratio < 0.5 || ratio > 2.0) { // squished or stretched shapes
+					issues.push("TAMPERED_ASPECT_RATIO");
+				}
+			}
+		}
+		if (/set_aspect\s*\(/.test(scanText) || /aspect\s*=/.test(scanText)) {
+			issues.push("TAMPERED_ASPECT_RATIO");
+		}
+
+		// Dual Y‑axes
+		if (/twin[xy]\s*\(/.test(scanText) || /secondary_y\s*=\s*True/.test(scanText)) {
+			issues.push("DUAL_Y_AXES");
+		}
+
 		// Send issues to the sidebar WebView
 		sidebarProvider.setIssues(issues, path.basename(doc.uri.fsPath));
 	};
