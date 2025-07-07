@@ -1,0 +1,82 @@
+{
+  "name": "MATCHA-Redesign-Assistant",
+  "displayName": "Matcha Redesign Assistant",
+  "description": "",
+  "version": "0.1.0",
+  "publisher": "team-matcha",
+  "icon": "src/media/Matcha_Mochi.png",
+  "files": [
+    "src/media/**",
+    "out"
+  ],
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "keywords": [
+    "python",
+    "matplotlib",
+    "data visualization",
+    "accessibility",
+    "plotting",
+    "linting",
+    "visualization",
+    "readability",
+    "charts",
+    "graph quality"
+  ],
+  "categories": [
+    "Linters",
+    "Visualization",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onView:redesignAssistantSidebar",
+    "onStartupFinished",
+    "onLanguage:python"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "redesignAssistant",
+          "title": "Matcha Redesign Assistant",
+          "icon": "src/media/Matcha_Mochi_crop.png"
+        }
+      ]
+    },
+    "views": {
+      "redesignAssistant": [
+        {
+          "id": "redesignAssistantSidebar",
+          "name": "Accessibility Panel",
+          "type": "webview",
+          "icon": "src/media/Matcha_Mochi_crop.png"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.100.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@vscode/vsce": "^3.5.0",
+    "node": "^20.18.1"
+  }
+}
