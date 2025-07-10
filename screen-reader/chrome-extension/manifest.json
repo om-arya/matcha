@@ -13,6 +13,15 @@
     "48": "images/Matcha_Mochi.png",
     "128": "images/Matcha_Mochi.png"
   },
+  "commands": {
+    "summarize-image": {
+      "suggested_key": {
+        "default": "Alt+S",
+        "mac": "Command+Shift+O"
+      },
+      "description": "Summarize the focused image"
+    }
+  },
   "content_scripts": [
     {
       "js": ["scripts/read_content.js"],
