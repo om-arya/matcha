@@ -1,0 +1,1808 @@
+"repo","path","content","MISSING_TITLE","MISSING_XLABEL","MISSING_YLABEL","MISSING_LEGEND","INSUFFICIENT_COLOR_CONTRAST","FONTSIZE_TOO_SMALL","FIGSIZE_TOO_SMALL","ANIMATIONS"
+"garimasingh128/awesome-python-projects","SENTIMENT_ANALYSER_ML_PROJECT/Root folder/main.py","import string
+from collections import Counter
+
+import matplotlib.pyplot as plt
+
+# reading text file
+text = open(""read.txt"", encoding=""utf-8"").read()
+
+# converting to lowercase
+lower_case = text.lower()
+
+# Removing punctuations
+cleaned_text = lower_case.translate(str.maketrans('', '', string.punctuation))
+
+# splitting text into words
+tokenized_words = cleaned_text.split()
+
+stop_words = [""i"", ""me"", ""my"", ""myself"", ""we"", ""our"", ""ours"", ""ourselves"", ""you"", ""your"", ""yours"", ""yourself"",
+              ""yourselves"", ""he"", ""him"", ""his"", ""himself"", ""she"", ""her"", ""hers"", ""herself"", ""it"", ""its"", ""itself"",
+              ""they"", ""them"", ""their"", ""theirs"", ""themselves"", ""what"", ""which"", ""who"", ""whom"", ""this"", ""that"", ""these"",
+              ""those"", ""am"", ""is"", ""are"", ""was"", ""were"", ""be"", ""been"", ""being"", ""have"", ""has"", ""had"", ""having"", ""do"",
+              ""does"", ""did"", ""doing"", ""a"", ""an"", ""the"", ""and"", ""but"", ""if"", ""or"", ""because"", ""as"", ""until"", ""while"",
+              ""of"", ""at"", ""by"", ""for"", ""with"", ""about"", ""against"", ""between"", ""into"", ""through"", ""during"", ""before"",
+              ""after"", ""above"", ""below"", ""to"", ""from"", ""up"", ""down"", ""in"", ""out"", ""on"", ""off"", ""over"", ""under"", ""again"",
+              ""further"", ""then"", ""once"", ""here"", ""there"", ""when"", ""where"", ""why"", ""how"", ""all"", ""any"", ""both"", ""each"",
+              ""few"", ""more"", ""most"", ""other"", ""some"", ""such"", ""no"", ""nor"", ""not"", ""only"", ""own"", ""same"", ""so"", ""than"",
+              ""too"", ""very"", ""s"", ""t"", ""can"", ""will"", ""just"", ""don"", ""should"", ""now""]
+
+# Removing stop words from the tokenized words list
+final_words = []
+for word in tokenized_words:
+    if word not in stop_words:
+        final_words.append(word)
+
+# NLP Emotion Algorithm
+# 1) Check if the word in the final word list is also present in emotion.txt
+#  - open the emotion file
+#  - Loop through each line and clear it
+#  - Extract the word and emotion using split
+
+# 2) If word is present -> Add the emotion to emotion_list
+# 3) Finally count each emotion in the emotion list
+
+emotion_list = []
+with open('emotions.txt', 'r') as file:
+    for line in file:
+        clear_line = line.replace(""\n"", '').replace("","", '').replace(""'"", '').strip()
+        word, emotion = clear_line.split(':')
+
+        if word in final_words:
+            emotion_list.append(emotion)
+
+print(emotion_list)
+w = Counter(emotion_list)
+print(w)
+
+# Plotting the emotions on the graph
+
+fig, ax1 = plt.subplots()
+ax1.bar(w.keys(), w.values())
+fig.autofmt_xdate()
+plt.savefig('graph.png')
+plt.show()","True","True","True","True","False","True","True","False"
+"oldclesleycode/deep-learning-python","m.py","
+import matplotlib.pyplot as plt
+import numpy as np
+import sklearn
+import sklearn.datasets
+import sklearn.linear_model
+import matplotlib
+
+
+matplotlib.rcParams['figure.figsize'] = (10.0, 8.0)
+
+np.random.seed(0)
+X, y = sklearn.datasets.make_moons(200, noise=0.20)
+
+num_examples = len(X) # training set size
+nn_input_dim = 2 # input layer dimensionality
+nn_output_dim = 2 # o
+
+epsilon = 0.01 # learning rate for gradient descent
+reg_lambda = 0.01 # regularization strength
+
+def plot_decision_boundary(pred_func):
+    # Set min and max values and give it some padding
+    x_min, x_max = X[:, 0].min() - .5, X[:, 0].max() + .5
+    y_min, y_max = X[:, 1].min() - .5, X[:, 1].max() + .5
+    h = 0.01
+    # Generate a grid of points with distance h between them
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    # Predict the function value for the whole gid
+    Z = pred_func(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    # Plot the contour and training examples
+    plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral)
+    plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Spectral)
+
+def calculate_loss(model):
+    W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
+    # Forward propagation to calculate our predictions
+    z1 = X.dot(W1) + b1
+    a1 = np.tanh(z1)
+    z2 = a1.dot(W2) + b2
+    exp_scores = np.exp(z2)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    # Calculating the loss
+    corect_logprobs = -np.log(probs[range(num_examples), y])
+    data_loss = np.sum(corect_logprobs)
+    # Add regulatization term to loss 
+    data_loss += reg_lambda/2 * (np.sum(np.square(W1)) + np.sum(np.square(W2)))
+    return (1./num_examples * data_loss)
+
+
+
+def predict(model, x):
+    W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
+    # Forward propagation
+    z1 = x.dot(W1) + b1
+    a1 = np.tanh(z1)
+    z2 = a1.dot(W2) + b2
+    exp_scores = np.exp(z2)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    return (np.argmax(probs, axis=1))
+
+
+
+def build_model(nn_hdim, num_passes=20000, print_loss=False):
+
+    # Initialize the parameters to random values
+    np.random.seed(0)
+    W1 = np.random.randn(nn_input_dim, nn_hdim) / np.sqrt(nn_input_dim)
+    b1 = np.zeros((1, nn_hdim))
+    W2 = np.random.randn(nn_hdim, nn_output_dim) / np.sqrt(nn_hdim)
+    b2 = np.zeros((1, nn_output_dim))
+
+    # This is what we return at the end
+    model = {}
+
+    # Gradient descent for each batch
+    for i in range(0, num_passes):
+
+        # Forward propagation
+        z1 = X.dot(W1) + b1
+        a1 = np.tanh(z1)
+        z2 = a1.dot(W2) + b2
+        exp_scores = np.exp(z2)
+        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+        # Backpropagation
+        delta3 = probs
+        delta3[range(num_examples), y] -= 1
+        dW2 = (a1.T).dot(delta3)
+        db2 = np.sum(delta3, axis=0, keepdims=True)
+        delta2 = delta3.dot(W2.T) * (1 - np.power(a1, 2))
+        dW1 = np.dot(X.T, delta2)
+        db1 = np.sum(delta2, axis=0)
+
+        # Add regularization terms 
+        dW2 += reg_lambda * W2
+        dW1 += reg_lambda * W1
+
+        # Gradient descent parameter update
+        W1 += -epsilon * dW1
+        b1 += -epsilon * db1
+        W2 += -epsilon * dW2
+        b2 += -epsilon * db2
+
+        # Assign new parameters to the model
+        model = { 'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
+
+        if print_loss and i % 1000 == 0:
+          print (""Loss after iteration %i: %f"" %(i, calculate_loss(model)))
+
+    return (model)
+model = build_model(3, print_loss=True)
+
+
+plot_decision_boundary(lambda x: predict(model, x))
+plt.title(""Decision Boundary for hidden layer size 3"")
+plt.show()
+
+plt.figure(figsize=(16, 32))
+hidden_layer_dimensions = [1, 2, 3, 4, 5, 20, 50]
+for i, nn_hdim in enumerate(hidden_layer_dimensions):
+    plt.subplot(5, 2, i+1)
+    plt.title('Hidden Layer size %d' % nn_hdim)
+    model = build_model(nn_hdim)
+    plot_decision_boundary(lambda x: predict(model, x))
+plt.show()","False","True","True","True","False","True","False","False"
+"nishio/reinforcement_learning","t.py","""""""
+Quarto
+
+0: vacant
+1-16: occupied
+""""""
+import numpy as np
+from collections import Counter
+
+def board_to_int(board):
+    s = 0L
+    for i in range(16):
+        s += long(board[i]) * (17 ** i)
+    return s
+
+def board_to_possible_hands(board):
+    return [i for i in range(16) if board[i] == 0]
+
+def init_board():
+    return np.zeros(16, dtype=np.int)
+
+def init_Q():
+    from scipy.sparse import dok_matrix
+    return dok_matrix((17 ** 16, 16 * 16))
+
+LINES = [
+    [0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15],
+    [0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15],
+    [0, 5, 10, 15], [3, 6, 9, 12]
+]
+def is_win(board):
+    for line in LINES:
+        xs = board[line]
+        if any(x == 0 for x in xs): continue
+        a, b, c, d = xs - 1
+        if a & b & c & d != 0:
+            return 1
+        if a | b | c | d != 15:
+            return 1
+    return 0
+
+def print_board(board):
+    """"""
+    >>> print_board(range(16))
+    . o x o | . o o x | . o o o | . o o o
+    x o x o | x o o x | o x x x | o o o o
+    x o x o | x o o x | x o o o | o x x x
+    x o x o | x o o x | o x x x | x x x x
+    """"""
+    m = np.zeros((16, 4), dtype=np.int)
+    for i in range(16):
+        if board[i] == 0:
+            m[i, :] = 0
+        else:
+            v = board[i] - 1
+            for bit in range(4):  #  nth bit
+                m[i, bit] = ((v >> bit) & 1) + 1
+
+    for y in range(4):
+        print ' | '.join(
+            ' '.join(
+                ['.ox'[v] for v in m[y * 4 : (y + 1) * 4, bit]]
+            )
+        for bit in range(4))
+    print
+
+
+def policy_random(env):
+    from random import choice
+    position = choice(board_to_possible_hands(env.board))
+    piece = choice(env.available_pieces)
+    return (position, piece)
+
+
+class Environment(object):
+    def __init__(self, policy=policy_random):
+        self.op_policy = policy
+        self.result_log =[]
+        self.init_env()
+
+    def init_env(self):
+        self.board = init_board()
+        self.available_pieces= range(2, 17)
+        self.selected_piece = 1
+
+    def _update(self, action, k=1, to_print=False):
+        position, piece = action
+
+        if self.board[position] != 0:
+            # illegal move
+            print 'illegal pos'
+            self.init_env()
+            self.result_log.append(-1 * k)
+            return (self.board, -1 * k)
+
+        if piece not in self.available_pieces:
+            # illegal move
+            print 'illegal piece'
+            self.init_env()
+            self.result_log.append(-1 * k)
+            return (self.board, -1 * k)
+
+        self.board[position] = self.selected_piece
+        self.available_pieces.remove(piece)
+        self.selected_piece = piece
+
+        if to_print:
+            print k, action
+            print_board(self.board)
+
+        b = is_win(self.board)
+        if b:
+            self.init_env()
+            self.result_log.append(+1 * k)
+            return (self.board, +1 * k)
+
+        if not self.available_pieces:
+            # put selected piece
+            self.board[self.board==0] = self.selected_piece
+            b = is_win(self.board)
+            if to_print:
+                print 'last move'
+                print_board(self.board)
+
+            self.init_env()
+            if b:
+                # opponent win
+                self.result_log.append(-1 * k)
+                return (self.board, -1 * k)
+            else:
+                # tie
+                self.result_log.append(0)
+                return (self.board, -1)
+
+        return None
+
+    def __call__(self, action, to_print=False):
+        ret = self._update(action, k=1, to_print=to_print)
+        if ret: return ret
+        op_action = self.op_policy(self)
+        ret = self._update(op_action, k=-1, to_print=to_print)
+        if ret: return ret
+        return (self.board, 0)
+
+
+def play(policy1, policy2=policy_random, to_print=False):
+    env = Environment()
+    result = 0
+
+    for i in range(9):
+        a = policy1(env)
+        s, r = env(a, to_print=to_print)
+        if r != 0: break
+    if to_print:
+        print env.result_log[-1]
+    return env.result_log[-1]
+
+#play(policy_random, to_print=True)
+
+
+class Greedy(object):
+    def __init__(self):
+        self.Qtable = init_Q()
+
+    def __call__(self, env):
+        from random import choice
+        s = board_to_int(env.board)
+        actions = (action_to_int((pos, piece))
+            for pos in board_to_possible_hands(env.board)
+            for piece in env.available_pieces
+        )
+        qa = [(self.Qtable[s, a], a) for a in actions]
+        bestQ, bestA = max(qa)
+        bextQ, bestA = choice([(q, a) for (q, a) in qa if q == bestQ])
+        return int_to_action(bestA)
+
+
+class EpsilonGreedy(object):
+    def __init__(self, eps=0.1):
+        self.Qtable = init_Q()
+        self.eps = eps
+
+    def __call__(self, env):
+        from random import choice, random
+        s = board_to_int(env.board)
+        if random() < self.eps:
+            pos = choice(board_to_possible_hands(env.board))
+            piece = choice(env.available_pieces)
+            return (pos, piece)
+
+        actions = (action_to_int((pos, piece))
+            for pos in board_to_possible_hands(env.board)
+            for piece in env.available_pieces
+        )
+        qa = [(self.Qtable[s, a], a) for a in actions]
+        bestQ, bestA = max(qa)
+        bextQ, bestA = choice([(q, a) for (q, a) in qa if q == bestQ])
+        return int_to_action(bestA)
+
+
+def board_to_state(board):
+    return board_to_int(board)
+
+def action_to_int(action):
+    pos, piece = action
+    return pos * 16 + (piece - 1)
+
+def int_to_action(i):
+    assert 0 <= i < 16 * 16
+    return (i / 16, i % 16 + 1)
+
+
+from kagura.utils import Digest
+digest = Digest(1)
+battle_per_seconds = []
+
+def sarsa(alpha, policyClass=Greedy):
+    global environment, policy
+    gamma = 0.9
+    num_result = batch_width * num_batch
+    environment = Environment()
+    policy = policyClass()
+
+    action = policy(environment)
+    state = board_to_state(environment.board)
+    while True:
+        next_board, reward = environment(action)
+        next_state = board_to_state(next_board)
+
+        # determine a'
+        next_action = policy(environment)
+        nextQ = policy.Qtable[next_state, action_to_int(next_action)]
+
+        # update Q(s, a)
+        s_a = (state, action_to_int(action))
+        Qsa = policy.Qtable[s_a]
+        estimated_reward = reward + gamma * nextQ
+        diff = estimated_reward - Qsa
+        policy.Qtable[s_a] += alpha * diff
+
+        state = next_state
+        action = next_action
+        if len(environment.result_log) == num_result:
+            break
+        t = digest.digest(len(environment.result_log))
+        if t:
+            battle_per_seconds.append(t)
+
+    vs = []
+    for i in range(num_batch):
+        c = Counter(environment.result_log[batch_width * i : batch_width * (i + 1)])
+        print c
+        vs.append(float(c[1]) / batch_width)
+    return vs
+
+
+def qlearn(alpha, policyClass=Greedy):
+    global environment, policy
+    gamma = 0.9
+    num_result = batch_width * num_batch
+    environment = Environment()
+    policy = policyClass()
+
+    state = board_to_state(environment.board)
+    while True:
+        action = policy(environment)
+        next_board, reward = environment(action)
+        next_state = board_to_state(next_board)
+
+        # update Q(s, a)
+        maxQ = max(policy.Qtable[next_state, a] for a in board_to_possible_hands(next_board))
+        s_a = (state, action_to_int(action))
+
+        Qsa = policy.Qtable[s_a]
+        estimated_reward = reward + gamma * maxQ
+        diff = estimated_reward - Qsa
+        policy.Qtable[s_a] += alpha * diff
+
+        state = next_state
+
+        if len(environment.result_log) == num_result:
+            break
+        t = digest.digest(len(environment.result_log))
+        if t:
+            battle_per_seconds.append(t)
+
+    vs = []
+    for i in range(num_batch):
+        c = Counter(environment.result_log[batch_width * i : batch_width * (i + 1)])
+        print c
+        vs.append(float(c[1]) / batch_width)
+    return vs
+
+
+
+def plot_log():
+    from kagura import load
+    result_log = load(""sarsa_0.05_result_log"")
+    batch_width = 1000
+    num_batch = 1000
+    vs = []
+    for i in range(num_batch):
+        c = Counter(result_log[batch_width * i : batch_width * (i + 1)])
+        print c
+        vs.append(float(c[1]) / batch_width)
+
+    label = 'Sarsa(0.05)'
+    imgname = 'sarsa_0.05.png'
+    plot()
+
+def plot():
+    import matplotlib.pyplot as plt
+    plt.clf()
+    plt.plot([0.475] * len(vs), label = ""baseline"")
+    plt.plot(vs, label=label)
+    plt.xlabel(""iteration"")
+    plt.ylabel(""Prob. of win"")
+    plt.legend(loc = 4)
+    plt.savefig(imgname)
+
+
+def f(n, m):
+    if m == 1: return n + 1
+    return n * f(n - 1, m - 1) + f(n, m - 1)
+
+
+if not'ex1':
+    from collections import Counter
+    print Counter(
+        play(policy_random) for i in range(10000))
+elif not'ex2':
+    batch_width = 1000
+    num_batch = 100
+    vs = sarsa(0.5)
+elif not'ex3':
+    batch_width = 1000
+    num_batch = 1000
+    vs = sarsa(0.5)
+
+if 0:
+    batch_width = 1000
+    num_batch = 1000
+    vs = qlearn(0.5)
+    label = 'Qlearn(0.5)'
+    imgname = 'qlearn.png'
+elif 0:
+    batch_width = 1000
+    num_batch = 1000
+    vs = qlearn(0.05)
+    label = 'Qlearn(0.05)'
+    imgname = 'qlearn_0.05.png'
+
+
+from kagura import dump
+if 0:
+    batch_width = 1000
+    num_batch = 1000
+    vs = sarsa(0.5, policyClass=EpsilonGreedy)
+    label = 'Sarsa(0.5, eps=0.1)'
+    imgname = 'sarsa_0.5_eps0.1.png'
+    dump(environment.result_log, imgname.replace('.png', '_result_log'))
+elif 0:
+    batch_width = 1000
+    num_batch = 1000
+    vs = sarsa(0.05, policyClass=EpsilonGreedy)
+    label = 'Sarsa(0.05, eps=0.1)'
+    imgname = 'sarsa_0.05_eps0.1.png'
+    dump(environment.result_log, imgname.replace('.png', '_result_log'))
+
+if 0:
+    batch_width = 100
+    num_batch = 1000
+    vs = sarsa(0.05, policyClass=Greedy)
+    label = 'Sarsa(0.05)'
+    imgname = 'sarsa_0.05_2.png'
+    dump(environment.result_log, imgname.replace('.png', '_result_log'))
+
+
+batch_width = 1000
+num_batch = 100
+vs = sarsa(0.5)
+label = 'Sarsa(0.5)'
+imgname = 'sarsa_0.5_2.png'
+
+plot()
+
+","True","False","False","False","False","True","True","False"
+"glangsto/analyze","r.py","#Python Script to plot raw NSF record data.
+#plot the raw data from the observation
+#HISTORY
+#24Nov02 GIL accomodate tick font size change arguments
+#23Mar04 GIL fix matplot lib changes/deprications.   Short label if el < 0
+#22May20 GIL if file not recognized skip
+#20Dec24 GIL remove 20 from plot file names
+#20Aug28 GIL update plotting to a file
+#20Jun16 GIL add plotting to a file
+#20Apr01 GIL update for new python environment
+#20FEB15 GIL normalize for different integration times
+#19DEC30 GIL add title option
+#17NOV21 GIL use time in file to show date and time
+#16AUG29 GIL make more efficient
+#16AUG16 GIL use new radiospectrum class
+#15AUG30 add option to plot range fo values
+#15JUL01 GIL Initial version
+#
+import matplotlib as mpl
+import sys
+import numpy as np
+import radioastronomy
+import interpolate
+
+dy = -1.
+
+nargs = len( sys.argv)
+verbose = True
+
+# some SDRs put spike in center of spectrum; indicate spike flagging here
+flagCenter = False # flag interpolate over spike in center of spectrum
+doDebug = False   # flag printing debug info
+doSave = False    # flag saving intermediate files
+flagRfi = True    # flag flagging RFI
+doFold = False    # fold spectra to address an old issue; not normally used.
+doPlotFile = False
+plotFileDir = ""~/""
+# put your list of known RFI features here.  Must have at least two, if flagRfi is true.
+linelist = [1400.00, 1420.0]  # RFI lines in MHz
+doFold = False
+# fold spectra to address an old issue; not normally used.
+
+# put your list of known RFI features here.  Must have at least two, if flagRfi is true.
+
+plotFrequency = True
+# define reference frequency for velocities (MHz)
+nuh1 = 1420.40575 # neutral hydrogen frequency (MHz)
+nuoh1= 1612.231   # OH line
+nuoh2= 1665.402   # OH line
+nuoh3= 1667.359   # OH Line
+nuoh4= 1720.530   # OH Line
+
+# select the frequency for plotting velocities
+nuRefFreq = nuh1
+
+linelist = [1400.00, 1420.0]  # RFI lines in MHz
+linewidth = [5, 5]   # integer number of channels to interpolate over
+outDir = ""./""     # define output directory for saving files
+myTitle = """"      # Default no input title
+note = """"
+
+# currently used velocities for plotting range
+maxvel = 180.
+minvel = -180.
+maxPlot = int(25)
+fileTag = """"
+firstdate = """"
+doScaleAve = False
+
+nargs = len(sys.argv)
+#first argument is the averaging time in seconds
+namearg = 1
+iarg = 1          # start searching for input flags
+if nargs < 2:
+    print(""R: Plot Raw counts of telescope observations"")
+    print(""Usage: R <flags> <files>"")
+    print(""Where <flags> are:"")
+    print(""-A optionally scale intensities by count of spectra averaged"")
+    print(""-B <sample> Set first sample to plot (default is 1/4 of samples)"")
+    print(""-C optionally flag the center of the band"")
+    print(""-E <sample> Set last sample to plot (default is end of samples)"")
+    print(""-H optionally set the high velocity region for baseline fit"")
+    print(""-K optionall save average hot and cold load calibration observations"")
+    print(""-L optionally set the low velocity region for baseline fit"")
+    print(""-N <number> optionally set the number of spectra to plot"")
+    print(""-P write PNG and PDF files instead of showing plot"")
+    print(""-Q optionally plot intensity versus freQuency, instead of velocity"")
+    print(""-S <filename> optionally set summary file name"")
+    print(""-U optionally update reference frequency for a different line"")
+    print(""   ie -U 1612.231, 1665.402, 1667.349, 1720.530 or 1420.40575"")
+    print(""-V optionally plot velocity"")
+    print(""-Z <file tag> optionally add tag to PDF and PNG file names"")
+    print(""-F optionally fold spectra (obsolete)"")
+    print("""")
+    print(""Glen Langston - NSF Dec 24, 2020"")
+    exit()
+
+xa = -1
+xb = -1
+
+namearg = 1
+# for all arguments, read list and exit when no flag argument found
+while iarg < nargs:
+
+    # if folding data
+    if sys.argv[iarg].upper() == '-F':
+        print('Folding specectra')
+        doFold = True
+    elif sys.argv[iarg].upper() == '-A':
+        toScalAve = True
+    elif sys.argv[iarg].upper() == '-B':   # if setting beginning sample
+        iarg = iarg + 1
+        xa = int( sys.argv[iarg])
+        print('Plotting starting at channel: %4d' % (xa))
+    elif sys.argv[iarg].upper() == '-C':
+        flagCenter = True
+    elif sys.argv[iarg].upper() == '-E':   # if setting ending sample
+        iarg = iarg + 1
+        xb = int( sys.argv[iarg])
+    elif sys.argv[iarg].upper() == '-H':
+        iarg = iarg+1
+        maxvel = np.float( sys.argv[iarg])
+        print('Maximum (high) velocity for sum: %7.2f km/sec' % (maxvel))
+    elif sys.argv[iarg].upper() == '-L':
+        iarg = iarg+1
+        minvel = np.float( sys.argv[iarg])
+        print('Minium (low)  velocity for sum: %7.2f km/sec' % (minvel))
+    elif sys.argv[iarg].upper() == '-N':   # if number of spectra to plot
+        iarg = iarg+1
+        maxPlot = int(sys.argv[iarg])
+        if maxPlot < 1:
+            print(""Not Plotting"")
+        else:
+            print(""Plot will have a maximum of %d spectra"" % (maxPlot))
+    elif sys.argv[iarg].upper() == '-P':
+        doPlotFile = True
+        iarg = iarg+1
+        plotFileDir = sys.argv[iarg]
+    elif sys.argv[iarg].upper() == '-Q':
+        plotFrequency = True
+    elif sys.argv[iarg].upper() == '-R':
+        flagRfi = True
+    elif sys.argv[iarg].upper() == '-T':   # if plot title provided
+        iarg = iarg+1
+        myTitle = sys.argv[iarg]
+        print('Plot Title : ', myTitle)
+    elif sys.argv[iarg].upper() == '-V':   # default is plotting Frequency
+        plotFrequency = False              # plot velocity
+    elif sys.argv[iarg].upper() == '-VA':   # now look for flags with arguments
+        iarg = iarg+1
+        minvel = float(sys.argv[iarg])
+        print('Minimum velocity for baseline fit: %7.2f km/sec ' % (minvel))
+    elif sys.argv[iarg].upper() == '-VB':   # now look for flags with arguments
+        iarg = iarg+1
+        maxvel = float(sys.argv[iarg])
+        print('Maximum velocity for baseline fit: %7.2f km/sec ' % (maxvel))
+    elif sys.argv[iarg].upper() == '-CEN':   # if nU ref is provided (in MHz)n
+        iarg = iarg+1
+        nuRefFreq = float(sys.argv[iarg])
+        print( 'Reference Frequency : %9.3f MHz' % (nuRefFreq))
+    elif sys.argv[iarg].upper() == '-Z':     # label written files
+        iarg = iarg+1
+        fileTag = str(sys.argv[iarg])
+        print( 'File tag: %s' % (fileTag))
+    else:
+        break
+#    namearg = iarg + 1
+    namearg = iarg + 1
+    iarg = iarg + 1
+# end of while not reading file names
+
+# to create plots in cronjobs, must use a different backend
+if doPlotFile:
+    mpl.use('Agg')
+import matplotlib.pyplot as plt
+import gainfactor as gf
+
+if plotFrequency:
+    print( ""Ploting Intensity versus Frequency"")
+else:
+    print( ""Ploting Intensity versus Velocity"")
+
+linestyles = ['-','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.']
+colors = ['g', 'b', 'r', 'b','r','g','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g']
+colors =  ['b','r','g', 'b','r','g','b','r','g','c','m','y','c','m','y','c','m','y','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g','b','r','g']
+#colors = ['g', 'b', 'r', '-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g','-b','-r','-g']
+
+scalefactor = 1.0
+xallmax = -9.e9
+xallmin =  9.e9
+yallmax = -9.e9
+yallmin =  9.e9
+
+linelist = [1420.0, 1418.0]  # RFI lines in MHz
+linewidth = [7, 7]
+
+#for symbol, value in locals().items():
+
+# initialize spectrum for reading and plotting
+rs = radioastronomy.Spectrum()
+
+c = 299792.458  # (Speed of light  km/sec)
+nplot = 0
+
+# plot no more than N spectra
+for iii in range(namearg, min(nargs,30)):
+
+    filename = sys.argv[iii]
+    if verbose:
+        print('%5d: %s' % (iii, filename))
+
+    rs.read_spec_ast( filename)
+# for averages can not use az,el to get ra,dec and glat, glon
+#    rs.azel2radec()    # compute ra,dec from az,el
+
+    parts = filename.split('/')
+    nparts = len(parts)
+    aname = parts[nparts-1]
+    parts = aname.split('.')
+    aname = parts[0]
+# now compute strings for plotting
+    strtime = rs.utc.isoformat()
+    parts = strtime.split('T')
+    date  = parts[0]
+    time  = parts[1]
+    time  = time.replace('_',':')
+    parts  = time.split('.')
+    time = parts[0]
+
+    if rs.nChan < 1:
+        print(""Skipping file: %s"" % (filename))
+        continue
+    gallon = rs.gallon
+    gallat = rs.gallat
+    if rs.telel > 0:
+        label = '%s, AZ,EL: %5s,%5s, Lon,Lat=%5.1f,%5.1f' % ( time,rs.telaz,rs.telel,gallon,gallat)
+    else:
+        label = '%s, AZ,EL: %5s,%5s' % ( time,rs.telaz,rs.telel)
+    xv = rs.xdata  * 1.E-6 # convert to MHz
+    nData = len( xv)
+    n6 = int(nData/6)
+    n56 = 5*n6
+
+    if xa < 0:
+        xa = 0
+    if xb < 0:
+        xb = nData
+
+    if firstdate == """":
+        firstdate = date
+    lastdate = date
+
+    vel = np.zeros(nData)
+    for jjj in range (0, nData):
+        vel[jjj] = c * (nuRefFreq - xv[jjj])/nuRefFreq
+
+    if not plotFrequency:
+        xa, xb = gf.velocity_to_indicies( vel, minvel, maxvel)
+
+    # normize for different integration times
+    if doScaleAve:
+        rs.ydataA = rs.ydataA/rs.count
+    else:
+        rs.ydataA = rs.ydataA/rs.nave
+    yv = rs.ydataA
+
+    # The latest versions of the software had a different normalization
+    ymedian = np.median(yv[n6:n56])
+    # if the latest software, the scale factor is just 1.
+    if ymedian > .001:
+        scalefactor = 1.0
+
+    yv = rs.ydataA * scalefactor
+    if not plotFrequency:
+        xv = vel
+    xmin = min(xv[xa:xb])
+    xmax = max(xv[xa:xb])
+    xallmin = min(xmin,xallmin)
+    xallmax = max(xmax,xallmax)
+
+    if flagRfi:
+        yv = interpolate.lines( linelist, linewidth, xv, yv) # interpolate rfi
+
+    if flagCenter:             # if flagging spike in center of plot
+    # remove spike in center of the plot
+        icenter = int(nData/2)
+        yv[icenter] = (yv[icenter-2] + yv[icenter+2])*.5
+        yv[icenter-1] = (3.*yv[icenter-2] + yv[icenter+2])*.25
+        yv[icenter+1] = (yv[icenter-2] + 3.*yv[icenter+2])*.25
+
+    ymin = min(yv)
+    ymax = max(yv)
+    ymed = np.median(yv)
+    count = rs.count
+
+    print(' Max: %9.1f  Median: %9.1f SNR: %6.2f ; %s %s' % (ymax, ymed, ymax/ymed, count, label))
+    if nplot <= 0 and maxPlot > 0:
+#        fig = plt.figure(date)
+        fig,ax1 = plt.subplots(figsize=(10,6))
+#        fig.canvas.set_window_title(date)
+#        plt.manager.canvas.set_window_title(date)
+#        for tick in ax1.xaxis.get_major_ticks():
+#            tick.label.set_fontsize(14)
+#            tick.set_xticklabels(fontsize=14)
+#        for tick in ax1.yaxis.get_major_ticks():
+#            tick.label.set_fontsize(14)
+#            tick.set_yticklabels(fontsize=14)
+
+# We change the fontsize of minor ticks label 
+        ax1.tick_params(axis='both', which='major', labelsize=14)
+        ax1.tick_params(axis='both', which='minor', labelsize=12)
+            
+    nplot = nplot + 1
+    if nplot > maxPlot:
+        break
+    note = rs.site
+    yallmin = min(ymin,yallmin)
+    yallmax = max(ymax,yallmax)
+    plt.xlim(xallmin,xallmax)
+# scale min and max intensities for nice plotting
+    plt.ylim(0.9*yallmin,1.25*yallmax)
+
+    if plotFrequency:
+        plt.plot(xv[xa:xb], yv[xa:xb], colors[nplot], linestyle=linestyles[iii-1],label=label, lw=2)
+    else:
+        plt.plot(xv[xa:xb], yv[xa:xb], colors[nplot], linestyle=linestyles[iii-1],label=label, lw=2)
+
+# end for all names loop
+if (maxPlot < 1) or (nplot < 1):
+    print(""No Plots, exiting"")
+    exit()
+
+if myTitle == """":
+    myTitle = note
+
+plt.title(myTitle, fontsize=16)
+plt.xlabel('Frequency (MHz)',fontsize=16)
+ylabel = 'Intensity (%s)' % rs.bunit
+plt.ylabel(ylabel, fontsize=16)
+plt.legend(loc='upper right')
+# if writing files
+if doPlotFile:
+    firstdate = firstdate[2:]
+    if fileTag == """":
+        fileTag = ""R-"" + firstdate
+    outpng = plotFileDir + fileTag + "".png""
+    plt.savefig(outpng,bbox_inches='tight')
+    outpdf = plotFileDir + fileTag + "".pdf""
+    plt.savefig(outpdf,bbox_inches='tight')
+    print( ""Wrote files %s and %s"" % (outpng, outpdf))
+else:
+    # else show the plots
+    plt.show()
+","False","False","False","False","False","False","False","False"
+"garimasingh128/awesome-python-projects","SENTIMENT_ANALYSER_ML_PROJECT/Root folder/main.py","import string
+from collections import Counter
+
+import matplotlib.pyplot as plt
+
+# reading text file
+text = open(""read.txt"", encoding=""utf-8"").read()
+
+# converting to lowercase
+lower_case = text.lower()
+
+# Removing punctuations
+cleaned_text = lower_case.translate(str.maketrans('', '', string.punctuation))
+
+# splitting text into words
+tokenized_words = cleaned_text.split()
+
+stop_words = [""i"", ""me"", ""my"", ""myself"", ""we"", ""our"", ""ours"", ""ourselves"", ""you"", ""your"", ""yours"", ""yourself"",
+              ""yourselves"", ""he"", ""him"", ""his"", ""himself"", ""she"", ""her"", ""hers"", ""herself"", ""it"", ""its"", ""itself"",
+              ""they"", ""them"", ""their"", ""theirs"", ""themselves"", ""what"", ""which"", ""who"", ""whom"", ""this"", ""that"", ""these"",
+              ""those"", ""am"", ""is"", ""are"", ""was"", ""were"", ""be"", ""been"", ""being"", ""have"", ""has"", ""had"", ""having"", ""do"",
+              ""does"", ""did"", ""doing"", ""a"", ""an"", ""the"", ""and"", ""but"", ""if"", ""or"", ""because"", ""as"", ""until"", ""while"",
+              ""of"", ""at"", ""by"", ""for"", ""with"", ""about"", ""against"", ""between"", ""into"", ""through"", ""during"", ""before"",
+              ""after"", ""above"", ""below"", ""to"", ""from"", ""up"", ""down"", ""in"", ""out"", ""on"", ""off"", ""over"", ""under"", ""again"",
+              ""further"", ""then"", ""once"", ""here"", ""there"", ""when"", ""where"", ""why"", ""how"", ""all"", ""any"", ""both"", ""each"",
+              ""few"", ""more"", ""most"", ""other"", ""some"", ""such"", ""no"", ""nor"", ""not"", ""only"", ""own"", ""same"", ""so"", ""than"",
+              ""too"", ""very"", ""s"", ""t"", ""can"", ""will"", ""just"", ""don"", ""should"", ""now""]
+
+# Removing stop words from the tokenized words list
+final_words = []
+for word in tokenized_words:
+    if word not in stop_words:
+        final_words.append(word)
+
+# NLP Emotion Algorithm
+# 1) Check if the word in the final word list is also present in emotion.txt
+#  - open the emotion file
+#  - Loop through each line and clear it
+#  - Extract the word and emotion using split
+
+# 2) If word is present -> Add the emotion to emotion_list
+# 3) Finally count each emotion in the emotion list
+
+emotion_list = []
+with open('emotions.txt', 'r') as file:
+    for line in file:
+        clear_line = line.replace(""\n"", '').replace("","", '').replace(""'"", '').strip()
+        word, emotion = clear_line.split(':')
+
+        if word in final_words:
+            emotion_list.append(emotion)
+
+print(emotion_list)
+w = Counter(emotion_list)
+print(w)
+
+# Plotting the emotions on the graph
+
+fig, ax1 = plt.subplots()
+ax1.bar(w.keys(), w.values())
+fig.autofmt_xdate()
+plt.savefig('graph.png')
+plt.show()","True","True","True","True","False","True","True","False"
+"mc6666/MyNeuralNetwork","0.py","# 導入函式庫
+import numpy as np  
+from keras.models import Sequential
+from keras.datasets import mnist
+from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.utils import np_utils  # 用來後續將 label 標籤轉為 one-hot-encoding  
+from matplotlib import pyplot as plt
+
+# 載入 MNIST 資料庫的訓練資料，並自動分為『訓練組』及『測試組』
+(X_train, y_train), (X_test, y_test) = mnist.load_data()
+
+
+# 建立簡單的線性執行的模型
+model = Sequential()
+# Add Input layer, 隱藏層(hidden layer) 有 256個輸出變數
+model.add(Dense(units=256, input_dim=784, kernel_initializer='normal', activation='relu')) 
+# Add output layer
+model.add(Dense(units=10, kernel_initializer='normal', activation='softmax'))
+
+# 編譯: 選擇損失函數、優化方法及成效衡量方式
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy']) 
+
+# 將 training 的 label 進行 one-hot encoding，例如數字 7 經過 One-hot encoding 轉換後是 0000001000，即第7個值為 1
+y_TrainOneHot = np_utils.to_categorical(y_train) 
+y_TestOneHot = np_utils.to_categorical(y_test) 
+
+# 將 training 的 input 資料轉為2維
+X_train_2D = X_train.reshape(60000, 28*28).astype('float32')  
+X_test_2D = X_test.reshape(10000, 28*28).astype('float32')  
+
+x_Train_norm = X_train_2D/255
+x_Test_norm = X_test_2D/255
+
+# 進行訓練, 訓練過程會存在 train_history 變數中
+train_history = model.fit(x=x_Train_norm, y=y_TrainOneHot, validation_split=0.2, epochs=10, batch_size=800, verbose=2)  
+
+# 顯示訓練成果(分數)
+scores = model.evaluate(x_Test_norm, y_TestOneHot)  
+print()  
+print(""\t[Info] Accuracy of testing data = {:2.1f}%"".format(scores[1]*100.0))  
+
+# 預測(prediction)
+X = x_Test_norm[0:10,:]
+predictions = model.predict_classes(X)
+# get prediction result
+print(predictions)
+
+# 模型結構存檔
+from keras.models import model_from_json
+json_string = model.to_json()
+with open(""model.config"", ""w"") as text_file:
+    text_file.write(json_string)
+
+    
+# 模型訓練結果存檔
+model.save_weights(""model.weight"")
+
+","True","True","True","True","False","True","True","False"
+"PyPatel/Machine-Learning-and-AI-in-Trading","BTC Trading: Regression on Price/lognormal_reg.py","# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
+''' Generating Log Normal Regression curve for Bitcoin price projection. '''
+__author__ = 'PyPatel'
+__version__ = '2.0'
+
+from datetime import date
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.linear_model import LinearRegression as LR
+
+def noDays(day):
+    delta = day - date(2009,1,3)
+    return int(delta.days)
+
+# Get data
+data = pd.read_csv('./market-price.csv')
+data.columns = ['Date', 'Price']
+data['Date'] =pd.to_datetime(data.Date).dt.date
+
+# Add column for No. Days since Bitcoin inception
+data['Days'] = [noDays(i) for i in data['Date'].values]
+
+# Remove 0 price days, since there is no data available for these days
+data.drop(data[data['Price'] == 0].index, inplace = True)
+
+# Take Logarithm based 10 of Days and Price, these are the variable to be optimise 
+log_days = np.array(np.log10(data['Days'].values)).reshape(-1,1)
+log_price = np.array(np.log10(data['Price'].values)).reshape(-1,1)
+
+# Train Linear Regression model
+reg = LR().fit(log_days, log_price)
+print('Fitness Score of the model: ', reg.score(log_days, log_price))
+print('Coefficient of the line: ', reg.coef_[0])
+print('Intercept of the line: ', reg.intercept_) 
+
+# Predictions
+print('\n----------------------------------------')
+print(""Today's BTC Price based on regression: US ${}"" .format(float(10**(reg.predict(np.log10(noDays(date.today())))))))
+print('----------------------------------------')
+
+# Visualization
+plt.plot(log_price, label='BTC Price')
+plt.plot(reg.coef_[0]*log_days + reg.intercept_ , label='Regression Line')
+plt.legend()
+plt.title('Lognormal regression for BTC daily price data')
+plt.xlabel('No. of Days since BTC inception')
+plt.ylabel(r""$\log_{10}(Price)$"")
+plt.show()
+","False","False","False","False","False","True","True","False"
+"tapilab/icwsm-2018-hostility","u.py","from collections import Counter, defaultdict
+import json
+import gensim
+from gensim.models import Word2Vec
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pickle
+import random
+import re
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.model_selection import KFold
+import sys
+from scipy import sparse
+
+from emoji_function import demojize
+
+def config_matplotlib():
+    SMALL_SIZE = 12
+    MEDIUM_SIZE = 14
+    BIGGER_SIZE = 16
+    plt.rc('font', size=MEDIUM_SIZE)          # controls default text sizes
+    plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+    plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=MEDIUM_SIZE)    # legend fontsize
+    plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure t
+    import seaborn as sns
+    sns.set(style=""whitegrid"")
+    sns.set_context(""paper"", rc={""font.size"":16,""axes.titlesize"":16,""axes.labelsize"":16,
+                                 ""xtick.labelsize"": 14, ""ytick.labelsize"": 14})
+
+
+def load_posts(data_file, label_file):
+    labels = [json.loads(l) for l in open(label_file)]
+    posts = []
+    for l in open(data_file, encoding=""utf8""):
+        l = json.loads(l)
+        post = {}
+        post['code'] = l['code']
+        post['create_at'] = l['create_at']
+        post['comments'] = []
+        post['users'] = []
+        post['labels'] = []
+        post['timestamps'] = []
+        label_d = [x for x in labels if x['code'] == l['code']][0]['label']
+        for comment_n in sorted(l['text'].keys(), key=lambda x: int(x)):
+            post['comments'].append(l['text'][comment_n])
+            post['users'].append(l['username'][comment_n])
+            post['labels'].append(label_d[comment_n])
+            post['timestamps'].append(l['timestamp'][comment_n])
+
+        post['num_hostile'] = len([x for x in post['labels'] if x != 'Innocuous'])
+        posts.append(post)
+    return np.array(posts)
+
+def filter_by_num_hostile(posts, max_for_neg_class=1, min_for_pos_class=10):
+    return [i for i,p in enumerate(posts) if
+            p['num_hostile'] <= max_for_neg_class or
+            p['num_hostile'] >= min_for_pos_class
+           ]
+
+def get_hostile_indices(post):
+    return [i for i,v in enumerate(post['labels']) if v != 'Innocuous']
+
+
+def set_observed_comments(posts, lead_time=10*60*60):
+    """"""
+    Assumes we already have pairs of pos/neg posts.
+    Modifies the n_comments_observed fields to match the given lead_time.
+    """"""
+    pos_posts = [p for p in posts if p['num_hostile'] > 0]
+    neg_posts = [p for p in posts if p['num_hostile'] == 0]
+    pos_posts = sorted(pos_posts, key=lambda p: p['n_comments_observed'])
+    neg_posts = sorted(neg_posts, key=lambda p: p['n_comments_observed'])
+    for pos, neg in zip(pos_posts, neg_posts):
+        hostile_idx = get_hostile_indices(pos)[0]
+        hostile_time = pos['timestamps'][hostile_idx]
+        stop_time = hostile_time - lead_time
+        num_comments = len([i for i in pos['timestamps'] if i < stop_time])
+        pos['n_comments_observed'] = neg['n_comments_observed'] = num_comments
+    return pos_posts + neg_posts
+
+def sample_posts_task1(posts, lead_time=10*60*60):
+    """"""
+    lead_time....minimum number of seconds between final observed comment and first observed hostile comment.
+    """"""
+    for p in posts:
+        p['n_comments_observed'] = 0
+    # for positive posts
+    n_comments_obs = []
+    positive_posts = [p for p in posts if p['num_hostile'] > 0]
+    valid_positive_posts = []
+    for p in positive_posts:
+        hostile_idx = get_hostile_indices(p)[0]
+        hostile_time = p['timestamps'][hostile_idx]
+        stop_time = hostile_time - lead_time
+        num_comments = len([i for i in p['timestamps'] if i < stop_time])
+        n_comments_obs.append(num_comments)
+        p['n_comments_observed'] = num_comments
+        if num_comments > 0:
+            valid_positive_posts.append(p)
+    print('total non-zero posts %d' % len([k for k in n_comments_obs if k > 0]))
+    # for negative posts, sample same distribution of comment counts.
+    negative_posts = [p for p in posts if p['num_hostile'] == 0]
+    indices = np.arange(len(negative_posts))
+    valid_positive_posts = sorted(valid_positive_posts, key=lambda p: p['n_comments_observed'], reverse=True)
+    negative_posts = sorted(negative_posts, key=lambda p: len(p['comments']), reverse=True)
+    sampled_negative_posts = []
+    sampled_positive_posts = []
+    while len(valid_positive_posts) > 0:
+        pos_post = valid_positive_posts.pop()
+        n = pos_post['n_comments_observed']
+        while True and len(negative_posts) > 0:
+            p = negative_posts.pop()
+            if len(p['comments']) > n:
+                p['n_comments_observed'] = n
+                sampled_negative_posts.append(p)
+                sampled_positive_posts.append(pos_post)
+                break
+    print('sampled %d negative posts' % len(sampled_negative_posts))
+    print('sampled %d positive posts' % len(sampled_positive_posts))
+    return sampled_positive_posts + sampled_negative_posts
+
+def set_n_comments_observed_task2(posts):
+    """"""
+    Observe comments up to and including first hostile.
+    """"""
+    for p in posts:
+        p['n_comments_observed'] = get_hostile_indices(p)[0] + 1
+
+def vectorize(posts):
+    def yield_first_comments(posts):
+        for p in posts:
+            yield p['comments'][:p['n_comments_observed']]
+    vec = CountVectorizer(min_df=2, ngram_range=(1,1))
+    clean_texts = [cleanText(' '.join(c)) for c in yield_first_comments(posts)]
+    X_unigram = vec.fit_transform(clean_texts)
+    X_hatebase, header_hatebase = hatebase(clean_texts)
+    X_profane, header_profane = profaneLexicon(clean_texts)
+    X_aggregation_letters, header_w2v_char = w2v_aggregation_letters(clean_texts)
+    X_aggregation, header_w2v = w2v_aggregation(clean_texts)
+    X_previous_post, header_previous_post = previous_post_features([p['code'] for p in posts])
+    X_previous_comment, header_previous_comment = previous_comment_features(posts)  ###
+    X_trend, header_trend = trend_features([c for c in yield_first_comments(posts)])
+    X_user, header_user = user_features(posts)  ###
+    X_final_comment, header_final_comment = final_comment_features([cleanText(list(c)[-1]) for c in yield_first_comments(posts)])
+    header_vec = [vec.get_feature_names(), header_hatebase + header_profane, header_w2v_char, header_w2v,
+                 header_previous_post, header_previous_comment, header_trend, header_user, header_final_comment]
+    X = sparse.hstack([X_unigram, X_hatebase, X_profane, X_aggregation_letters, X_aggregation,
+                       X_previous_post, X_previous_comment, X_trend, X_user, X_final_comment]).tocsr()
+    return X, vec, header_vec, ['Unigram', 'lex', 'n-w2v', 'w2v', 'prev-post', 'prev-com', 'trend', 'user', 'final-com']
+
+def cleanText(text):
+    
+    text = bytes(text, 'utf-8','ignore').decode('utf-8','ignore')
+    # Add "" emoji_"" as prefix
+    text = demojize(text)  
+    # Add "" hashtag_"" as prefix
+    text = re.sub(r""#(\w+)"", r"" hashtag_\1 "", text)
+    # Substitute mentions with specialmentioned
+    text = re.sub('@', ' @', text)
+    text = re.sub('(?:^|[^\w])(?:@)([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)', 
+                  ' specialmentioned ', text)
+    # Substitute urls with specialurl
+    text = re.sub('http\S+', ' specialurl ', text)
+    # Remove other symbols
+    text = re.sub("" '|'\W|[-(),.\""!?#*$~`\{\}\[\]/+&*=:^]"", "" "", text)
+    text = re.sub(""\s+"", "" "", text).lower().strip().split()
+    # Remove repetition letters
+    text_list = [replaceThreeOrMore(i) for i in text] 
+    
+    result = "" "".join(text_list)
+    
+    if result == "" "" or result == """":
+        return ""blank_comment""
+    else:
+        return result
+
+
+def replaceThreeOrMore(word):
+    """"""
+    look for 3 or more repetitions of letters and replace with this letter itself only once
+    """"""
+    pattern = re.compile(r""(.)\1{3,}"", re.DOTALL)
+    return pattern.sub(r""\1"", word)
+
+
+
+def cleanText_letters(text):
+    """"""
+    replace emoji/hashtag/specialmentioned/specialurl to blank space
+    """"""
+    text = re.sub(r""emoji_(\w+)"", r"" "", text)
+    text = re.sub(r""hashtag_(\w+)"", r"" "", text)
+    text = re.sub(r""specialmentioned"", r"" "", text)
+    text = re.sub(r""specialurl"", r"" "", text)
+    text = re.sub(""\s+"", "" "", text).lower().strip()   
+
+    if text == "" "" or text == """":
+        return ""blank_comment""
+    else:
+        return text    
+    
+    return text
+
+def cv(X, y, n_splits=10, n_comments=[]):
+    kf = KFold(n_splits=10, shuffle=True, random_state=42)
+    res = defaultdict(list)
+    res_by_n_comments = []
+    for train, test in kf.split(X):
+        clf = LogisticRegression(class_weight='balanced')
+        clf.fit(X[train], y[train])
+        preds = clf.predict(X[test])
+        probas = clf.predict_proba(X[test])[:,1]
+        truths = y[test]
+        if len(n_comments) > 0:
+            res_by_n_comments.extend(zip(truths, probas, n_comments[test]))
+        res['AUC'].append(roc_auc_score(truths, probas, average=None))
+        res['F1'].append(f1_score(truths, preds, average=None))
+        res['Recall'].append(recall_score(truths, preds, average=None)[1])
+        res['Precision'].append(precision_score(truths, preds, average=None)[1])
+        res['Accuracy'].append(accuracy_score(truths, preds))
+    res_mean = {}
+    for k,v in res.items():
+        res_mean[k] = np.mean(v)
+        res_mean['%s_sd' % k] = np.std(v)
+    res_mean['by_n_comments'] = res_by_n_comments
+    return res_mean
+
+def has_mentioned(x):
+    
+    x_cleaned = cleanText(x)
+    return ""specialmentioned"" in x_cleaned
+
+def user_features(posts):
+    
+    """"""
+    1. Ratio of users in the conversation
+    2. Ratio of ""directed"" comments (those with mentions)
+    """"""
+    
+    result = []
+    for post in posts:
+        #n_comments = get_hostile_indices(post)[0] + 1
+        n_comments = post['n_comments_observed']
+        feature_list = []
+        num_mentioned = 0
+        user_list = post['users'][:n_comments]
+        comment_list = post['comments'][:n_comments]
+        ratio_users = len(set(user_list))/len(user_list)
+        for c in comment_list:
+            flag = has_mentioned(c)            
+            if flag:
+                num_mentioned += 1
+                    
+        ratio_mentioned = num_mentioned/len(user_list)
+                
+        feature_list.append(ratio_users)
+        feature_list.append(ratio_mentioned)
+            
+        result.append(feature_list)
+
+    X_matrix = np.asarray(result)
+    headers = [""other_features_1st"", ""other_features_2st""]
+        
+    return X_matrix, headers
+
+
+
+def hatebase(X_raw, hatebasepath=os.path.join(os.environ['NOBULL_PATH'], 'hatebase.json')):
+    '''
+    The hatabase features has length 14. 
+    1.  Binary representation of occurrence
+    2.  Binary representation of about_class
+    3.  Binary representation of about_disability
+    4.  Binary representation of about_ethnicity
+    5.  Binary representation of about_gender
+    6.  Binary representation of about_nationality
+    7.  Binary representation of about_religion
+    8.  Aggregation of occurrence (sum)
+    9.  Aggregation of about_class 
+    10. Aggregation of about_disability 
+    11. Aggregation of about_ethnicity 
+    12. Aggregation of about_gender 
+    13. Aggregation of about_nationality 
+    14. Aggregation of about_religion 
+    '''
+    
+    with open(hatebasepath, 'r') as fp:
+        vocab = json.load(fp)
+    
+    num_features = 14
+    num_row = len(X_raw)
+    
+    header = []
+    
+    for i in range(num_features):
+        temp_string = ""hatebase_"" + str(i) + ""-th""
+        header.append(temp_string)
+        
+    hatebase_matrix = np.zeros(shape=(num_row, num_features))
+    
+    for rowIndex in range(num_row):
+        temp_text = X_raw[rowIndex]
+        temp_token_list = temp_text.split()
+        num_occur = num_class = num_disability = num_ethnicity = num_gender = num_nationality = num_religion = 0
+        
+        current_aggreg_V = [0]*7
+        
+        for token in temp_token_list:
+            if token in vocab:
+                current_aggreg_V[0] += 1
+                current_aggreg_V[1] += int(vocab[token]['about_class'])
+                current_aggreg_V[2] += int(vocab[token]['about_disability'])
+                current_aggreg_V[3] += int(vocab[token]['about_ethnicity'])
+                current_aggreg_V[4] += int(vocab[token]['about_gender'])
+                current_aggreg_V[5] += int(vocab[token]['about_nationality'])
+                current_aggreg_V[6] += int(vocab[token]['about_religion'])
+                
+        current_binary_V = [1 if x >= 1 else x for x in current_aggreg_V]
+        result_V = current_binary_V + current_aggreg_V
+        hatebase_matrix[rowIndex] = np.array(result_V)
+
+    return hatebase_matrix, header
+
+
+def profaneLexicon(X_raw, lexiconpath=os.path.join(os.environ['NOBULL_PATH'], 'profanity.txt')):
+    '''
+    profaneLexicon has length 2
+    1. Binary representation
+    2. Aggregation representation
+    '''
+    lexicon_list = []
+    
+    with open(lexiconpath, 'r') as fp:
+        for word in fp.readlines():
+            lexicon_list.append(word.strip())
+            
+    num_features = 2
+    num_row = len(X_raw)
+
+    header = []
+    
+    for i in range(num_features):
+        temp_string = ""profaneLexicon_"" + str(i) + ""-th""
+        header.append(temp_string)
+    
+    profaneLexicon_matrix = np.zeros(shape=(num_row, num_features))
+    
+    for rowIndex in range(num_row):
+        temp_text = X_raw[rowIndex]
+        temp_token_list = temp_text.split()
+        
+        current_aggreg_value = [0]
+        
+        for token in temp_token_list:
+            if token in lexicon_list:
+                current_aggreg_value[0] += 1
+            
+        current_binary_value = [1 if x >= 1 else x for x in current_aggreg_value]
+        result_V = current_binary_value + current_aggreg_value
+        profaneLexicon_matrix[rowIndex] = np.array(result_V)
+        
+    return profaneLexicon_matrix, header
+
+#w2v_model = Word2Vec.load(os.path.join(os.environ['NOBULL_PATH'], 'model.w2v'))
+#w2v_model_3gram = gensim.models.KeyedVectors.load_word2vec_format(os.path.join(os.environ['NOBULL_PATH'], 'w2v_char.vec'))
+w2v_model = None
+w2v_model_3gram = None
+
+def w2v_aggregation(X, length_vector=100):
+    """"""
+    First 100 dimention is the average of w2v vectors
+    Second 100 dimention is the maximum of w2v vectors
+    """"""
+    global w2v_model
+    if w2v_model == None: # lazy load
+        w2v_model = Word2Vec.load(os.path.join(os.environ['NOBULL_PATH'], 'model.w2v'))
+    num_row = len(X)
+
+    max_matrix = np.zeros(shape=(num_row, length_vector))
+    average_matrix = np.zeros(shape=(num_row, length_vector))
+
+    for row in range(num_row):
+        
+        temp_text = X[row]    
+        temp_vector = temp_text.split()
+        
+        unique_vector = list(set(temp_vector))
+        num_index = len(unique_vector)
+                    
+        temp_matrix = np.zeros(shape=(num_index, length_vector))
+        
+        j = 0
+        for word in unique_vector:
+            try:
+                temp_matrix[j] = w2v_model[word]
+            except:
+                temp_matrix[j] = np.zeros(shape=(length_vector,))
+            j += 1
+
+        max_matrix[row] = np.maximum.reduce(temp_matrix)
+        average_matrix[row] = np.mean(temp_matrix, axis=0)
+        
+    result = np.concatenate((average_matrix, max_matrix), axis=1)
+    result = sparse.csr_matrix(result)
+    
+    header = []
+    
+    for i in range(length_vector):
+        temp_string = ""oldw2v_average_"" + str(i) + ""-th""
+        header.append(temp_string)
+        
+    for i in range(length_vector):
+        temp_string = ""oldw2v_maximum_"" + str(i) + ""-th""
+        header.append(temp_string)    
+
+    return result, header
+
+
+
+def w2v_aggregation_letters(X, length_vector=100):
+    """"""
+    First 100 dimention is the average of w2v vectors
+    Second 100 dimention is the maximum of w2v vectors
+    """"""
+    global w2v_model_3gram
+    if w2v_model_3gram == None:
+        w2v_model_3gram = gensim.models.KeyedVectors.load_word2vec_format(os.path.join(os.environ['NOBULL_PATH'], 'w2v_char.vec'))
+    X_raw = []
+    for x in X:
+        x_letter = cleanText_letters(x)
+        X_raw.append(x_letter)
+
+
+    num_row = len(X_raw)
+
+    max_matrix = np.zeros(shape=(num_row, length_vector))
+
+    average_matrix = np.zeros(shape=(num_row, length_vector))
+
+    for row in range(num_row):
+        
+        temp_text = X_raw[row]    
+        temp_vector = temp_text.split()
+        
+        unique_vector = list(set(temp_vector))
+        num_index = len(unique_vector)
+                    
+        temp_matrix = np.zeros(shape=(num_index, length_vector))
+        
+        j = 0
+        for word in unique_vector:
+            
+            temp_matrix[j] = get_vector(word, w2v_model_3gram, 100)
+            j += 1
+
+        max_matrix[row] = np.maximum.reduce(temp_matrix)
+        average_matrix[row] = np.mean(temp_matrix, axis=0)
+        
+    result = np.concatenate((average_matrix, max_matrix), axis=1)
+    result = sparse.csr_matrix(result)
+    
+    header = []
+    
+    for i in range(length_vector):
+        temp_string = ""neww2v_average_"" + str(i) + ""-th""
+        header.append(temp_string)
+        
+    for i in range(length_vector):
+        temp_string = ""neww2v_maximum_"" + str(i) + ""-th""
+        header.append(temp_string)
+
+    return result, header
+
+
+def get_vector(word, w2v_model, length_vector):
+    
+    if word == ""blank_comment"":
+        return np.zeros(shape=(length_vector, ))
+    else:
+        try:
+            vector = w2v_model[word]
+        except:
+            vector = np.zeros(shape=(length_vector, ))
+
+        return vector
+    
+def previous_post_features(code_list, previous_post_file=os.path.join(os.environ['NOBULL_PATH'], 'code2previouspost.json')):
+    
+    """"""
+    Previous posts from the owner of current post 
+    """"""
+    with open(previous_post_file, ""r"", encoding=""utf8"") as f:
+        d = f.readlines()[0]
+        code2previouspost_map = json.loads(d)
+    
+    X_previous_comments = []
+    
+    for c in code_list:
+        if c in code2previouspost_map:
+            previouspost = code2previouspost_map[c][1]
+            text_lists = previouspost[""text""]
+            int_text = {int(k):v for k, v in text_lists.items()}
+            
+            current_X_text_list = []
+            for key, value in sorted(int_text.items()):
+                current_X_text_list.append(value)
+            
+            current_X_text = "" "".join(current_X_text_list) 
+            cleaned_text = cleanText(current_X_text)
+            X_previous_comments.append(cleaned_text)
+        else:
+            X_previous_comments.append(""blank_comment"")
+
+    X_hatebase, header_hatebase = hatebase(X_previous_comments)
+    X_profane, header_profane = profaneLexicon(X_previous_comments)
+    X_aggregation, header_w2v = w2v_aggregation_letters(X_previous_comments)
+    
+    vec = CountVectorizer(min_df=2)
+    X = vec.fit_transform(X_previous_comments)
+    
+    X_overall = sparse.hstack([X, X_aggregation, X_hatebase, X_profane]).tocsr()
+    
+    header_vec = vec.get_feature_names()
+    header = header_vec + header_w2v + header_hatebase + header_profane
+    
+    header_ = ['pre_post_'+ h  for h in header]
+    
+    return X_overall, header_
+
+
+def previous_comment_features(posts, previous_comment_file=os.path.join(os.environ['NOBULL_PATH'], 'user2comment.json'), max_per_user=10):
+    
+    """"""
+    Previous comments from users on this post.
+    Since this can generate many features, we put a limit on the number of comments per user we consider.
+    """"""
+    with open(previous_comment_file, ""r"", encoding=""utf8"") as f:
+        d = f.readlines()[0]
+        user2previouscomment_map = json.loads(d)
+        
+    X_previous_comments = []
+    posts_dict = {}
+    comments_added = []
+    for post in posts:
+        #n_comment = get_hostile_indices(post)[0] + 1
+        n_comment = post['n_comments_observed']
+        create_at = post[""create_at""]
+        userlist = post[""users""][:n_comment]
+        current_X_text_list = []
+        for user in userlist:
+            if user in user2previouscomment_map:
+                previouscomment = user2previouscomment_map[user]
+                int_key = {float(k):v for k, v in previouscomment.items()}
+                n_per_user = 0
+                for ts, tx in sorted(int_key.items(), reverse = True):
+                    if ts < int(create_at):
+                        current_X_text_list.append(tx)
+                        n_per_user += 1
+                        if n_per_user > max_per_user:
+                            break
+                        
+        if len(current_X_text_list) == 0:
+            current_X_text_list.append('blank_comment')
+        comments_added.append(len(current_X_text_list))
+        current_X_text = "" "".join(current_X_text_list) 
+        cleaned_text = cleanText(current_X_text)
+        X_previous_comments.append(cleaned_text)          
+    X_hatebase, header_hatebase = hatebase(X_previous_comments)
+    X_profane, header_profane = profaneLexicon(X_previous_comments)
+    X_aggregation, header_w2v = w2v_aggregation_letters(X_previous_comments)
+    
+    vec = CountVectorizer(min_df=2)
+    X = vec.fit_transform(X_previous_comments)
+    
+    X_overall = sparse.hstack([X, X_aggregation, X_hatebase, X_profane]).tocsr()
+    
+    header_vec = vec.get_feature_names()
+    header = header_vec + header_w2v + header_hatebase + header_profane
+    header_ = ['pre_c_'+ h  for h in header]
+    return X_overall, header_
+
+def final_comment_features(X_raw):
+    """"""
+    Distinguish between features from most recent comment.
+    """"""
+    vec = CountVectorizer(min_df=2)
+    X = vec.fit_transform(X_raw)
+    X_aggregation, header_w2v = w2v_aggregation_letters(X_raw)
+    X_hatebase, header_hatebase = hatebase(X_raw)
+    X_profane, header_profane = profaneLexicon(X_raw)
+    X_overall = sparse.hstack([X, X_aggregation, X_hatebase, X_profane]).tocsr()
+    header_vec = vec.get_feature_names()
+    header = header_vec + header_w2v + header_hatebase + header_profane
+    header_ = ['final_comment_'+ h  for h in header]
+    return X_overall, header_
+
+def trend_features(X_raw):
+    '''
+    1. Maximum value of probability of class 1 (positive)
+    2. # of comments which have class 1 probability larger than 0.3
+    3. Maximum slope within 2 adjacent probas in a list of probability of class 1
+    4. Difference of max and min probability of class 1
+    5. Ratio of feature 2
+    '''
+    
+    row = len(X_raw)
+    col = 4
+    
+    with open(os.path.join(os.environ['NOBULL_PATH'], 'clf&vec.pickle'), 'rb') as handle:
+        pretrained_model, vectorizer = pickle.load(handle)
+    
+    result = np.zeros(shape=(row, col))
+    
+    maximum_1 = []
+    num_comments_2 = []
+    max_slope_3 = []
+    max_difference_4 = []
+    ratio_5 = []
+    
+    for i in X_raw:
+        
+        X_v_current_post = vectorizer.transform(i)
+        
+        X_letters = []
+        for x in i:
+            x_letter = cleanText_letters(x)
+            if x_letter == "" "" or x_letter == """":
+                X_letters.append(""blank_comment"")
+            else:
+                X_letters.append(x_letter)
+        
+        # Hatebase features
+        X_hatebase, h_hate = hatebase(i)  
+        # ProfaneLexicon
+        X_profane, h_profane = profaneLexicon(i)
+        # W2V
+        X_letters_w2v_features, h_neww2v = w2v_aggregation_letters(X_letters)
+        
+        X = sparse.hstack([X_v_current_post, X_hatebase, X_profane, X_letters_w2v_features])
+        # Double Matrix
+        # slow!
+        X_previous = matrix_expantion_double(X)
+        X = sparse.hstack([X_previous, X]).tocsr()
+        
+        proba = pretrained_model.predict_proba(X)[:,1]
+        proba_list = proba.tolist()
+        
+        maximum_1.append(max(proba))
+        
+        num_comment = sum(i > 0.3 for i in proba.tolist())
+        num_comments_2.append(sum(i > 0.3 for i in proba.tolist()))
+        
+        if len(proba_list) == 1:
+            max_slope = 0
+        else:   
+            max_slope = max([x - z for x, z in zip(proba.tolist()[:-1], proba.tolist()[1:])])
+            
+        max_slope_3.append(max_slope)    
+        max_difference_4.append(max(proba_list) - min(proba_list))
+        ratio_5.append(num_comment/len(proba_list))
+        
+#     result[:,0] = np.asarray(maximum_1)
+
+    result[:,0] = np.asarray(num_comments_2)
+    result[:,1] = np.asarray(max_slope_3)
+    result[:,2] = np.asarray(max_difference_4)
+    result[:,3] = np.asarray(ratio_5)
+    
+    header_trends = [""trends_1"", ""trends_2"", ""trends_3"", ""trends_4""]
+    
+    return result, header_trends
+
+
+def matrix_expantion_double(X):
+    
+    row, col = X.shape
+    
+    start = 0
+    
+    new_X = np.zeros(shape=(row, col))
+                
+    current_post_X = X.todense()
+    cumulative_vector = np.zeros(shape=(1,col))
+        
+    for i in range(row):
+                        
+        if i == 0 :
+            new_X[i, :] = cumulative_vector
+        else:
+            new_X[i, :] = cumulative_vector/i
+                
+        cumulative_vector += current_post_X[i]
+    
+    return new_X 
+","True","True","True","True","False","False","True","False"
