@@ -1,7 +1,6 @@
-let GEMINI_API_KEY = null;
-let focused;
-
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models";
+
+let GEMINI_API_KEY = null;
 
 // Fetch Gemini API key on load
 (async function fetchGeminiApiKey() {
@@ -19,6 +18,8 @@ function isApiKeyReady() {
   return GEMINI_API_KEY && GEMINI_API_KEY !== "ERR";
 }
 
+let focused;
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { action } = message;
   if (!isApiKeyReady()) {
@@ -35,12 +36,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 function handleSummarizeFocusedChart() {
   focused = document.activeElement;
-  console.log(focused);
 
   if (focused?.tagName === "IMG") {
     summarizeChartFromDOM(focused)
       .then(summary => {
-        ttsRead(summary === "ERR" ? "There was an error summarizing this chart." : summary);
+        if (summary === "ERR") {
+          summary = "There was an error summarizing this chart.";
+        } else if (summary === "N/A") {
+          summary = "This image is not a chart."
+        }
+        ttsRead(summary);
       })
       .catch(err => {
         console.error("Error in summarizeChartFromDOM:", err);
@@ -52,7 +57,12 @@ function handleSummarizeFocusedChart() {
 }
 
 function handleAskQuestion() {
-  if (!(focused?.tagName === "IMG")) {
+  if (!focused) {
+    ttsRead("A chart must be read before you ask a question.");
+    return;
+  }
+
+  if (!(focused.tagName === "IMG")) {
     ttsRead("Focus is not on an image element.");
     return;
   }
@@ -72,7 +82,7 @@ function handleAskQuestion() {
     .then(() => recognition.start())
     .catch(err => {
       console.error("TTS error:", err);
-      recognition.start(); // Still try to start recognition even if TTS fails
+      recognition.start();
     });
 
   recognition.onresult = async (event) => {
@@ -93,7 +103,7 @@ function handleAskQuestion() {
         "Answer the question using the content of the chart image. " +
         "If the chart is unclear or the question is not answerable from the chart, say so.";
 
-      const response = await geminiGenerateContent(base64, type, prompt, "gemini-2.0-flash-exp");
+      const response = await geminiGenerateContent(base64, type, prompt, "gemini-2.5-flash");
       const answer = response || "I'm sorry, I couldn't answer that.";
       await ttsRead(answer);
     } catch (err) {
@@ -113,6 +123,7 @@ function handleAskQuestion() {
 }
 
 async function summarizeChartFromDOM(imgElement) {
+  ttsRead("Hello");
   try {
     const imageUrl = new URL(imgElement.src, window.location.href).href;
     const { success, base64, type } = await fetchImageAsBase64(imageUrl);
