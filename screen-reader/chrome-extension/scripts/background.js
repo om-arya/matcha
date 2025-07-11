@@ -4,6 +4,12 @@ chrome.commands.onCommand.addListener((command) => {
       chrome.tabs.sendMessage(tabs[0].id, { action: "summarize-focused-image" });
     });
   }
+
+  if (command === "ask-question") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: "ask-question" });
+    });
+  }
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

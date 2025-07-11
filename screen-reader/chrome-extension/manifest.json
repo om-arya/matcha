@@ -14,12 +14,19 @@
     "128": "images/Matcha_Mochi.png"
   },
   "commands": {
-    "summarize-image": {
+    "summarize-chart": {
       "suggested_key": {
-        "default": "Alt+S",
+        "default": "Alt+O",
         "mac": "Command+Shift+O"
       },
-      "description": "Summarize the focused image"
+      "description": "Summarize the focused chart"
+    },
+    "ask-question": {
+      "suggested_key": {
+        "default": "Alt+L",
+        "mac": "Command+Shift+L"
+      },
+      "description": "Ask a question"
     }
   },
   "content_scripts": [
