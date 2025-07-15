@@ -1,3 +1,9 @@
+// Make all img elements focusable
+const images = document.querySelectorAll('img:not([tabindex])');
+images.forEach(img => {
+  img.setAttribute('tabindex', '0');
+});
+
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models";
 
 let GEMINI_API_KEY = null;
@@ -6,8 +12,7 @@ let GEMINI_API_KEY = null;
 (async function fetchGeminiApiKey() {
   try {
     const res = await fetch("http://127.0.0.1:8000/get_gemini_api_key");
-    const data = await res.json();
-    GEMINI_API_KEY = data.key || data; // Handle both {key: "..."} and "..." responses
+    GEMINI_API_KEY = await res.json();
   } catch (err) {
     console.error("Retrieving Gemini API key failed:", err);
     GEMINI_API_KEY = "ERR";
@@ -18,7 +23,9 @@ function isApiKeyReady() {
   return GEMINI_API_KEY && GEMINI_API_KEY !== "ERR";
 }
 
-let focused;
+let currFocused;
+let currSummary;
+let isOnChart = false;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { action } = message;
@@ -27,43 +34,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   }
 
-  if (action === "summarize-focused-chart") {
+  if (action === "summarize-chart") {
+    isOnChart = false;
     handleSummarizeFocusedChart();
   } else if (action === "ask-question") {
     handleAskQuestion();
   }
 });
 
-function handleSummarizeFocusedChart() {
-  focused = document.activeElement;
+async function handleSummarizeFocusedChart() {
+  currFocused = document.activeElement;
 
-  if (focused?.tagName === "IMG") {
-    summarizeChartFromDOM(focused)
-      .then(summary => {
-        if (summary === "ERR") {
-          summary = "There was an error summarizing this chart.";
-        } else if (summary === "N/A") {
-          summary = "This image is not a chart."
-        }
-        ttsRead(summary);
-      })
-      .catch(err => {
-        console.error("Error in summarizeChartFromDOM:", err);
-        ttsRead("There was an error summarizing this chart.");
-      });
+  if (currFocused?.tagName === "IMG") {
+    ttsRead("Generating summary...")
+    const result = await summarizeChartFromDOM(currFocused);
+    if (result === "ERR") {
+      currSummary = "There was an error summarizing this chart.";
+    } else if (result === "N/A") {
+      currSummary = "This image is not a chart."
+    } else {
+      isOnChart = true;
+      currSummary = result;
+    }
   } else {
-    ttsRead("Focus is not on an image element.");
+    currSummary = "Focus is not on an image element."
   }
+
+  ttsRead(currSummary);
 }
 
 function handleAskQuestion() {
-  if (!focused) {
-    ttsRead("A chart must be read before you ask a question.");
-    return;
-  }
-
-  if (!(focused.tagName === "IMG")) {
-    ttsRead("Focus is not on an image element.");
+  if (!isOnChart) {
+    ttsRead("A chart must be summarized before you ask a question.");
     return;
   }
 
@@ -78,7 +80,7 @@ function handleAskQuestion() {
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
-  ttsRead("I'm listening. Please ask your question about the chart.")
+  ttsRead("I'm listening. Please ask your question.")
     .then(() => recognition.start())
     .catch(err => {
       console.error("TTS error:", err);
@@ -90,7 +92,7 @@ function handleAskQuestion() {
       const spokenQuestion = event.results[0][0].transcript;
       await ttsRead(`You asked: ${spokenQuestion}`);
       
-      const imageUrl = new URL(focused.src, window.location.href).href;
+      const imageUrl = new URL(currFocused.src, window.location.href).href;
       const { success, base64, type } = await fetchImageAsBase64(imageUrl);
       
       if (!success) {
@@ -99,8 +101,9 @@ function handleAskQuestion() {
       }
 
       const prompt =
-        `You are looking at a data visualization image and were asked the following question: "${spokenQuestion}". ` +
-        "Answer the question using the content of the chart image. " +
+        `You are a screen reader looking at a data visualization image and were asked the following question: "${spokenQuestion}". ` +
+        "Answer the question in a paragraph or shorter, using the content of the chart image. " +
+        "You have already provided a summary of the chart image, so no need to do it again. You also do not need to repeat the question. Just answer the question." +
         "If the chart is unclear or the question is not answerable from the chart, say so.";
 
       const response = await geminiGenerateContent(base64, type, prompt, "gemini-2.5-flash");
@@ -123,7 +126,6 @@ function handleAskQuestion() {
 }
 
 async function summarizeChartFromDOM(imgElement) {
-  ttsRead("Hello");
   try {
     const imageUrl = new URL(imgElement.src, window.location.href).href;
     const { success, base64, type } = await fetchImageAsBase64(imageUrl);

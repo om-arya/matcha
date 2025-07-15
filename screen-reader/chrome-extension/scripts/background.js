@@ -1,7 +1,7 @@
 chrome.commands.onCommand.addListener((command) => {
-  if (command === "summarize-image") {
+  if (command === "summarize-chart") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, { action: "summarize-focused-image" });
+      chrome.tabs.sendMessage(tabs[0].id, { action: "summarize-chart" });
     });
   }
 

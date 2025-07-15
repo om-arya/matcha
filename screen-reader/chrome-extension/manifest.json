@@ -42,7 +42,8 @@
     "service_worker": "scripts/background.js"
   },
   "permissions": [
-    "tts"
+    "tts",
+    "contextMenus"
   ],
   "host_permissions": ["<all_urls>"]
 }
