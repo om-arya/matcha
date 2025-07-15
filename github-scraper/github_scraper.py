@@ -6,14 +6,15 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import pandas as pd
 from GITHUB_TOKEN import GITHUB_TOKEN
-
+from GEMINI_API_KEY import GEMINI_API_KEY
+import google.generativeai as genai
 
 # --- Config ---
 KEYWORDS   = ["import matplotlib", "from matplotlib import"]
-MAX_PAGES  = 5
-PER_PAGE   = 5
+MAX_PAGES  = 1
+PER_PAGE   = 1
 
-# --- API Setup ---
+# --- API Setup ---``
 headers = {
     'Authorization': f'token {GITHUB_TOKEN}',
     'Accept':        'application/vnd.github.v3+json'
@@ -82,7 +83,49 @@ for keyword in KEYWORDS:
 # --- after all scraping is done: build a DataFrame ---
 df = pd.DataFrame(found_files)
 
-rule_checks = {
+# --- Set up Gemini ---
+genai.configure(api_key=GEMINI_API_KEY)
+
+def assess_matplotlib_bias_gemini(code_snippet: str, model_name: str = "models/gemini-1.5-pro") -> dict:
+    prompt = (
+        "You are given a snippet of Python Matplotlib code. Analyze it for contextual or narrative bias.\n"
+        "Return 1 if each of the following bias types are present, or 0 if not.\n\n"
+        "Return ONLY in this Python dict format:\n"
+        "{\n"
+        "  'EMOTIONAL_TITLE': 1,\n"
+        "  'SUGGESTS_CAUSALITY': 0,\n"
+        "  'VAGUE_LABELS': 1,\n"
+        "  'CHERRY_PICKING': 0,\n"
+        "  'FRAMING_BIAS': 1,\n"
+        "  'IMPLIED_CAUSALITY': 0,\n"
+        "}\n\n"
+        f"```Code snippet: \n{code_snippet}\n```"
+    )
+    try:
+        model = genai.GenerativeModel(model_name)
+        response = model.generate_content(prompt)
+        print("Gemini raw response:", response.text)
+        result = eval(response.text.strip())  # Use json.loads() in production
+        return result if isinstance(result, dict) else {}
+    except Exception as e:
+        print(f"Gemini error: {e}")
+        return {}
+
+def safe_assess_gemini(code_snippet: str) -> dict:
+    default_result = {
+        'EMOTIONAL_TITLE': 0,
+        'SUGGESTS_CAUSALITY': 0,
+        'VAGUE_LABELS': 0,
+        'CHERRY_PICKING': 0,
+        'FRAMING_BIAS': 0,
+        'IMPLIED_CAUSALITY': 0
+    }
+    result = assess_matplotlib_bias_gemini(code_snippet)
+    default_result.update(result)
+    return default_result
+
+# --- Accessibility Rule Checks ---
+regex_checks = {
     'MISSING_TITLE':              lambda txt: not bool(re.search(r'\.title\s*\(',  txt)),
     'MISSING_XLABEL':             lambda txt: not bool(re.search(r'\.xlabel\s*\(', txt)),
     'MISSING_YLABEL':             lambda txt: not bool(re.search(r'\.ylabel\s*\(', txt)),
@@ -90,18 +133,21 @@ rule_checks = {
     'INSUFFICIENT_COLOR_CONTRAST': lambda txt: bool(re.search(r'color\s*=',         txt)),
     'FONTSIZE_TOO_SMALL':         lambda txt: not bool(re.search(r'fontsize\s*=',     txt)),
     'FIGSIZE_TOO_SMALL':          lambda txt: not bool(re.search(r'figsize\s*=\s*\(', txt)),
-    'ANIMATIONS':                 lambda txt: bool(re.search(r'FuncAnimation|animation', txt, re.IGNORECASE))
+    'ANIMATIONS':                 lambda txt: bool(re.search(r'FuncAnimation|animation', txt, re.IGNORECASE)),
 }
 
-# Apply rule checks to the DataFrame
-for rule_name, check_fn in rule_checks.items():
+# --- Apply regex rule checks ---
+for rule_name, check_fn in regex_checks.items():
+    print(f"Applying regex rule: {rule_name}")
     df[rule_name] = df['content'].apply(check_fn)
 
-# ───────── FINALLY ─────────
-# Export to CSV
-df.to_csv(
-    'github_accessibility_audit6.csv',
-    index=False,
-    encoding='utf-8',
-    quoting=csv.QUOTE_ALL
-)
+# --- Apply Gemini (LLM) rule checks ---
+print("Running Gemini LLM checks...")
+llm_results = df['content'].apply(safe_assess_gemini)
+llm_df = pd.DataFrame(llm_results.tolist())  # clean merge
+
+# --- Merge LLM results back to main df ---
+df = pd.concat([df, llm_df], axis=1)
+
+# --- Export to CSV ---
+df.to_csv('github_accessibility_audit_14.csv', index=False, encoding='utf-8', quoting=csv.QUOTE_ALL)

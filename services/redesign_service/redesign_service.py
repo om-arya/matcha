@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import re
 import google.generativeai as genai
+import json
 
 from GEMINI_API_KEY import GEMINI_API_KEY
 
@@ -112,15 +113,46 @@ def find_flaws(mpl_file: str):
         flaws.append("DUAL_Y_AXES")
 
     contextual_flaws_prompt = f"""
-        I will present a list of rule codes mapped to their descriptions, followed by a Matplotlib file.
-        Output a list of the rule codes the Matplotlib file violates in the format "[RULE_CODE1, RULE_CODE2, ...]".
-        If there are no violations, output NONE.
+       You are an expert in data visualization integrity. I will provide you with:
 
-        Rule codes:
-        BIASED_TITLE: A graph uses a biased or slanted title.
-        MISLEADING_ANNOTATIONS: A graph emphasizes or fabricates causal relationships (e.g., law passed → drop in deaths).
+        1. A list of misleading visualization rules (each with a RULE_CODE and description),
+        2. A Matplotlib code snippet that generates a chart.
 
-        Matplotlib file:
+        Your task:
+        - Analyze the code and detect which rules are violated based solely on what can be inferred from the code itself (e.g., axis behavior, titles, aspect ratio, annotations).
+        - Output only the list of violated RULE_CODEs in this format: [RULE_CODE1, RULE_CODE2, ...]
+        - If the graph does not violate any rules, return: NONE
+
+        Rule Codes and Descriptions:
+
+        BIASED_TITLE:
+        A graph uses a biased or emotionally slanted title that influences interpretation before data is analyzed.
+
+        MISLEADING_ANNOTATIONS:
+        Annotations suggest causality or relationships that are not statistically or contextually justified.
+
+        DECEPTIVE_LABELS:
+        Y-axis or x-axis labels are vague, reversed, or omit key categories, leading to confusion.
+
+        FRAMING_BIAS:
+        External context or textual framing (e.g., comments, hashtags, plot subtitles) introduces bias not reflected in the graph.
+
+        INVERTED_AXES:
+        Y-axis is reversed (top to bottom), which misleads users by flipping the meaning of increases/decreases.
+
+        TRUNCATED_AXES:
+        Y-axis does not start at zero, which exaggerates visual differences.
+
+        ASPECT_RATIO_DISTORTION:
+        Aspect ratio is altered (e.g., too stretched or squished), making trends look steeper or flatter than they are.
+
+        DUAL_AXES:
+        Chart uses two different y-axes that may falsely suggest correlation between unrelated data series.
+
+        NON_SEQUENTIAL_AXIS:
+        X or Y axis uses a non-logical or out-of-order sequence (e.g., age ranges like 18-34, 45-55, 35-44).
+
+        Matplotlib Code:
         {mpl_file}
     """
 
