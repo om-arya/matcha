@@ -43,15 +43,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function handleSummarizeFocusedChart() {
+  if (currFocused === document.activeElement && currSummary) {
+    ttsRead(currSummary);
+    return;
+  }
+
   currFocused = document.activeElement;
 
   if (currFocused?.tagName === "IMG") {
     ttsRead("Generating summary...")
     const result = await summarizeChartFromDOM(currFocused);
     if (result === "ERR") {
-      currSummary = "There was an error summarizing this chart.";
+      currSummary = "There was an error summarizing this data visualiziation.";
     } else if (result === "N/A") {
-      currSummary = "This image is not a chart."
+      currSummary = "This image is not a data visualization."
     } else {
       isOnChart = true;
       currSummary = result;
@@ -65,7 +70,7 @@ async function handleSummarizeFocusedChart() {
 
 function handleAskQuestion() {
   if (!isOnChart) {
-    ttsRead("A chart must be summarized before you ask a question.");
+    ttsRead("A data visualization must be summarized before you ask a question.");
     return;
   }
 
@@ -133,12 +138,11 @@ async function summarizeChartFromDOM(imgElement) {
     if (!success) return "ERR";
 
     const prompt =
-      "You are a screen reader and came across this image. " +
-      "If it is a data visualization (e.g. graph, chart, etc.): " +
+      "You are a screen reader and came across this data visualization. " +
       "Give 1-2 sentences about the main features of the visualization including the title (if applicable), " +
       "maximum(s), minimum(s), and general trend(s), as well as any key insight(s). " +
       "Start it with \"A [visualization type] shows…\" or \"A [visualization type] titled [title] shows…\" " +
-      "Otherwise: Simply output \"N/A\"";
+      "If it is not a data visualization, simply output \"N/A\"";
 
     const summary = await geminiGenerateContent(base64, type, prompt, "gemini-2.5-flash");
     return summary || "ERR";
