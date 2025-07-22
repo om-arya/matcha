@@ -1,153 +1,82 @@
 import time
 import requests
-import csv 
+import csv
 import re
 from datetime import datetime, timedelta
-from tqdm import tqdm
 import pandas as pd
+from tqdm import tqdm
 from GITHUB_TOKEN import GITHUB_TOKEN
-from GEMINI_API_KEY import GEMINI_API_KEY
-import google.generativeai as genai
 
-# --- Config ---
+# --- Setup ---
 KEYWORDS   = ["import matplotlib", "from matplotlib import"]
-MAX_PAGES  = 1
-PER_PAGE   = 1
+MAX_PAGES  = 5
+PER_PAGE   = 10
+OUTPUT_CSV = "github_matplotlib_code.csv"
 
-# --- API Setup ---``
-headers = {
+HEADERS = {
     'Authorization': f'token {GITHUB_TOKEN}',
     'Accept':        'application/vnd.github.v3+json'
 }
-search_url = 'https://api.github.com/search/code'
 
-# --- Time Stuff ---
-since = datetime.today() - timedelta(days=30)  # Since 30 days ago
-until = since + timedelta(days=1)   # Until 29 days ago 
+SEARCH_URL = "https://api.github.com/search/code"
 
-while until < datetime.today():
-    day_url = search_url.format(since.strftime('%Y-%m-%d'), until.strftime('%Y-%m-%d'))
-    r = requests.get(day_url, headers)
-    print(f'Repositories created between {since} and {until}: {r.json().get("total_count")}')
+# --- Time range settings ---
+start_date = datetime(2021, 1, 1)  # Start far back; change if needed
+end_date   = datetime.today()
 
-    # Update dates for the next search
-    since = until
-    until = since + timedelta(days=1)
+# --- Optional: Resume from a checkpoint ---
+try:
+    existing_df = pd.read_csv(OUTPUT_CSV)
+    scraped_repos = set(existing_df['repo'] + '/' + existing_df['path'])
+    print(f"Resuming, {len(scraped_repos)} files already scraped.")
+except FileNotFoundError:
+    scraped_repos = set()
 
-# searching for the keywords in Python files
-found_files = []
+# --- Loop through every day ---
+while start_date < end_date:
+    next_day = start_date + timedelta(days=1)
+    print(f"\nScraping for files created between {start_date.date()} and {next_day.date()}")
 
-for keyword in KEYWORDS:
-    print(f"\nSearching for code fragments containing: '{keyword}'")
-    for page in tqdm(range(1, MAX_PAGES + 1)):
-        params = {
-            'q':       f'{keyword} in:file extension:py',
-            'per_page':PER_PAGE,
-            'page':    page
-        }
-        resp = requests.get(search_url, headers=headers, params=params)
-        if resp.status_code == 403:
-            print("Rate limited. Waiting...")
-            time.sleep(60)
-            continue
-        if resp.status_code != 200:
-            print("Error:", resp.status_code, resp.text)
-            break
+    for keyword in KEYWORDS:
+        for page in range(1, MAX_PAGES + 1):
+            params = {
+                'q': f'{keyword} in:file extension:py created:{start_date.date()}..{next_day.date()}',
+                'per_page': PER_PAGE,
+                'page': page
+            }
 
-        data = resp.json()
-        items = data.get('items', [])
-        if not items:
-            print("No results.")
-            break
+            response = requests.get(SEARCH_URL, headers=HEADERS, params=params)
 
-        for item in items:
-            repo_full_name = item['repository']['full_name']
-            file_path      = item['path']
-            raw_url        = f"https://raw.githubusercontent.com/{repo_full_name}/HEAD/{file_path}"
+            if response.status_code == 403:
+                print("Rate limited. Sleeping for 1 minute...")
+                time.sleep(60)
+                continue
+            elif response.status_code != 200:
+                print("Error:", response.status_code, response.text)
+                break
 
-            raw_resp = requests.get(raw_url, headers=headers)
-            if raw_resp.status_code == 200:
-                content = raw_resp.text
-                print(f"Fetched: {repo_full_name}/{file_path}")
-                # append to our list
-                found_files.append({
-                    'repo':    repo_full_name,
-                    'path':    file_path,
-                    'content': content
-                })
-            else:
-                print(f"Failed to fetch: {repo_full_name}/{file_path}")
+            for item in response.json().get("items", []):
+                repo_full_name = item['repository']['full_name']
+                file_path = item['path']
+                unique_id = f"{repo_full_name}/{file_path}"
 
-        time.sleep(1)  # avoid hammering the API
+                if unique_id in scraped_repos:
+                    continue
 
-# --- after all scraping is done: build a DataFrame ---
-df = pd.DataFrame(found_files)
+                raw_url = f"https://raw.githubusercontent.com/{repo_full_name}/HEAD/{file_path}"
+                raw_resp = requests.get(raw_url, headers=HEADERS)
 
-# --- Set up Gemini ---
-genai.configure(api_key=GEMINI_API_KEY)
+                if raw_resp.status_code == 200:
+                    with open(OUTPUT_CSV, "a", newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerow([repo_full_name, file_path, raw_resp.text])
+                        scraped_repos.add(unique_id)
+                        print(f"Saved: {repo_full_name}/{file_path}")
+                else:
+                    print(f"Failed to fetch raw content for {repo_full_name}/{file_path}")
 
-def assess_matplotlib_bias_gemini(code_snippet: str, model_name: str = "models/gemini-1.5-pro") -> dict:
-    prompt = (
-        "You are given a snippet of Python Matplotlib code. Analyze it for contextual or narrative bias.\n"
-        "Return 1 if each of the following bias types are present, or 0 if not.\n\n"
-        "Return ONLY in this Python dict format:\n"
-        "{\n"
-        "  'EMOTIONAL_TITLE': 1,\n"
-        "  'SUGGESTS_CAUSALITY': 0,\n"
-        "  'VAGUE_LABELS': 1,\n"
-        "  'CHERRY_PICKING': 0,\n"
-        "  'FRAMING_BIAS': 1,\n"
-        "  'IMPLIED_CAUSALITY': 0,\n"
-        "}\n\n"
-        f"```Code snippet: \n{code_snippet}\n```"
-    )
-    try:
-        model = genai.GenerativeModel(model_name)
-        response = model.generate_content(prompt)
-        print("Gemini raw response:", response.text)
-        result = eval(response.text.strip())  # Use json.loads() in production
-        return result if isinstance(result, dict) else {}
-    except Exception as e:
-        print(f"Gemini error: {e}")
-        return {}
+            time.sleep(1)  # Avoid hammering GitHub
 
-def safe_assess_gemini(code_snippet: str) -> dict:
-    default_result = {
-        'EMOTIONAL_TITLE': 0,
-        'SUGGESTS_CAUSALITY': 0,
-        'VAGUE_LABELS': 0,
-        'CHERRY_PICKING': 0,
-        'FRAMING_BIAS': 0,
-        'IMPLIED_CAUSALITY': 0
-    }
-    result = assess_matplotlib_bias_gemini(code_snippet)
-    default_result.update(result)
-    return default_result
-
-# --- Accessibility Rule Checks ---
-regex_checks = {
-    'MISSING_TITLE':              lambda txt: not bool(re.search(r'\.title\s*\(',  txt)),
-    'MISSING_XLABEL':             lambda txt: not bool(re.search(r'\.xlabel\s*\(', txt)),
-    'MISSING_YLABEL':             lambda txt: not bool(re.search(r'\.ylabel\s*\(', txt)),
-    'MISSING_LEGEND':             lambda txt: not bool(re.search(r'\.legend\s*\(', txt)),
-    'INSUFFICIENT_COLOR_CONTRAST': lambda txt: bool(re.search(r'color\s*=',         txt)),
-    'FONTSIZE_TOO_SMALL':         lambda txt: not bool(re.search(r'fontsize\s*=',     txt)),
-    'FIGSIZE_TOO_SMALL':          lambda txt: not bool(re.search(r'figsize\s*=\s*\(', txt)),
-    'ANIMATIONS':                 lambda txt: bool(re.search(r'FuncAnimation|animation', txt, re.IGNORECASE)),
-}
-
-# --- Apply regex rule checks ---
-for rule_name, check_fn in regex_checks.items():
-    print(f"Applying regex rule: {rule_name}")
-    df[rule_name] = df['content'].apply(check_fn)
-
-# --- Apply Gemini (LLM) rule checks ---
-print("Running Gemini LLM checks...")
-llm_results = df['content'].apply(safe_assess_gemini)
-llm_df = pd.DataFrame(llm_results.tolist())  # clean merge
-
-# --- Merge LLM results back to main df ---
-df = pd.concat([df, llm_df], axis=1)
-
-# --- Export to CSV ---
-df.to_csv('github_accessibility_audit_14.csv', index=False, encoding='utf-8', quoting=csv.QUOTE_ALL)
+    # Move to the next day
+    start_date = next_day
+    time.sleep(2)  # Optional slow down between day cycles
