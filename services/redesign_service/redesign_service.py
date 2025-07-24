@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import re
 import google.generativeai as genai
 import json
+from datetime import datetime
+import os 
 
 from GEMINI_API_KEY import GEMINI_API_KEY
 
@@ -25,6 +27,24 @@ def generate_response(prompt: str):
     result = client.generate_content(prompt)
     candidate = result.candidates[0]
     return candidate.content.parts[0].text.strip()
+
+def export_flaws_to_json(mpl_code: str, flaws: list[str], output_dir="evaluations"):
+    os.makedirs(output_dir, exist_ok=True)
+
+    data = {
+        "violated_rules": flaws,
+        "violation_count": len(flaws),
+        "total_possible_rules": 22,  # Or however many total rules you support
+        "code": mpl_code
+    }
+
+    filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_graph_flaws.json"
+    path = os.path.join(output_dir, filename)
+
+    with open(path, "w") as f:
+        json.dump(data, f, indent=4)
+
+    return path
 
 @app.get("/find_flaws")
 def find_flaws(mpl_file: str):
