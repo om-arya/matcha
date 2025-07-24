@@ -4,9 +4,10 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+import os
 from mangum import Mangum
 
-from GEMINI_API_KEY import GEMINI_API_KEY
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 limiter = Limiter(key_func=get_remote_address, default_limits=["1/minute"])
 
@@ -40,7 +41,7 @@ Returns a Gemini API key.
 @app.get("/get_gemini_api_key")
 @limiter.limit("1/minute")
 def get_gemini_api_key(request: Request):
-    return GEMINI_API_KEY
+    return {"gemini_api_key": GEMINI_API_KEY}
 
 if __name__ == "__main__":
     import uvicorn

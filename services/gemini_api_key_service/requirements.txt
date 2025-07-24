@@ -1,5 +1,6 @@
 annotated-types==0.7.0
 anyio==4.9.0
+awslambdaric==3.1.1
 beautifulsoup4==4.13.4
 cachetools==5.5.2
 certifi==2025.6.15
@@ -50,7 +51,9 @@ scikit-learn==1.7.0
 scipy==1.16.0
 sentence-transformers==5.0.0
 setuptools==80.9.0
+simplejson==3.20.1
 slowapi==0.1.9
+snapshot-restore-py==1.0.0
 sniffio==1.3.1
 soupsieve==2.7
 starlette==0.46.2

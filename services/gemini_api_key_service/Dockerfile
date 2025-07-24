@@ -1,19 +1,14 @@
-FROM python:3.12-slim
+FROM public.ecr.aws/lambda/python:3.12
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+COPY requirements.txt ${LAMBDA_TASK_ROOT}
 
-WORKDIR /app
+RUN pip install -r requirements.txt
 
-COPY requirements.txt .
-
-RUN RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
-
-COPY . .
+COPY . ${LAMBDA_TASK_ROOT}
 
 CMD ["gemini_api_key_service.handler"]
 
-# How to deploy on AWS ECR:
+# How to redeploy on AWS Lambda:
 
 # 1.
 # aws configure
@@ -23,8 +18,11 @@ CMD ["gemini_api_key_service.handler"]
 # docker login --username AWS --password-stdin 891377042509.dkr.ecr.us-east-1.amazonaws.com
 
 # 3.
-# docker build -t gemini_api_key_service .
+# docker build --platform linux/amd64 -t gemini_api_key_service .
 # docker tag gemini_api_key_service:latest 891377042509.dkr.ecr.us-east-1.amazonaws.com/gemini_api_key_service:latest
 
 # 4.
 # docker push 891377042509.dkr.ecr.us-east-1.amazonaws.com/gemini_api_key_service:latest
+
+# 5.
+# aws lambda update-function-code --function-name fastapi-handler --image-uri 891377042509.dkr.ecr.us-east-1.amazonaws.com/gemini_api_key_service:latest

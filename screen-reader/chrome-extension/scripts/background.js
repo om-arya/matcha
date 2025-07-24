@@ -2,7 +2,7 @@ let GEMINI_API_KEY = null;
 
 async function getGeminiApiKey() {
   try {
-    const res = await fetch("http://127.0.0.1:8000/get_gemini_api_key");
+    const res = await fetch("https://m2th8slkyd.execute-api.us-east-1.amazonaws.com/get_gemini_api_key");
     const key = await res.json();
     if (key) {
       GEMINI_API_KEY = key;
