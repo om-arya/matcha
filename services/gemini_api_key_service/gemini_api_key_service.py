@@ -1,9 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from mangum import Mangum
 
 from GEMINI_API_KEY import GEMINI_API_KEY
 
+limiter = Limiter(key_func=get_remote_address, default_limits=["1/minute"])
+
 app = FastAPI()
+app.state.limiter = limiter
 
 origins = ['*']
 
@@ -15,13 +23,23 @@ app.add_middleware(
     allow_headers=["*"],    # Allow all headers in the request
 )
 
+handler = Mangum(app)
+
 # Run on a local server via 'python gemini_api_key_service.py'
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Rate limit exceeded. Please wait and try again."},
+    )
 
 """
 Returns a Gemini API key.
 """
 @app.get("/get_gemini_api_key")
-def get_gemini_api_key():
+@limiter.limit("1/minute")
+def get_gemini_api_key(request: Request):
     return GEMINI_API_KEY
 
 if __name__ == "__main__":

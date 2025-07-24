@@ -1,3 +1,38 @@
+let GEMINI_API_KEY = null;
+
+async function getGeminiApiKey() {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/get_gemini_api_key");
+    const key = await res.json();
+    if (key) {
+      GEMINI_API_KEY = key;
+      console.log("Gemini API key fetched successfully");
+      return true;
+    }
+  } catch (err) {
+    console.error("Retrieving Gemini API key failed:", err);
+  }
+  return false;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchApiKeyWithRetry() {
+  while (!GEMINI_API_KEY || GEMINI_API_KEY === "ERR") {
+    const success = await getGeminiApiKey();
+    if (success) {
+      break;
+    }
+    console.log("Retrying to fetch API key...");
+    await sleep(65000); // Wait 65 seconds before retry
+  }
+}
+
+// Call once when the background script starts
+fetchApiKeyWithRetry();
+
 chrome.commands.onCommand.addListener((command) => {
   if (command === "summarize-chart") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -13,6 +48,10 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getGeminiApiKey") {
+    sendResponse({ apiKey: GEMINI_API_KEY });
+  }
+
   if (request.action === "speak") {
     chrome.tts.speak(request.text, {
       lang: "en-US",
@@ -23,7 +62,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
       },
     });
-    return true;
   }
 
   if (request.action === "fetchImageAsBlob") {
@@ -45,6 +83,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.error("Blob fetch error", err);
         sendResponse({ success: false });
       });
-    return true;
   }
+
+  // Return true to indicate async sendResponse
+  return true;
 });

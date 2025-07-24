@@ -8,15 +8,21 @@ const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models";
 
 let GEMINI_API_KEY = null;
 
-// Fetch Gemini API key on load
-(async function fetchGeminiApiKey() {
-  try {
-    const res = await fetch("http://127.0.0.1:8000/get_gemini_api_key");
-    GEMINI_API_KEY = await res.json();
-  } catch (err) {
-    console.error("Retrieving Gemini API key failed:", err);
-    GEMINI_API_KEY = "ERR";
-  }
+async function getGeminiApiKey() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: "getGeminiApiKey" }, (response) => {
+      if (response && response.apiKey) {
+        GEMINI_API_KEY = response.apiKey;
+        resolve(GEMINI_API_KEY);
+      } else {
+        resolve(null);
+      }
+    });
+  });
+}
+
+(async () => {
+  await getGeminiApiKey();
 })();
 
 function isApiKeyReady() {

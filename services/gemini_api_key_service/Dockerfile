@@ -1,17 +1,17 @@
 FROM python:3.12-slim
 
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt
+RUN RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 80
-
-CMD ["uvicorn", "gemini_api_key_service:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["gemini_api_key_service.handler"]
 
 # How to deploy on AWS ECR:
 
