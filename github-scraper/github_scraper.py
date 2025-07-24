@@ -1,82 +1,82 @@
 import time
 import requests
-import csv
-import re
 from datetime import datetime, timedelta
-import pandas as pd
 from tqdm import tqdm
+import pandas as pd
 from GITHUB_TOKEN import GITHUB_TOKEN
 
+# --- Config ---
+KEYWORDS = ["import matplotlib", "from matplotlib import"]
+MAX_PAGES = 3
+PER_PAGE = 10
+START_DATE = datetime(2022, 1, 1)
+END_DATE = datetime(2025, 7, 24)
+
 # --- Setup ---
-KEYWORDS   = ["import matplotlib", "from matplotlib import"]
-MAX_PAGES  = 5
-PER_PAGE   = 10
-OUTPUT_CSV = "github_matplotlib_code.csv"
-
-HEADERS = {
+headers = {
     'Authorization': f'token {GITHUB_TOKEN}',
-    'Accept':        'application/vnd.github.v3+json'
+    'Accept': 'application/vnd.github.v3+json'
 }
+repo_search_url = "https://api.github.com/search/repositories"
+found_entries = []
 
-SEARCH_URL = "https://api.github.com/search/code"
+# --- Loop through each day ---
+since = START_DATE
+while since < END_DATE:
+    until = since + timedelta(days=1)
+    print(f"\n🔍 Scraping repos pushed from {since.date()} to {until.date()}")
 
-# --- Time range settings ---
-start_date = datetime(2021, 1, 1)  # Start far back; change if needed
-end_date   = datetime.today()
+    for page in range(1, MAX_PAGES + 1):
+        params = {
+            'q': f'language:python pushed:{since.strftime("%Y-%m-%d")}..{until.strftime("%Y-%m-%d")}',
+            'sort': 'updated',
+            'order': 'desc',
+            'per_page': PER_PAGE,
+            'page': page
+        }
 
-# --- Optional: Resume from a checkpoint ---
-try:
-    existing_df = pd.read_csv(OUTPUT_CSV)
-    scraped_repos = set(existing_df['repo'] + '/' + existing_df['path'])
-    print(f"Resuming, {len(scraped_repos)} files already scraped.")
-except FileNotFoundError:
-    scraped_repos = set()
+        repo_resp = requests.get(repo_search_url, headers=headers, params=params)
+        if repo_resp.status_code != 200:
+            print("Repo API error:", repo_resp.status_code, repo_resp.text)
+            break
 
-# --- Loop through every day ---
-while start_date < end_date:
-    next_day = start_date + timedelta(days=1)
-    print(f"\nScraping for files created between {start_date.date()} and {next_day.date()}")
+        repos = repo_resp.json().get('items', [])
+        if not repos:
+            break
 
-    for keyword in KEYWORDS:
-        for page in range(1, MAX_PAGES + 1):
-            params = {
-                'q': f'{keyword} in:file extension:py created:{start_date.date()}..{next_day.date()}',
-                'per_page': PER_PAGE,
-                'page': page
-            }
+        for repo in repos:
+            repo_name = repo['full_name']
+            branch = repo.get('default_branch', 'main')
+            contents_url = f"https://api.github.com/repos/{repo_name}/contents?ref={branch}"
 
-            response = requests.get(SEARCH_URL, headers=HEADERS, params=params)
-
-            if response.status_code == 403:
-                print("Rate limited. Sleeping for 1 minute...")
-                time.sleep(60)
+            contents_resp = requests.get(contents_url, headers=headers)
+            if contents_resp.status_code != 200:
                 continue
-            elif response.status_code != 200:
-                print("Error:", response.status_code, response.text)
-                break
 
-            for item in response.json().get("items", []):
-                repo_full_name = item['repository']['full_name']
-                file_path = item['path']
-                unique_id = f"{repo_full_name}/{file_path}"
+            files = contents_resp.json()
+            for file in files:
+                if file['name'].endswith('.py') and file.get('download_url'):
+                    raw_resp = requests.get(file['download_url'])
+                    if raw_resp.status_code == 200:
+                        content = raw_resp.text
+                        matching_lines = [
+                            line.strip() for line in content.splitlines()
+                            if any(keyword in line for keyword in KEYWORDS)
+                        ]
+                        if matching_lines:
+                            print(f"✅ Found matplotlib in {repo_name}/{file['name']}")
+                            found_entries.append({
+                                'repo': repo_name,
+                                'path': file['path'],
+                                'pushed_date': since.strftime('%Y-%m-%d'),
+                                'code_snippet': '\n'.join(matching_lines)
+                            })
 
-                if unique_id in scraped_repos:
-                    continue
+        time.sleep(1)
 
-                raw_url = f"https://raw.githubusercontent.com/{repo_full_name}/HEAD/{file_path}"
-                raw_resp = requests.get(raw_url, headers=HEADERS)
+    since = until
 
-                if raw_resp.status_code == 200:
-                    with open(OUTPUT_CSV, "a", newline='', encoding='utf-8') as f:
-                        writer = csv.writer(f)
-                        writer.writerow([repo_full_name, file_path, raw_resp.text])
-                        scraped_repos.add(unique_id)
-                        print(f"Saved: {repo_full_name}/{file_path}")
-                else:
-                    print(f"Failed to fetch raw content for {repo_full_name}/{file_path}")
-
-            time.sleep(1)  # Avoid hammering GitHub
-
-    # Move to the next day
-    start_date = next_day
-    time.sleep(2)  # Optional slow down between day cycles
+# --- Output CSV ---
+df = pd.DataFrame(found_entries)
+df.to_csv('github_matplotlib_code_1.csv', index=False, encoding='utf-8', quoting=1)
+print(f"\n✅ Saved {len(df)} matched files to 'github_matplotlib_snippets.csv'")
