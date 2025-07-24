@@ -17,7 +17,12 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 		};
 		
 		webviewView.webview.html = this.getHtmlForWebview(this._issues, this._filename);
-		
+
+		webviewView.webview.onDidReceiveMessage(message => {
+			if (message.command === 'fixIssues') {
+				this.fixIssues();
+			}
+		});
 	}
 
 	public setIssues(issues: string[], filename: string) {
@@ -26,6 +31,10 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 		if (this._view) {
 			this._view!.webview.html = this.getHtmlForWebview(this._issues, this._filename);
 		}
+	}
+
+	private fixIssues() {
+		// TODO: Fix issues
 	}
 
 	private getHtmlForWebview(issues: string[], filename: string): string {
@@ -64,7 +73,7 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 						color: #cccccc;
 					}
 					h3 {
-						color:rgb(66, 178, 247);
+						color: rgb(66, 178, 247);
 					}
 					.issue {
 						margin-bottom: 20px;
@@ -75,11 +84,28 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 					}
 					.issue h3 {
 						margin: 0 0 8px 0;
-						color:rgb(240, 163, 91);
+						color: rgb(240, 163, 91);
 					}
 					.no-issues {
 						color: #4caf50;
 						font-size: 1.2em;
+					}
+					.button-container {
+						text-align: center;
+						margin-top: 24px;
+					}
+					.button {
+						margin-top: 16px;
+						padding: 8px 16px;
+						background-color: #0e639c;
+						color: white;
+						border: none;
+						border-radius: 4px;
+						cursor: pointer;
+						font-size: 14px;
+					}
+					.button:hover {
+						background-color: #1177bb;
 					}
 				</style>
 			</head>
@@ -96,6 +122,19 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 							</div>
 						`;
 					}).join("")}
+
+				${issues.length > 0
+					? `<div class="button-container">
+					   	    <button class="button" onclick="fixIssues()">Fix Issues</button>
+					   </div>`
+					: ""}
+
+				<script>
+					const vscode = acquireVsCodeApi();
+					function fixIssues() {
+						vscode.postMessage({ command: 'fixIssues' });
+					}
+				</script>
 			</body>
 			</html>
 		`;
