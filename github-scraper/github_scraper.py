@@ -1,18 +1,17 @@
-import time
 import requests
 from datetime import datetime, timedelta
-from tqdm import tqdm
 import pandas as pd
 from GITHUB_TOKEN import GITHUB_TOKEN
 
-# --- Config ---
-KEYWORDS = ["import matplotlib", "from matplotlib import"]
-MAX_PAGES = 3
+KEYWORDS = ["import matplotlib", "from matplotlib"]
+
+# MAX_PAGES * PER_PAGE should be <= 1000; the GitHub API will silently ignore the extras
+MAX_PAGES = 1
 PER_PAGE = 10
+
 START_DATE = datetime(2022, 1, 1)
 END_DATE = datetime(2025, 7, 24)
 
-# --- Setup ---
 headers = {
     'Authorization': f'token {GITHUB_TOKEN}',
     'Accept': 'application/vnd.github.v3+json'
@@ -20,7 +19,6 @@ headers = {
 repo_search_url = "https://api.github.com/search/repositories"
 found_entries = []
 
-# --- Loop through each day ---
 since = START_DATE
 while since < END_DATE:
     until = since + timedelta(days=1)
@@ -28,7 +26,7 @@ while since < END_DATE:
 
     for page in range(1, MAX_PAGES + 1):
         params = {
-            'q': f'language:python pushed:{since.strftime("%Y-%m-%d")}..{until.strftime("%Y-%m-%d")}',
+            'q': f'matplotlib language:python pushed:{since.strftime("%Y-%m-%d")}..{until.strftime("%Y-%m-%d")}',
             'sort': 'updated',
             'order': 'desc',
             'per_page': PER_PAGE,
@@ -55,7 +53,7 @@ while since < END_DATE:
 
             files = contents_resp.json()
             for file in files:
-                if file['name'].endswith('.py') and file.get('download_url'):
+                if file['name'] and file.get('download_url'):
                     raw_resp = requests.get(file['download_url'])
                     if raw_resp.status_code == 200:
                         content = raw_resp.text
@@ -64,19 +62,19 @@ while since < END_DATE:
                             if any(keyword in line for keyword in KEYWORDS)
                         ]
                         if matching_lines:
-                            print(f"✅ Found matplotlib in {repo_name}/{file['name']}")
+                            print(f"✅ Found matplotlib code in {repo_name}/{file['name']}")
                             found_entries.append({
                                 'repo': repo_name,
-                                'path': file['path'],
+                                'filename': file['path'],
                                 'pushed_date': since.strftime('%Y-%m-%d'),
-                                'code_snippet': '\n'.join(matching_lines)
+                                'code': content
                             })
-
-        time.sleep(1)
-
+                            break # Take only up to 1 file per repository
+                        else:
+                            print(f"❌ Did not find matplotlib code in {repo_name}/{file['name']}")
     since = until
 
 # --- Output CSV ---
 df = pd.DataFrame(found_entries)
-df.to_csv('github_matplotlib_code_1.csv', index=False, encoding='utf-8', quoting=1)
-print(f"\n✅ Saved {len(df)} matched files to 'github_matplotlib_snippets.csv'")
+df.to_csv('github_matplotlib_audit.csv', index=False, encoding='utf-8', quoting=1)
+print(f"\n✅ Saved {len(df)} matched files to 'github_matplotlib_audit.csv'")
