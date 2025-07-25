@@ -1,15 +1,104 @@
-# matcha
+# MATCHA: Making Assistive Tools for Chart Accessibility
 <p align = "center"> 
-  <img src = "Matcha_Mochi.png" alt = "Matcha Mochi.png" width = "300">
+  <img src="Matcha_Mochi.png" alt="Cartoon-style green mochi with a smiley face, representing the MATCHA tool" width="300">
 </p>
 
-Welcome to the matcha repository! This is where the code for our Accessible Chart Interpreter (ACI) and Redesign Assistant (RA) will live.
+MATCHA (Making Assistive Tools for Chart Accessibility) is a research-backed toolset designed to evaluate and enhance how large language models (LLMs) interpret data visualizations - particularly when those charts contain accessibility or misleading design flaws. The centerpiece of the project is the MATCHA Chart Summarizer, a screen reader Chrome Extension that enables blind, low-vision, and neurodivergent users to interact with and understand data visualizations using natural language and speech.
 
-#### 📦 Committing your changes
-Here's a quick refresher on what to do to commit changes to Github:
+This repository contains all components of the MATCHA pipeline, including flaw detection, chart redesign, prompt evaluation, and data analysis tools.
 
-```
-git add .
-git commit -m "ADD YOUR MESSAGE HERE"
-git push
-```
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#main-contribution">Main Contribution</a>
+    </li>
+    <li>
+      <a href="#research-goals">Research Goals</a>
+    </li>
+    <li>
+      <a href="#methodology-overview">Methodology Overview</a>
+    </li>
+    <li>
+      <a href="#how-the-screen-reader-works">How the Screen Reader Works</a>
+    </li>
+    <li>
+      <a href="#installation-and-usage">Installation and Usage</a>
+    </li>
+    <li>
+      <a href="#contact">Contact</a>
+    </li>
+  </ol>
+</details>
+
+<a id="main-contribution"></a>
+## 🔍 Main Contribution
+### 🎧 MATCHA Chart Summarizer
+The MATCHA Chart Summarizer is a Chrome Extension that:
+- Detects when the user focuses on a data visualization (image).
+- Uses an LLM (Google Gemini) to generate a concise, spoken summary of the chart.
+- Allows the user to ask natural language questions about the chart via voice input.
+- Converts all outputs to speech for screen reader accessibility.
+
+<a id="research-goals"></a>
+## 📊 Research Goals
+1. Improve chart accessibility by building an LLM-powered screen reader that works as effectively as possible, tested by running controlled user studies with blind, low-vision, and neurodivergent participants.
+2. Stress-test LLM robustness by measuring how summaries change before and after fixing flaws using semantic similarity metrics.
+
+<a id="methodology-overview"></a>
+## 🧪 Methodology Overview
+We evaluate the robustness of LLMs interpreting visualizations through the following pipeline:
+1. Flaw Taxonomy
+   - Based on WCAG 2.1 and visualization literature.
+   - Split into:
+     - Accessibility flaws: poor contrast, missing labels, font size, etc.
+     - Misleading flaws: distorted axes, inconsistent scales, bias, etc.
+2. MATCHA GitHub Scraper (GS)
+   - Queried public Python repositories using the GitHub API.
+   - Collected >6500 Matplotlib scripts.
+   - Analyzed flaw prevalence and exported metadata to a CSV.
+3. MATCHA Redesign Assistant (RA)
+   - VSCode Extension to:
+     - Detect flaws in Matplotlib scripts.
+     - Insert flaws to generate controlled comparisons for robustness testing.
+     - Used to simulate real-world flawed visualizations and analyze their impact on summary accuracy.
+4. MATCHA Chart Summarizer Evaluation
+   - Compared summary outputs before and after RA repair.
+   - Measured semantic similarity for each flaw using a Hugging Face model.
+   - Higher similarity = greater robustness.
+5. User Studies
+   - Participants: blind, low-vision, neurodivergent individuals.
+   - Tasks:
+     - Provide their background and preferences pertaining to the Chart Summarizer.
+     - Evaluate summaries for informativeness, usability, accuracy.
+   - Surveys: pre-, mid-, and post- for qualitative feedback.
+
+<a id="how-the-screen-reader-works"></a>
+## 💻 How the Screen Reader Works
+The `read_content.js` content script:
+  - Makes images focusable via `tabindex=0`.
+  - When a user focuses on a chart and requests a summary:
+      - The image is converted to Base64 and passed to Gemini with a descriptive prompt.
+      - The resulting summary is read aloud using Chrome TTS.
+  - When a question is asked:
+      - Voice input is transcribed using a speech-to-text tool.
+      - Gemini is prompted to answer the question based on the chart image.
+      - The response is spoken back to the user using Chrome TTS.
+
+<a id="installation-and-usage"></a>
+## 🛠 Installation and Usage
+1. Clone the repo: `git clone https://github.com/om-arya/matcha.git`
+### MATCHA Chart Summarizer (Chrome Extension)
+2. Navigate to `screen-reader/chrome-extension` and load the extension via `chrome://extensions`.
+3. Enable the extension and focus on a chart image in your browser.
+4. Press the extension commands to generate a summary or ask a question.
+
+### MATCHA Redesign Assistant (VSCode Extension)
+2. Navigate to `redesign-assistant/`.
+3. Open the folder in VSCode.
+4. Run the extension via the debugger or package it using the vsce CLI.
+5. Use it on any .py file with Matplotlib code.
+
+<a id="contact"></a>
+## 📬 Contact
+For questions, feature requests, or contributions, feel free to open an issue or reach out to the authors.
