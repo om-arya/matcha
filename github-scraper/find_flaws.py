@@ -1,53 +1,9 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
-import json
 import ast
 import re
-from datetime import datetime
-import os 
 from GEMINI_API_KEY import GEMINI_API_KEY
 
-app = FastAPI()
-
-origins = ['*']
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # List of origins allowed to make requests
-    allow_credentials=True, # Allow cookies and authorization headers
-    allow_methods=["*"],    # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],    # Allow all headers in the request
-)
-
-genai.configure(api_key=GEMINI_API_KEY)
-client = genai.GenerativeModel('gemini-2.5-flash')
-
-def generate_response(prompt: str):
-    result = client.generate_content(prompt)
-    candidate = result.candidates[0]
-    return candidate.content.parts[0].text.strip()
-
-def export_flaws_to_json(mpl_code: str, flaws: list[str], output_dir="evaluations"):
-    os.makedirs(output_dir, exist_ok=True)
-
-    data = {
-        "violated_rules": flaws,
-        "violation_count": len(flaws),
-        "total_possible_rules": 22,  # Or however many total rules you support
-        "code": mpl_code
-    }
-
-    filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_graph_flaws.json"
-    path = os.path.join(output_dir, filename)
-
-    with open(path, "w") as f:
-        json.dump(data, f, indent=4)
-
-    return path
-
-@app.get("/find_flaws")
-def find_flaws(mpl_file: str):
+def find_noncontextual_flaws(mpl_file: str):
     flaws = []
 
     # Check if matplotlib is imported
@@ -131,7 +87,27 @@ def find_flaws(mpl_file: str):
     # Dual Y-axes
     if re.search(r'twin[xy]\s*\(', scan_text) or 'secondary_y=True' in scan_text:
         flaws.append("DUAL_Y_AXES")
+    
+    return flaws
 
+genai.configure(api_key=GEMINI_API_KEY)
+client = genai.GenerativeModel('gemini-2.5-flash')
+
+def generate_response(prompt: str):
+    result = client.generate_content(prompt)
+    candidate = result.candidates[0]
+    return candidate.content.parts[0].text.strip()
+
+def find_contextual_flaws(mpl_file: str):
+    # Check if matplotlib is imported
+    mpl_index = mpl_file.find("import matplotlib")
+    if mpl_index == -1:
+        mpl_index = mpl_file.find("from matplotlib import")
+    if mpl_index == -1:
+        return flaws
+    
+    scan_text = mpl_file[mpl_index:]
+    
     contextual_flaws_prompt = f"""
        You are an expert in data visualization integrity. I will provide you with:
 
@@ -181,49 +157,6 @@ def find_flaws(mpl_file: str):
     try:
         contextual_flaws = ast.literal_eval(contextual_flaws_str)
     except:
-        find_flaws(mpl_file)
+        find_contextual_flaws(mpl_file)
 
-    flaws = flaws + contextual_flaws
-    return flaws
-
-@app.get("/find_and_fix_flaws")
-def find_and_fix_flaws(mpl_file: str):
-    flaws = find_flaws(mpl_file)
-
-    fixed_file_prompt = f"""
-        I will present a list of flaws, followed by a Matplotlib file containing those flaws.
-        Output the Matplotlib file with the flaws removed.
-
-        Flaws: {flaws}
-
-        Matplotlib file:
-        {mpl_file}
-    """
-
-    fixed_file = generate_response(fixed_file_prompt)
-    return fixed_file
-
-@app.get("/insert_flaws")
-def insert_flaws(mpl_file: str, flaws: list[str]):
-    existing_flaws = find_flaws(mpl_file)
-    new_flaws = []
-    for flaw in flaws:
-        if flaw not in existing_flaws:
-            new_flaws.append(flaw)
-
-    flawed_file_prompt = f"""
-        I will present a list of flaws, followed by a Matpotlib file.
-        Output the Matplotlib file with the flaws inserted into it.
-        
-        Flaws: {new_flaws}
-
-        Matplotlib file:
-        {mpl_file}
-    """
-
-    flawed_file = generate_response(flawed_file_prompt)
-    return flawed_file
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("redesign_service:app", host="127.0.0.1", port=8001, reload=True)
+    return contextual_flaws
