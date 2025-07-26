@@ -11,6 +11,9 @@ out
 
 .DS_Store
 
+github_matplotlib_audit.csv
+matplotlib_flaw_assessment.csv
+
 GEMINI_API_KEY.*
 HUGGINGFACE_HUB_TOKEN.*
 GITHUB_TOKEN.*

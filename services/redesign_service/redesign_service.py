@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import re
 import google.generativeai as genai
 import json
+import ast
+import re
 from datetime import datetime
 import os 
 
@@ -140,7 +141,7 @@ def find_flaws(mpl_file: str):
 
         Your task:
         - Analyze the code and detect which rules are violated based solely on what can be inferred from the code itself (e.g., axis behavior, titles, aspect ratio, annotations).
-        - Output only the list of violated RULE_CODEs in this format: [RULE_CODE1, RULE_CODE2, ...]
+        - Output only the list of violated RULE_CODEs in exactly this format: ["RULE_CODE1", "RULE_CODE2", ...]
         - If the graph does not violate any rules, return: NONE
 
         Rule Codes and Descriptions:
@@ -176,9 +177,14 @@ def find_flaws(mpl_file: str):
         {mpl_file}
     """
 
-    contextual_flaws = generate_response(contextual_flaws_prompt)
-    flaws = flaws + contextual_flaws
+    contextual_flaws_str = generate_response(contextual_flaws_prompt)
 
+    try:
+        contextual_flaws = ast.literal_eval(contextual_flaws_str)
+    except:
+        find_flaws(mpl_file)
+
+    flaws = flaws + contextual_flaws
     return flaws
 
 @app.get("/find_and_fix_flaws")
