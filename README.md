@@ -36,6 +36,7 @@ The MATCHA Chart Summarizer is a Chrome Extension that:
 - Provides a command to generate an informative, spoken summary of a chart image using an LLM (Google Gemini).
 - Provides a command for the user to ask natural language questions about the chart via voice input.
 - Converts all outputs to speech for screen reader accessibility.
+MATCHA Chart Summarizer has been tested to work on a multitude of popular websites, including but not limited to Gmail.com, Reddit.com, Instagram.com, Weather.com, and Wikipedia.com.
 
 <a id="research-goals"></a>
 ## 📊 Research Goals
