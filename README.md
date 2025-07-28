@@ -3,7 +3,7 @@
   <img src="Matcha_Mochi.png" alt="Cartoon-style green mochi with a smiley face, representing the MATCHA tool" width="300">
 </p>
 
-MATCHA (Making Assistive Tools for Chart Accessibility) is a research-backed toolset designed to evaluate and enhance how large language models (LLMs) interpret data visualizations - particularly when those charts contain accessibility or misleading design flaws. The centerpiece of the project is the MATCHA Chart Summarizer, a screen reader Chrome Extension that enables blind, low-vision, and neurodivergent users to interact with and understand data visualizations using natural language and speech.
+MATCHA (Making Assistive Tools for Chart Accessibility) is a research-backed toolset designed to evaluate and enhance how large language models (LLMs) interpret data visualizations - particularly when those charts contain accessibility or misleading design flaws. The centerpiece of the project is MATCHA Chart Summarizer, a screen reader Chrome Extension that enables blind, low-vision, and neurodivergent users to interact with and understand data visualizations using natural language and speech.
 
 This repository contains all components of the MATCHA pipeline, including flaw detection, chart redesign, prompt evaluation, and data analysis tools.
 
@@ -31,11 +31,12 @@ This repository contains all components of the MATCHA pipeline, including flaw d
 <a id="main-contribution"></a>
 ## 🔍 Main Contribution
 ### 🎧 MATCHA Chart Summarizer
-The MATCHA Chart Summarizer is a Chrome Extension that:
+MATCHA Chart Summarizer is a Chrome Extension that:
 - Allows the user to focus on images, including data visualizations.
 - Provides a command to generate an informative, spoken summary of a chart image using an LLM (Google Gemini).
 - Provides a command for the user to ask natural language questions about the chart via voice input.
 - Converts all outputs to speech for screen reader accessibility.
+
 MATCHA Chart Summarizer has been tested to work on a multitude of popular websites, including but not limited to Gmail.com, Reddit.com, Instagram.com, Weather.com, and Wikipedia.com.
 
 <a id="research-goals"></a>
