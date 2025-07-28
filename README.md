@@ -39,7 +39,7 @@ The MATCHA Chart Summarizer is a Chrome Extension that:
 
 <a id="research-goals"></a>
 ## 📊 Research Goals
-1. Improve chart accessibility by building an LLM-powered screen reader that works as effectively as possible, tested by running controlled user studies with blind, low-vision, and neurodivergent participants.
+1. Improve chart accessibility by building an LLM-powered screen reader add-on that works as effectively as possible, tested by running controlled user studies with blind, low-vision, and neurodivergent participants.
 2. Stress-test LLM robustness by measuring how much summaries change before and after fixing flaws using semantic similarity scores.
 
 <a id="methodology-overview"></a>
