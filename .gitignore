@@ -14,6 +14,8 @@ out
 response.json
 
 github_matplotlib_audit.csv
+github_matplotlib_audit.csv*
+github_matplotlib_audit_1.csv*
 matplotlib_noncontextual_flaw_assessment.csv
 matplotlib_contextual_flaw_assessment.csv
 
@@ -22,6 +24,3 @@ HUGGINGFACE_HUB_TOKEN.*
 GITHUB_TOKEN.*
 VSCE_PAT.*
 AWS_Secrets.*
-github_matplotlib_audit.csv*
-github_matplotlib_audit_1.csv*
-
