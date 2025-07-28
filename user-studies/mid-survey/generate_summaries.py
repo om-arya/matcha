@@ -114,4 +114,4 @@ def generate_summaries():
     print(f"Summaries written to {output_csv}")
 
 if __name__ == "__main__":
-    generate_summaries()
+    generate_summaries_for_image("./graphs/chloropleth_map.jpg")
