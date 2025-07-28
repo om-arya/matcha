@@ -1,6 +1,6 @@
 {
-  "name": "Matcha Screen Reader: Automatic Summaries for Data Visualizations",
-  "description": "A screen reader that summarizes data visualizations for you.",
+  "name": "MATCHA Chart Summarizer: Automatic Summaries for Data Visualizations",
+  "description": "An extension that summarizes data visualizations for you.",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
@@ -42,8 +42,7 @@
     "service_worker": "scripts/background.js"
   },
   "permissions": [
-    "tts",
-    "contextMenus"
+    "tts"
   ],
   "host_permissions": ["<all_urls>"]
 }

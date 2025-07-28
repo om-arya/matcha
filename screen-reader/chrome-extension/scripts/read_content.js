@@ -36,7 +36,7 @@ let isOnChart = false;
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { action } = message;
   if (!isApiKeyReady()) {
-    ttsRead("Matcha is still loading, please try again in a moment.");
+    ttsRead("Matcha is still loading, please refresh the page and try again in a moment.");
     return;
   }
 
@@ -144,11 +144,12 @@ async function summarizeChartFromDOM(imgElement) {
     if (!success) return "ERR";
 
     const prompt =
-      "You are a screen reader and came across this data visualization. " +
-      "Give 1-2 sentences about the main features of the visualization including the title (if applicable), " +
-      "maximum(s), minimum(s), and general trend(s), as well as any key insight(s). " +
-      "Start it with \"A [visualization type] shows…\" or \"A [visualization type] titled [title] shows…\" " +
-      "If it is not a data visualization, simply output \"N/A\"";
+      "You are a screen reader and came across this data visualization." +
+      "Describe it in 1-2 sentences using simple, friendly language." +
+      "Mention what kind of visualization it is, its title (if any), any highs and lows," +
+      "and what the overall pattern seems to be. Start with \"A [visualization type] shows…\"" +
+      "or \"A [visualization type] titled [title] shows…\"" +
+      "If it is not a data visualization, say \"N/A\"."
 
     const summary = await geminiGenerateContent(base64, type, prompt, "gemini-2.5-flash");
     return summary || "ERR";

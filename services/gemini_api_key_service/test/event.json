@@ -1,0 +1,22 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /get_gemini_api_key",
+  "rawPath": "/get_gemini_api_key",
+  "rawQueryString": "",
+  "headers": {
+    "host": "example.com"
+  },
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "api-id",
+    "stage": "$default",
+    "http": {
+      "method": "GET",
+      "path": "/get_gemini_api_key",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "127.0.0.1",
+      "userAgent": "curl/7.68.0"
+    }
+  },
+  "isBase64Encoded": false
+}
