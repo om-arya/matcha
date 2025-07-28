@@ -1,8 +1,6 @@
 import requests
 from datetime import datetime, timedelta
 import pandas as pd
-import csv
-import os
 from GITHUB_TOKEN import GITHUB_TOKEN
 
 KEYWORDS = ["import matplotlib", "from matplotlib"]
@@ -14,23 +12,15 @@ KEYWORDS = ["import matplotlib", "from matplotlib"]
 MAX_PAGES = 100
 PER_PAGE = 10
 
-
 START_DATE = datetime(2022, 1, 1)
 END_DATE = datetime(2025, 7, 24)
-
-OUTPUT_CSV = 'github_matplotlib_audit_1.csv'
-
-# Prepare the CSV with headers if it doesn't exist
-if not os.path.exists(OUTPUT_CSV):
-    with open(OUTPUT_CSV, mode='w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['repo', 'filename', 'pushed_date', 'code'], quoting=csv.QUOTE_ALL)
-        writer.writeheader()
 
 headers = {
     'Authorization': f'token {GITHUB_TOKEN}',
     'Accept': 'application/vnd.github.v3+json'
 }
 repo_search_url = "https://api.github.com/search/repositories"
+found_entries = []
 
 since = START_DATE
 while since < END_DATE:
@@ -39,7 +29,6 @@ while since < END_DATE:
 
     for page in range(1, MAX_PAGES + 1):
         params = {
-            'q': f'matplotlib language:python pushed:{since.strftime("%Y-%m-%d")}..{until.strftime("%Y-%m-%d")}',
             'q': f'matplotlib language:python pushed:{since.strftime("%Y-%m-%d")}..{until.strftime("%Y-%m-%d")}',
             'sort': 'updated',
             'order': 'desc',
@@ -78,24 +67,12 @@ while since < END_DATE:
                         if matching_lines:
                             print(f"✅ Found matplotlib code in {repo_name}/{file['name']}")
                             found_entries.append({
-                            print(f"✅ Found matplotlib code in {repo_name}/{file['name']}")
-                            entry = {
                                 'repo': repo_name,
-                                'filename': file['path'],
                                 'filename': file['path'],
                                 'pushed_date': since.strftime('%Y-%m-%d'),
                                 'code': content
                             })
                             break # Take only up to 1 file per repository
-                        else:
-                            print(f"❌ Did not find matplotlib code in {repo_name}/{file['name']}")
-                                'code': content
-                            }
-                            # Append to CSV immediately
-                            with open(OUTPUT_CSV, mode='a', newline='', encoding='utf-8') as f:
-                                writer = csv.DictWriter(f, fieldnames=entry.keys(), quoting=csv.QUOTE_ALL)
-                                writer.writerow(entry)
-                            break  # Stop after one file per repo
                         else:
                             print(f"❌ Did not find matplotlib code in {repo_name}/{file['name']}")
     since = until
@@ -104,4 +81,3 @@ while since < END_DATE:
 df = pd.DataFrame(found_entries)
 df.to_csv('github_matplotlib_audit.csv', index=False, encoding='utf-8', quoting=1)
 print(f"\n✅ Saved {len(df)} matched files to 'github_matplotlib_audit.csv'")
-print(f"\n✅ Scraping complete. Appended matching files to '{OUTPUT_CSV}'")
