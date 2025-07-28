@@ -36,7 +36,7 @@ let isOnChart = false;
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { action } = message;
   if (!isApiKeyReady()) {
-    ttsRead("Matcha is still loading, please try again in a moment.");
+    ttsRead("Matcha is still loading, please refresh the page and try again in a moment.");
     return;
   }
 

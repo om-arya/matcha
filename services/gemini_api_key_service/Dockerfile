@@ -26,3 +26,9 @@ CMD ["gemini_api_key_service.handler"]
 
 # 5.
 # aws lambda update-function-code --function-name fastapi-handler --image-uri 891377042509.dkr.ecr.us-east-1.amazonaws.com/gemini_api_key_service:latest
+
+# Test via:
+# aws lambda invoke --function-name fastapi-handler --cli-binary-format raw-in-base64-out --payload file://test/event.json test/response.json
+
+# Get the URL via:
+# aws apigatewayv2 get-apis

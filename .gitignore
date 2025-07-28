@@ -11,6 +11,8 @@ out
 
 .DS_Store
 
+response.json
+
 github_matplotlib_audit.csv
 matplotlib_noncontextual_flaw_assessment.csv
 matplotlib_contextual_flaw_assessment.csv

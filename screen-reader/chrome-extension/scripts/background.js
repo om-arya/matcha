@@ -2,8 +2,15 @@ let GEMINI_API_KEY = null;
 
 async function getGeminiApiKey() {
   try {
-    const res = await fetch("https://m2th8slkyd.execute-api.us-east-1.amazonaws.com/get_gemini_api_key");
-    const key = await res.json();
+    const response = await fetch("https://m2th8slkyd.execute-api.us-east-1.amazonaws.com/get_gemini_api_key");
+    const responseText = await response.text();
+    const body = JSON.parse(responseText);
+    if (response.status !== 200) {
+      console.log(`Retrieving Gemini API key failed: ${body.detail}`);
+      return false;
+    }
+    
+    const key = body.gemini_api_key;
     if (key) {
       GEMINI_API_KEY = key;
       console.log("Gemini API key fetched successfully");
@@ -25,7 +32,7 @@ async function fetchApiKeyWithRetry() {
     if (success) {
       break;
     }
-    console.log("Retrying to fetch API key...");
+    console.log("Retrying to fetch Gemini API key...");
     await sleep(65000); // Wait 65 seconds before retry
   }
 }
