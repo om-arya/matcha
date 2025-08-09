@@ -1,7 +1,6 @@
 import google.generativeai as genai
 import os
 import csv
-import time
 from GEMINI_API_KEY import GEMINI_API_KEY
 
 genai.configure(api_key=GEMINI_API_KEY)
@@ -18,9 +17,9 @@ prompts = {
 
     "Friendly and Approachable": """
         You are a screen reader and came across this data visualization.
-        Describe it in 1–2 sentences using simple, friendly language.
-        Mention what kind of visualization it is, its title (if any), any highs and lows, and what the
-        overall pattern seems to be.
+        Describe it in 1-3 sentences using easy-to-understand, friendly language.
+        Mention what kind of visualization it is, its title (if any), any highs and lows,
+        any overall patterns, and any relevant information for the user.
         Start with "A [visualization type] shows…" or "A [visualization type] titled [title] shows…"
         If it is not a data visualization, say "N/A".
     """,
@@ -44,10 +43,11 @@ prompts = {
 
     "Casual and Humorous": """
         You're a screen reader with a sense of humor, and you just came across this data visualization.
-        Give a laid-back, fun 1-2 sentence summary that still covers the basics: what kind of visualization it is,
-        the title if it has one, what goes up, what goes down, and any surprising twists.
+        Give a laid-back, fun 2-3 sentence summary that still covers the main points:
+        what kind of visualization it is, the title if it has one, what goes up, what goes down,
+        and any surprising twists.
         Start with "A [visualization type] shows…" or "A [visualization type] titled [title] shows…"
-        If it’s not a data visualization, just say "N/A" and move on.
+        If it’s not a data visualization, just say "N/A" and move on.”
     """,
 
     "Neutral and Objective": """
@@ -77,7 +77,7 @@ def generate_summaries_for_image(image_path):
     for style, prompt in prompts.items():
         try:
             response = model.generate_content([prompt, image_data])
-            summaries[style] = response.text.strip()
+            summaries[style] = response.text.strip().replace("**", "")
             print(f"{style}: {summaries[style]} \n")
         except Exception as e:
             print(f"Error: {str(e)}; retrying")
@@ -114,4 +114,4 @@ def generate_summaries():
     print(f"Summaries written to {output_csv}")
 
 if __name__ == "__main__":
-    generate_summaries_for_image("./graphs/chloropleth_map.jpg")
+    generate_summaries()
