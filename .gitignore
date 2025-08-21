@@ -18,6 +18,10 @@ github_matplotlib_audit.csv*
 github_matplotlib_audit_1.csv*
 matplotlib_noncontextual_flaw_assessment.csv
 matplotlib_contextual_flaw_assessment.csv
+github_matplotlib_audit_1_scored_2.csv
+github_matplotlib_audit_1_scored_stream_n638.csv
+github_matplotlib_audit_1_scored_stream.csv
+github_matplotlib_audit_1_scored.csv
 
 GEMINI_API_KEY.*
 HUGGINGFACE_HUB_TOKEN.*
