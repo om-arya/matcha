@@ -192,12 +192,63 @@ def find_flaws_from_image(image_filepath: str):
 
     try:
         flaws = ast.literal_eval(flaws_str)
+        if flaws == None:
+            find_flaws_from_image(image_filepath) # Retry
     except:
         find_flaws_from_image(image_filepath) # Retry
 
     return flaws
 
-def batch_analyze_graphs(input_dir="./graphs", output_csv="graph_flaws.csv"):
+def design_question_for_image(image_filepath: str, flaws: list[str]):
+    question_for_image_prompt = f"""
+        You are an expert in designing check-for-understanding questions about data visualizations.
+        I will provide you with:
+        - An image of a chart.
+        - A list of identified flaws in the chart (e.g., accessibility, design, or bias-related issues).
+
+        Your task:
+        1. Visually inspect the chart.
+        2. Review the list of flaws.
+        3. Generate one clear, focused question about the chart.
+            - If flaws are present: incorporate them into the question in a way that could subtly mislead or challenge the reader's interpretation.
+            - If no flaws are present: generate a fair, accurate question based solely on the chart's content.
+
+        Flaws: {flaws}
+    """
+
+    question = generate_image_understanding_response(question_for_image_prompt, image_filepath)
+
+    return question
+
+def generate_baseline_summary(image_filepath: str):
+    baseline_prompt = """
+        You are a screen reader and came across this data visualization.
+        Describe it in 1-2 sentences using simple, friendly language.
+        Mention what kind of visualization it is, its title (if any), any highs and lows,
+        and what the overall pattern seems to be.
+        Start with "A [visualization type] shows…" or "A [visualization type] titled [title] shows…"
+        If it is not a data visualization, say "N/A”.
+    """
+    
+    baseline_summary = generate_image_understanding_response(baseline_prompt, image_filepath)
+
+    return baseline_summary
+
+def generate_optimized_summary(image_filepath: str):
+    optimized_prompt = """
+        You are a screen reader and encountered this data visualization.
+        In 2-5 sentences, include the visualization type, as well as any title, axes information, labels,
+        peak and low values with specific data points, directionality of trends, and key insights, outliers or anomalies.
+        Avoid any fluff (e.g., extra commentary, unnecessary details). Keep things clear and concise, prioritizing ease-of-understanding.
+        Begin with "A [visualization type] shows…" or "A [visualization type] titled [title] shows…"
+        If not a data visualization, return "N/A".
+    """
+    
+    optimized_summary = generate_image_understanding_response(optimized_prompt, image_filepath)
+
+    return optimized_summary
+
+def batch_analyze_graphs(input_dir="./graphs", output_csv="postsurvey_graph_analysis.csv"):
     flaw_codes = [
         "3D_EFFECTS",
         "ANIMATIONS",
@@ -224,20 +275,26 @@ def batch_analyze_graphs(input_dir="./graphs", output_csv="graph_flaws.csv"):
         if not filename.lower().endswith((".png", ".jpg", ".jpeg")):
             continue # Skip non-image files
 
-        filepath = os.path.join(input_dir, filename)
+        image_filepath = os.path.join(input_dir, filename)
 
-        flaws: list[str] = find_flaws_from_image(filepath)
+        flaws: list[str] = find_flaws_from_image(image_filepath)
+        question: str = design_question_for_image(image_filepath, flaws)
+        baseline_summary: str = generate_baseline_summary(image_filepath)
+        optimized_summary: str = generate_optimized_summary(image_filepath)
 
         row = {"filename": filename}
         for code in flaw_codes:
             row[code] = 1 if code in flaws else 0
+        row["question"] = question
+        row["baseline_summary"] = baseline_summary
+        row["optimized_summary"] = optimized_summary
 
         rows.append(row)
-        print(f"Analyzed flaws in {filepath}")
+        print(f"Analyzed flaws, designed question, and generated summaries for {image_filepath}")
 
     # Write to CSV
     with open(output_csv, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["filename"] + flaw_codes)
+        writer = csv.DictWriter(f, fieldnames=["filename"] + flaw_codes + ["question", "baseline_summary", "optimized_summary"])
         writer.writeheader()
         writer.writerows(rows)
 
