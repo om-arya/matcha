@@ -6,7 +6,7 @@ import { parse } from "csv-parse";
 import Database from "better-sqlite3";
 import path from "path";
 
-const inputCsv = process.argv[2] || 'graph_assignments.csv';
+const inputCsv = process.argv[2] || 'postsurvey_graph_analysis.csv';
 const outDbPath = process.argv[3] || path.join('data', 'graphs.sqlite');
 
 if (!fs.existsSync(inputCsv)) {
@@ -28,7 +28,7 @@ parse(csvText, { columns: true, skip_empty_lines: true, trim: true }, (err, reco
   }
 
   // Determine canonical columns we want as separate fields
-  const canonical = new Set(['id', 'title', 'question', 'baseline_summary', 'optimized_summary', 'image_url', 'uses']);
+  const canonical = new Set(['id', 'filename', 'question', 'baseline_summary', 'optimized_summary', 'uses']);
 
   // Collect any other headers to store inside `meta_json`
   const headers = Object.keys(records[0] || {});
@@ -45,19 +45,18 @@ parse(csvText, { columns: true, skip_empty_lines: true, trim: true }, (err, reco
   db.exec(`
     CREATE TABLE graphs (
       id INTEGER PRIMARY KEY,
-      title TEXT,
+      filename TEXT,
       question TEXT,
       baseline_summary TEXT,
       optimized_summary TEXT,
-      image_url TEXT,
       uses INTEGER DEFAULT 0,
       meta_json TEXT
     );
   `);
 
   const insert = db.prepare(`
-    INSERT INTO graphs (id, title, question, baseline_summary, optimized_summary, image_url, uses, meta_json)
-    VALUES (@id, @title, @question, @baseline_summary, @optimized_summary, @image_url, @uses, @meta_json)
+    INSERT INTO graphs (id, filename, question, baseline_summary, optimized_summary, uses, meta_json)
+    VALUES (@id, @filename, @question, @baseline_summary, @optimized_summary, @uses, @meta_json)
   `);
 
   const insertMany = db.transaction((rows) => {
@@ -77,11 +76,10 @@ parse(csvText, { columns: true, skip_empty_lines: true, trim: true }, (err, reco
 
     return {
       id,
-      title: rec.title || '',
+      filename: rec.filename || '',
       question: rec.question || '',
       baseline_summary: rec.baseline_summary || '',
       optimized_summary: rec.optimized_summary || '',
-      image_url: rec.image_url || null,
       uses: Number.isFinite(usesVal) ? usesVal : 0,
       meta_json: Object.keys(meta).length ? JSON.stringify(meta) : null,
     };
