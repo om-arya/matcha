@@ -123,8 +123,8 @@ function ChartSummarizerSimulation({participantId}: ChartSummarizerSimulationPro
 
             <div>
               <label>
-                How confident are you in your interpretation? (1-7)
-                <input name={`likert_conf_${chart.id}`} type="number" min="1" max="7" />
+                How confident are you in your interpretation? (1-4)
+                <input name={`likert_conf_${chart.id}`} type="number" min="1" max="4" />
               </label>
             </div>
 
