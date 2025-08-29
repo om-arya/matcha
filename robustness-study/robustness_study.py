@@ -33,7 +33,7 @@ def generate_summary(image_filepath: str):
 # Ensure graphs directory exists
 os.makedirs("./graphs", exist_ok=True)
 
-def run_robustness_study(input_csv="github_matplotlib_audit.csv", output_csv="robustness_study.csv", num_rows=10):
+def run_robustness_study(input_csv="github_matplotlib_audit.csv", output_csv="robustness_study.csv", num_rows=None):
     df = pd.read_csv(input_csv)
     
     # Slice the dataframe to only the first `num_rows` rows if specified
@@ -49,22 +49,24 @@ def run_robustness_study(input_csv="github_matplotlib_audit.csv", output_csv="ro
         base_filename = f"{repo.replace('/', '_')}_{filename}"
         
         # Step 1: Fix flaws
-        print("Step1")
         fixed_code = find_and_fix_flaws(mpl_code)
+        print(f"Fixed flaws in {filename}")
         
         # Step 2: Render graphs
         orig_image = generate_graph_from_matplotlib_code(mpl_code, f"{base_filename}_original.png")
         fixed_image = generate_graph_from_matplotlib_code(fixed_code, f"{base_filename}_fixed.png")
+        print(f"Rendered graphs for {orig_image} and {fixed_image}")
         
         # Step 3: Generate summaries
         orig_summary = generate_summary(orig_image) if orig_image else None
         fixed_summary = generate_summary(fixed_image) if fixed_image else None
+        print(f"Generated summaries for {orig_image} and {fixed_image}")
         
         # Step 4: Compute semantic similarity
         similarity = None
         if orig_summary and fixed_summary:
             similarity = compute_semantic_similarity(orig_summary, fixed_summary)
-        print(f"Computed similarity between {orig_image} and {fixed_image} summaries: {similarity}")
+        print(f"Computed similarity between {orig_image} and {fixed_image} summaries: {similarity}\n")
         
         results.append({
             "repo": repo,
