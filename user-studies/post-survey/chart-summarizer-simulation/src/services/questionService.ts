@@ -5,11 +5,9 @@ declare global {
   }
 }
 
-import { GEMINI_API_KEY } from "../../../GEMINI_API_KEY";
-
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models";
 
-let API_KEY: string | undefined = GEMINI_API_KEY ? GEMINI_API_KEY : process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+let API_KEY: string | undefined = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
 function ttsRead(text: string) {
     const speech = new SpeechSynthesisUtterance();
