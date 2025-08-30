@@ -1,4 +1,3 @@
-/**
 import * as fs from 'fs';
 import * as path from 'path';
 import Papa from 'papaparse';
@@ -25,6 +24,8 @@ export type PostSurveyData = {
   baseline_summary: string;
   optimized_summary: string;
 };
+
+/**
 
 function parseCSVFile(filePath: string): PostSurveyData[] {
   const csv = fs.readFileSync(path.resolve(filePath), 'utf-8');
