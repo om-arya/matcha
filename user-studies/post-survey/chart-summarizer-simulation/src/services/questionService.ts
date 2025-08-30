@@ -7,7 +7,44 @@ declare global {
 
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models";
 
-let API_KEY: string | undefined = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+let GEMINI_API_KEY: string | null = sessionStorage.getItem('GEMINI_API_KEY');
+
+async function getGeminiApiKey() {
+  try {
+    const response = await fetch("https://m2th8slkyd.execute-api.us-east-1.amazonaws.com/get_gemini_api_key");
+    const responseText = await response.text();
+    const body = JSON.parse(responseText);
+    if (response.status !== 200) {
+      console.log(`Retrieving Gemini API key failed: ${body.detail}`);
+      return false;
+    }
+    
+    const key = body.gemini_api_key;
+    if (key) {
+      GEMINI_API_KEY = key;
+      console.log("Gemini API key fetched successfully");
+      return true;
+    }
+  } catch (err) {
+    console.error("Retrieving Gemini API key failed:", err);
+  }
+  return false;
+}
+
+async function ensureGeminiApiKey(): Promise<void> {
+    while (!GEMINI_API_KEY) {
+        const success = await getGeminiApiKey();
+        if (success && GEMINI_API_KEY) {
+            sessionStorage.setItem("GEMINI_API_KEY", GEMINI_API_KEY);
+            break;
+        }
+        console.log("Waiting 65 seconds before retrying...");
+        await new Promise(res => setTimeout(res, 65000)); // wait 65 seconds
+    }
+}
+
+// Call this at startup
+ensureGeminiApiKey();
 
 function ttsRead(text: string) {
     const speech = new SpeechSynthesisUtterance();
@@ -47,7 +84,7 @@ async function geminiGenerateContent(base64: string, mimeType: string, prompt: s
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
+        "Authorization": `Bearer ${GEMINI_API_KEY}`
       },
       body: JSON.stringify({
         contents: [
