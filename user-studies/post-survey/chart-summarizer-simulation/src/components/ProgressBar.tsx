@@ -1,4 +1,4 @@
-import styles from './Progressbar.module.css'
+import styles from '../css-modules/ProgressBar.module.css';
 
 interface ProgressBarProps {
    currentPage: number
