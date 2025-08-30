@@ -24,6 +24,7 @@ github_matplotlib_audit_1_scored_stream.csv
 github_matplotlib_audit_1_scored.csv
 
 GEMINI_API_KEY.*
+FIREBASE_API_KEY.*
 HUGGINGFACE_HUB_TOKEN.*
 GITHUB_TOKEN.*
 VSCE_PAT.*

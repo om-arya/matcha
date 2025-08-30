@@ -1,11 +1,11 @@
 import './App.css'
-import ChartSummarizerSimulation from './ChartSummarizerSimulation'
+import PostSurvey from './pages/PostSurvey'
 
 function App() {
 
   return (
     <>
-      <ChartSummarizerSimulation />
+      <PostSurvey />
     </>
   )
 }

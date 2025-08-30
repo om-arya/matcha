@@ -1,0 +1,50 @@
+.container {
+   display: flex;
+   flex-direction: column;
+   width: 100%;
+   margin-bottom: 1.5rem;
+   padding-top: 1rem;
+   margin-left: 5rem;
+}
+
+.labelRow {
+   display: flex;
+   align-items: center;
+   margin-bottom: 0.5rem;
+}
+
+.label {
+   margin-top: 1rem;
+   font-size: 1.2rem;
+   letter-spacing: 0.6px;
+   font-weight: 500;
+   color: #333;
+   margin-right: 0.5rem;
+}
+
+.options {
+   display: flex;
+   flex-direction: column;
+   gap: 0.6rem;
+   margin-top: 0.5rem;
+}
+
+.option {
+   display: flex;
+   align-items: center;
+   font-size: 1rem;
+   color: #333;
+   cursor: pointer;
+}
+
+.option input[type="radio"] {
+   margin-right: 0.6rem;
+   accent-color: #333;
+   cursor: pointer;
+}
+
+.errorMessage {
+   font-size: 0.9rem;
+   margin-top: 0.5rem;
+   color: #d9534f;
+}

@@ -1,0 +1,20 @@
+.graphContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 2rem 10rem;
+    align-items: center;
+}
+
+.graph {
+    width: 50%;
+}
+
+.summary {
+    font-size: 1.2rem;
+}
+
+.tip {
+    margin-top: 1rem;
+    font-size: 1rem;
+}

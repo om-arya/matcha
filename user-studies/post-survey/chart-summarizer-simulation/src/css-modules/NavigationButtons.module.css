@@ -1,0 +1,46 @@
+.navigationButtons {
+   display: flex;
+   justify-content: center;
+   padding: 2rem 0 6rem;
+   width: 100%;
+   gap: 22px;
+}
+
+.navigationButton {
+   border-radius: var(--border-radius);
+   font-weight: 500;
+   font-size: 1rem;
+   letter-spacing: 0.48px;
+   cursor: pointer;
+   border: none;
+   width: 140px;
+   height: 56px;
+   text-align: center;
+}
+
+.backButton {
+   background-color: var(--color-primary);
+   color: white;
+}
+
+.backButton:hover:not(:disabled) {
+   background-color: #003e6f;
+}
+
+.nextButton {
+   background-color: var(--color-primary);
+   color: white;
+}
+
+.nextButton:hover:not(:disabled) {
+   background-color: #003e6f;
+}
+
+.nextButton[aria-label='Submit'] {
+   background-color: var(--color-primary);
+}
+
+.navigationButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+}
