@@ -24,17 +24,14 @@
    border-bottom-left-radius: 1rem;
 }
 
-/* Add space between bars */
 .progressBar + .progressBar {
    margin-left: 0.5rem;
 }
 
-/* Last bar needs rounded corners on both sides */
 .progressBar:last-child {
    border-radius: 1rem;
 }
 
-/* For the concave/inverted part on the right of each bar (except the last) */
 .progressBar:not(:last-child)::after {
    content: '';
    position: absolute;

@@ -5,8 +5,11 @@ declare global {
   }
 }
 
+import { GEMINI_API_KEY } from "../../../GEMINI_API_KEY";
+
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models";
-let GEMINI_API_KEY: string | undefined = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+let API_KEY: string | undefined = GEMINI_API_KEY ? GEMINI_API_KEY : process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
 function ttsRead(text: string) {
     const speech = new SpeechSynthesisUtterance();
@@ -42,7 +45,7 @@ function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }>
 
 async function geminiGenerateContent(base64: string, mimeType: string, prompt: string) {
   try {
-    const res = await fetch(`${GEMINI_API_URL}/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`${GEMINI_API_URL}/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
