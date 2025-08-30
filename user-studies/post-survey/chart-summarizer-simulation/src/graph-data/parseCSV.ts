@@ -1,3 +1,4 @@
+/**
 import * as fs from 'fs';
 import * as path from 'path';
 import Papa from 'papaparse';
@@ -59,7 +60,7 @@ function parseCSVFile(filePath: string): PostSurveyData[] {
 }
 
 // Parse CSV and write TypeScript file
-/**
+
 const data = parseCSVFile('./postsurvey_graph_analysis.csv');
 
 const tsContent = `import { type PostSurveyData } from "./parseCSV";
