@@ -1,6 +1,8 @@
+/**
 import * as fs from 'fs';
 import * as path from 'path';
 import Papa from 'papaparse';
+*/
 
 export type PostSurveyData = {
   filename: string;
