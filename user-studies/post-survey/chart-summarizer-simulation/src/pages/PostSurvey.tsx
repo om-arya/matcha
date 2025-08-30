@@ -220,7 +220,7 @@ function PostSurvey() {
             }
 
             if (field === "informedConsentScreener" && !(answer.toLowerCase().startsWith("i agree"))) {
-                setError("You must type \"I agree\" for the first question on this page.")
+                setError("You must type \"I agree\" for the second question on this page.")
                 return false;
             }
 
