@@ -43,9 +43,12 @@ function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }>
 
 async function geminiGenerateContent(base64: string, mimeType: string, prompt: string) {
   try {
-    const res = await fetch(`${GEMINI_API_URL}/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
+    const res = await fetch(`${GEMINI_API_URL}/gemini-2.5-flash:generateContent`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+      },
       body: JSON.stringify({
         contents: [
           {
