@@ -12,7 +12,7 @@ function GraphContainer({ filename, summary }: GraphContainerProps) {
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            if ((event.key === "l" && event.altKey && event.shiftKey) || (event.key === "l" && event.metaKey && event.shiftKey)) {
+            if ((event.key === "L" && event.altKey && event.shiftKey) || (event.key === "L" && event.metaKey && event.shiftKey)) {
                 event.preventDefault();
                 handleAskQuestion(imageFilepath);
             }
