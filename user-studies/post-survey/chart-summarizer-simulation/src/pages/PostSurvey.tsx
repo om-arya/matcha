@@ -253,7 +253,7 @@ function PostSurvey() {
         });
         graphs.map((graph, i) => {
             submissionObj[`graphFilename${i}`] = graph.filename;
-            submissionObj[`graphSummaryType${i}`] = graph.filename;
+            submissionObj[`graphSummaryType${i}`] = graph.summaryType;
         })
 
         try {
@@ -494,6 +494,7 @@ function PostSurvey() {
                     />
 
                     <TextQuestion
+                        key="findAndAnswer1"
                         label={graphs[0].question}
                         controlledValue={answersRef.current.findAndAnswer1}
                         onChange={(value) => handleChange("findAndAnswer1", value)}
