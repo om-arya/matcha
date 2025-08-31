@@ -66,6 +66,8 @@ interface PostSurveyData {
     informativeness4: string;
     usability4: string;
 
+    chartSummarizerRating: string;
+    qaRating: string;
     wouldYouUse: string;
     chartSummarizerFeedback: string;
     qaFeedback: string;
@@ -109,6 +111,8 @@ function PostSurvey() {
         confidence4: "",
         informativeness4: "",
         usability4: "",
+        chartSummarizerRating: "",
+        qaRating: "",
         wouldYouUse: "",
         chartSummarizerFeedback: "",
         qaFeedback: ""
@@ -761,6 +765,30 @@ function PostSurvey() {
                     {progressBar}
 
                     <SectionHeader label="Final Feedback" />
+
+                    <MultipleChoiceQuestion
+                        label={"Based on your interaction with the chart summarizer, what would you rate your experience from 1 (Very Negative) to 4 (Very Positive)?"}
+                        options={[
+                            "1 (Very Negative)",
+                            "2 (Slightly Negative)",
+                            "3 (Slightly Positive)",
+                            "4 (Very Positive)"
+                        ]}
+                        controlledValue={answersRef.current.chartSummarizerRating}
+                        onChange={(value) => handleChange("chartSummarizerRating", value)}
+                    />
+
+                    <MultipleChoiceQuestion
+                        label={"Based on your interaction with the chart Q&A feature, what would you rate your experience from 1 (Very Negative) to 4 (Very Positive)?"}
+                        options={[
+                            "1 (Very Negative)",
+                            "2 (Slightly Negative)",
+                            "3 (Slightly Positive)",
+                            "4 (Very Positive)"
+                        ]}
+                        controlledValue={answersRef.current.qaRating}
+                        onChange={(value) => handleChange("qaRating", value)}
+                    />
 
                     <MultipleChoiceQuestion
                         label={"Based on your interaction with the chart summarizer, would you incorporate this tool into your life?"}

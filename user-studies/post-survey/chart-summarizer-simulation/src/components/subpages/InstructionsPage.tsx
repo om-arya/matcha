@@ -22,8 +22,8 @@ function InstructionsPage() {
                 <ul>
                     <p>• You will first answer questions about your background and experience.</p>
                     <p>• Then, you will interact with several charts and accompanying summaries. For each chart, you will answer questions and rate your confidence, the summary's informativeness, and its usability. The charts will be blurred to ensure your full understanding of it comes from the summary alone.</p>
-                    <p>• You will also have the ability to ask questions about these charts, using the Alt+L command (or Cmd+Shift+L on macOS). Please try pressing this command now.</p>
-                    <p>• Finally, you will provide your overall feedback on the chart summarizer.</p>
+                    <p>• You will also have the ability to ask questions about these charts, using the Alt+L keyboard shortcut (or Cmd+Shift+L on macOS). Please try pressing this shortcut now.</p>
+                    <p>• Finally, you will provide your overall feedback on the chart summarizer and Q&A features.</p>
                 </ul>
 
                 <p><strong>Time commitment:</strong> Approximately 25-30 minutes.</p>
