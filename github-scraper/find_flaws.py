@@ -201,7 +201,7 @@ def find_flaws_from_image(image_filepath: str):
 
 def design_question_for_image(image_filepath: str, flaws: list[str]):
     question_for_image_prompt = f"""
-        You are an expert in designing check-for-understanding questions about data visualizations.
+        You are designing accuracy questions about data visualizations.
         I will provide you with:
         - An image of a chart.
         - A list of identified flaws in the chart (e.g., accessibility, design, or bias-related issues).
@@ -209,9 +209,13 @@ def design_question_for_image(image_filepath: str, flaws: list[str]):
         Your task:
         1. Visually inspect the chart.
         2. Review the list of flaws.
-        3. Generate one clear, focused question about the chart.
-            - If flaws are present: incorporate them into the question in a way that could subtly mislead or challenge the reader's interpretation.
+        3. Generate one clear, focused question about the chart that has a clear correct answer.
+            - If flaws are present: incorporate them into the question in a way that could subtly mislead or challenge the reader's interpretation, leading to an incorrect answer.
             - If no flaws are present: generate a fair, accurate question based solely on the chart's content.
+            - Ensure the question is answerable by someone who can see the chart.
+            - Output ONLY the question text, without any additional commentary.
+            - Keep the question concise (1-2 sentences).
+            - Questions must be at a basic and accessible level, suitable for a general audience, such as "What trend is shown in the chart?" or "What does the title of the chart indicate?
 
         Flaws: {flaws}
     """
@@ -301,4 +305,4 @@ def batch_analyze_graphs(input_dir="./graphs", output_csv="postsurvey_graph_anal
     print(f"Saved flaw analysis for {len(rows)} graphs to {output_csv}")
 
 if __name__ == "__main__":
-    batch_analyze_graphs()
+    design_question_for_image("./graphs/arc_diagram.png")

@@ -7,6 +7,9 @@ declare global {
 
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models";
 
+// Keep a global reference to recognition so we can stop it
+let activeRecognition: any = null;
+
 async function getGeminiApiKey() {
   try {
     const response = await fetch("https://m2th8slkyd.execute-api.us-east-1.amazonaws.com/get_gemini_api_key");
@@ -42,7 +45,26 @@ async function ensureGeminiApiKey(): Promise<void> {
 
 ensureGeminiApiKey();
 
+function resetSpeech() {
+  // Stop all TTS currently speaking
+  window.speechSynthesis.cancel();
+
+  // Stop any ongoing recognition
+  if (activeRecognition) {
+    try {
+      activeRecognition.onresult = null;
+      activeRecognition.onerror = null;
+      activeRecognition.onend = null;
+      activeRecognition.stop();
+    } catch (err) {
+      console.warn("Error stopping recognition:", err);
+    }
+    activeRecognition = null;
+  }
+}
+
 function ttsRead(text: string) {
+  resetSpeech(); // prevent overlap before speaking
   const speech = new SpeechSynthesisUtterance();
   speech.text = text;
   window.speechSynthesis.speak(speech);
@@ -114,6 +136,9 @@ async function geminiGenerateContent(base64: string, mimeType: string, prompt: s
 }
 
 async function handleAskQuestion(imageFilepath: string) {
+  // Reset everything before starting fresh
+  resetSpeech();
+
   ttsRead("I'm listening. Please ask your question.");
 
   const imageFile = await urlToFile(imageFilepath);
@@ -129,14 +154,21 @@ async function handleAskQuestion(imageFilepath: string) {
       recognition.lang = "en-US";
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
+      activeRecognition = recognition;
 
       recognition.onresult = (event: any) => {
           const question = event.results[0][0].transcript;
+          activeRecognition = null;
           resolve(question);
       };
 
       recognition.onerror = (event: any) => {
+          activeRecognition = null;
           reject(`Speech recognition error: ${event.error}`);
+      };
+
+      recognition.onend = () => {
+          activeRecognition = null;
       };
 
       recognition.start();
@@ -159,5 +191,6 @@ async function handleAskQuestion(imageFilepath: string) {
 }
 
 export {
-    handleAskQuestion
+  ttsRead,
+  handleAskQuestion
 }

@@ -8,6 +8,8 @@
 
 .graph {
     width: 50%;
+    filter: blur(40px);
+    pointer-events: none;
 }
 
 .summary {

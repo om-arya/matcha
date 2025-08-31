@@ -6,19 +6,28 @@ import {
 import * as firestore from "firebase/firestore";
 import { db } from "../../firebaseConfig.ts";
 import { postSurveyGraphData } from "../graph-data/postsurvey_graph_data.ts";
+import { ttsRead } from "../services/questionService.ts";
 
+import InformedConsentPage from "../components/subpages/InformedConsentPage.tsx";
+import InstructionsPage from "../components/subpages/InstructionsPage.tsx";
+import MicrophoneAccessPage from "../components/subpages/MicrophoneAccessPage.tsx";
 import ConfirmationPage from "./ConfirmationPage.js";
 import TitleHeader from "../components/headers/TitleHeader.tsx";
-import ProgressBar from "../components/ProgressBar.tsx";
 import SectionHeader from "../components/headers/SectionHeader.tsx";
+import ProgressBar from "../components/ProgressBar.tsx";
 import NavigationButtons from "../components/NavigationButtons.tsx";
-import Error from "../components/Error.tsx";
 import TextQuestion from "../components/questions/TextQuestion.tsx";
 import MultipleChoiceQuestion from "../components/questions/MultipleChoiceQuestion.tsx";
 import SelectMultipleQuestion from "../components/questions/SelectMultipleQuestion.tsx";
 import GraphContainer from "../components/GraphContainer.tsx";
-import InformedConsent from "../components/InformedConsent.tsx";
-import InstructionsPage from "../components/InstructionsPage.tsx";
+import Error from "../components/Error.tsx";
+
+/**
+ * TODO:
+ * - Make sure all graph questions are good and have answers.
+ * - Make sure errors are screen reader-friendly.
+ * - Make headers matcha color.
+ */
 
 interface GraphData {
     filename: string;
@@ -65,14 +74,15 @@ interface PostSurveyData {
     usability4: string;
 
     wouldYouUse: string;
-    feedback: string;
+    chartSummarizerFeedback: string;
+    qaFeedback: string;
 }
 
 function PostSurvey() {
     const title = "MATCHA Chart Summarizer: A Survey for Screen Reader Users";
 
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = 10;
+    const totalPages = 11;
 
     const collectionID = "post-survey";
     const collectionRef = firestore.collection(db, collectionID);
@@ -107,10 +117,12 @@ function PostSurvey() {
         informativeness4: "",
         usability4: "",
         wouldYouUse: "",
-        feedback: "",
+        chartSummarizerFeedback: "",
+        qaFeedback: ""
     })
     
     const [graphs, setGraphs] = useState<GraphData[]>([]);
+    const [counter, setCounter] = useState(0);
 
     useEffect(() => {
         const fetchGraphs = async () => {
@@ -118,12 +130,11 @@ function PostSurvey() {
             const counterRef = firestore.doc(db, "post-survey", "counter");
             const counterSnap = await firestore.getDoc(counterRef);
 
-            let counter: number;
             if (counterSnap.exists()) {
                 const data = counterSnap.data();
-                counter = data?.value ?? 0;
+                setCounter(data?.value ?? 0);
             } else {
-                counter = 0;
+                setCounter(0);
                 await firestore.setDoc(counterRef, { value: counter });
             }
 
@@ -169,17 +180,51 @@ function PostSurvey() {
         };
     };
 
-    const validateCurrentPage = (): boolean => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+        // Before the chart simulation, let the user know the command works.
+        if (currentPage < 7) {
+            if ((event.key === "l" && event.altKey) || (event.key === "l" && event.metaKey && event.shiftKey)) {
+                event.preventDefault();
+                ttsRead("You pressed the command to ask a question about a graph! This command will be useful in a later section of the survey, and we'll let you know when to use it.");
+            }
+        }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    const validateCurrentPage = async (): Promise<boolean> => {
         let requiredFields: (keyof PostSurveyData)[] = [];
 
+        if (currentPage === 1) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const prolificID = urlParams.get("PROLIFIC_ID");
+            if (!!prolificID) {
+                handleChange("prolificID", prolificID);
+                return true;
+            } else {
+                setError("We could not determine your Prolific ID. Please retry the survey link on Prolific.");
+                return false;
+            }
+        }
+
+        if (currentPage === 3) {
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                return true;
+            } catch (err) {
+                setError("You must enable your microphone to continue.");
+                return false;
+            }
+        }
+
         switch (currentPage) {
-            case 3:
+            case 4:
                 requiredFields = ["initialScreener", "informedConsentScreener", "prolificID", "BLVNDScreener"];
                 break;
-            case 4:
+            case 5:
                 requiredFields = ["useScreenReadersScreener", "currentScreenReaderScreener"];
                 break;
-            case 5:
+            case 6:
                 requiredFields = [
                     "age",
                     "raceAndEthnicity",
@@ -190,20 +235,20 @@ function PostSurvey() {
                     "dataLiteracyTraining"
                 ];
                 break;
-            case 6:
+            case 7:
                 requiredFields = ["findAndAnswer1", "confidence1", "informativeness1", "usability1"];
                 break;
-            case 7:
+            case 8:
                 requiredFields = ["findAndAnswer2", "confidence2", "informativeness2", "usability2"];
                 break;
-            case 8:
+            case 9:
                 requiredFields = ["findAndAnswer3", "confidence3", "informativeness3", "usability3"];
                 break;
-            case 9:
+            case 10:
                 requiredFields = ["findAndAnswer4", "confidence4", "informativeness4", "usability4"];
                 break;
-            case 10:
-                requiredFields = ["wouldYouUse", "feedback"];
+            case 11:
+                requiredFields = ["wouldYouUse", "chartSummarizerFeedback", "qaFeedback"];
                 break;
             default:
                 return true; // Pages like instructions and consent don’t require validation
@@ -248,6 +293,9 @@ function PostSurvey() {
 
     const handleFormSubmission = async () => {
         const submissionObj: Record<string, string> = {};
+
+        submissionObj["participantNumber"] = (counter / 4).toString();
+        submissionObj["submissionTimestamp"] = new Date().toISOString();
         Object.keys(answersRef.current).forEach((field) => {
             submissionObj[field] = answersRef.current[field as keyof PostSurveyData];
         });
@@ -284,6 +332,7 @@ function PostSurvey() {
             pageLabels={[
                 "Instructions",
                 "Informed Consent",
+                "Microphone Access",
                 "Initial Questions",
                 "Screen Readers",
                 "Demographics",
@@ -313,9 +362,17 @@ function PostSurvey() {
 
                     <SectionHeader label="Informed Consent" />
 
-                    <InformedConsent />
+                    <InformedConsentPage />
                 </>
             ) : (currentPage === 3) ? (
+                <>
+                    {progressBar}
+
+                    <SectionHeader label="Microphone Access" />
+
+                    <MicrophoneAccessPage />
+                </>
+            ) : (currentPage === 4) ? (
                 <>
                    {progressBar}
 
@@ -332,12 +389,6 @@ function PostSurvey() {
                         onChange={(value) => handleChange("informedConsentScreener", value)}
                    />
 
-                   <TextQuestion
-                        label="What is your Prolific ID?"
-                        controlledValue={answersRef.current.prolificID}
-                        onChange={(value) => handleChange("prolificID", value)}
-                   />
-
                    <MultipleChoiceQuestion
                         label="Do you identify as blind, low-vision, or neurodivergent?"
                         options={[
@@ -348,7 +399,7 @@ function PostSurvey() {
                         onChange={(value) => handleChange("BLVNDScreener", value)}
                     />
                 </>
-            ) : (currentPage === 4) ? (
+            ) : (currentPage === 5) ? (
                 <>
                     {progressBar}
 
@@ -376,7 +427,7 @@ function PostSurvey() {
                         onChange={(value) => handleChange("currentScreenReaderScreener", value)}
                     />
                 </>
-            ) : (currentPage === 5) ? (
+            ) : (currentPage === 6) ? (
                 <>
                     {progressBar}
 
@@ -482,7 +533,7 @@ function PostSurvey() {
                         onChange={(value) => handleChange("dataLiteracyTraining", value)}
                    />
                 </>
-            ) : (currentPage === 6) ? (
+            ) : (currentPage === 7) ? (
                 <>
                     {progressBar}
 
@@ -539,7 +590,7 @@ function PostSurvey() {
                         onChange={(value) => handleChange("usability1", value)}
                     />
                 </>
-            ) : (currentPage === 7) ? (
+            ) : (currentPage === 8) ? (
                 <>
                     {progressBar}
 
@@ -596,7 +647,7 @@ function PostSurvey() {
                         onChange={(value) => handleChange("usability2", value)}
                     />
                 </>
-            ) : (currentPage === 8) ? (
+            ) : (currentPage === 9) ? (
                 <>
                     {progressBar}
 
@@ -653,7 +704,7 @@ function PostSurvey() {
                         onChange={(value) => handleChange("usability3", value)}
                     />
                 </>
-            ) : (currentPage === 9) ? (
+            ) : (currentPage === 10) ? (
                 <>
                     {progressBar}
 
@@ -728,16 +779,23 @@ function PostSurvey() {
                     />
 
                     <TextQuestion
-                        label={"Do you have any other feedback on the chart summarizer?"}
-                        controlledValue={answersRef.current.feedback}
-                        onChange={(value) => handleChange("feedback", value)}
+                        label={"Please provide feedback on your overall experience with the chart summarizer. Answer in at least 2-3 sentences."}
+                        controlledValue={answersRef.current.chartSummarizerFeedback}
+                        onChange={(value) => handleChange("chartSummarizerFeedback", value)}
+                    />
+
+                    <TextQuestion
+                        label={"Please provide feedback on your experience with the Q&A feature. Answer in at least 2-3 sentences."}
+                        controlledValue={answersRef.current.qaFeedback}
+                        onChange={(value) => handleChange("qaFeedback", value)}
                     />
                 </>
             )}
 
             <NavigationButtons
-                onNext={() => {
-                    if (!validateCurrentPage()) return; // stop if validation fails
+                onNext={async () => {
+                    const isValidPage = await validateCurrentPage();
+                    if (!isValidPage) return; // stop if validation fails
 
                     if (currentPage < totalPages) {
                         setCurrentPage(currentPage + 1);

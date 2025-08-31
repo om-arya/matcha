@@ -1,6 +1,6 @@
-import '../styles/InformedConsent.css';
+import '../../styles/InformedConsentPage.css';
 
-function InformedConsent() {
+function InformedConsentPage() {
     return (
         <div className="informed-consent" tabIndex={0}>
             <p>Please review the Informed Consent Form before continuing.</p>
@@ -55,4 +55,4 @@ function InformedConsent() {
     );
 }
 
-export default InformedConsent;
+export default InformedConsentPage;

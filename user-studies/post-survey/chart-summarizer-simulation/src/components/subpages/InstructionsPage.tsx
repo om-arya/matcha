@@ -1,4 +1,4 @@
-import "../styles/InstructionsPage.css";
+import "../../styles/InstructionsPage.css";
 
 function InstructionsPage() {
     return (
@@ -13,7 +13,7 @@ function InstructionsPage() {
 
                 <h3 className="instructions-subheading">Before you begin:</h3>
                 <ul>
-                    <p>• Only participants who use a screen reader should continue.</p>
+                    <p>• Only participants who use a screen reader and have a working speaker and microphone should continue.</p>
                     <p>• Complete all sections independently. Do not use external tools, AI assistants, or copy answers. Submissions that do will be disqualified.</p>
                     <p>• Navigate using your screen reader. Use the "Next" and "Back" buttons to move between pages.</p>
                 </ul>
@@ -22,6 +22,7 @@ function InstructionsPage() {
                 <ul>
                     <p>• You will first answer questions about your background and experience.</p>
                     <p>• Then, you will interact with several charts and accompanying summaries. For each chart, you will answer questions and rate your confidence, the summary's informativeness, and its usability.</p>
+                    <p>• You will also have the ability to ask questions about these charts, using the Alt+L command (or Cmd+Shift+L on macOS). Please try pressing this command now.</p>
                     <p>• Finally, you will provide your overall feedback on the chart summarizer.</p>
                 </ul>
 

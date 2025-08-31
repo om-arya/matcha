@@ -24,7 +24,7 @@
 }
 
 .backButton:hover:not(:disabled) {
-   background-color: #003e6f;
+   background-color: var(--color-primary);
 }
 
 .nextButton {
@@ -33,7 +33,7 @@
 }
 
 .nextButton:hover:not(:disabled) {
-   background-color: #003e6f;
+   background-color: var(--color-primary);
 }
 
 .nextButton[aria-label='Submit'] {
