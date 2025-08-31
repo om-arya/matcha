@@ -12,7 +12,7 @@ function GraphContainer({ filename, summary }: GraphContainerProps) {
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            if ((event.key === "l" && event.altKey) || (event.key === "l" && event.metaKey && event.shiftKey)) {
+            if ((event.key === "l" && event.altKey && event.shiftKey) || (event.key === "l" && event.metaKey && event.shiftKey)) {
                 event.preventDefault();
                 handleAskQuestion(imageFilepath);
             }
@@ -34,7 +34,7 @@ function GraphContainer({ filename, summary }: GraphContainerProps) {
             </p>
 
             <p className={styles.tip} tabIndex={0}>
-                Press Alt+L (or Cmd+Shift+L on macOS) to ask a question about this graph.
+                Press Alt+Shift+L (or Cmd+Shift+L on macOS) to ask a question about this graph.
             </p>
         </div>
     );

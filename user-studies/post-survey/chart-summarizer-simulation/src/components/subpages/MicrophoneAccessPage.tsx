@@ -42,7 +42,7 @@ function MicrophoneAccessPage() {
 
                 <h3 className="microphone-subheading">Test the Shortcut:</h3>
                 <ul>
-                    <p>• To ask a question later, you will use the command <strong>Alt+L</strong> (Windows) or <strong>Cmd+Shift+L</strong> (macOS).</p>
+                    <p>• To ask a question later, you will use the command <strong>Alt+Shift+L</strong> (Windows) or <strong>Cmd+Shift+L</strong> (macOS).</p>
                     <p>• Please try pressing this command now to ensure it works with your setup.</p>
                 </ul>
 
