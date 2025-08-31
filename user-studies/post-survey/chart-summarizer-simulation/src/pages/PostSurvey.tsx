@@ -556,7 +556,7 @@ function PostSurvey() {
                             "3",
                             "4 (Extremely)"
                         ]}
-                        controlledValue={answersRef.current.confidence1}
+                        controlledValue={answersRef.current.confidence2}
                         onChange={(value) => handleChange("confidence2", value)}
                     />
 
@@ -568,7 +568,7 @@ function PostSurvey() {
                             "3",
                             "4 (Extremely)"
                         ]}
-                        controlledValue={answersRef.current.informativeness1}
+                        controlledValue={answersRef.current.informativeness2}
                         onChange={(value) => handleChange("informativeness2", value)}
                     />
 
@@ -580,7 +580,7 @@ function PostSurvey() {
                             "3",
                             "4 (Extremely)"
                         ]}
-                        controlledValue={answersRef.current.usability1}
+                        controlledValue={answersRef.current.usability2}
                         onChange={(value) => handleChange("usability2", value)}
                     />
                 </>
