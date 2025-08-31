@@ -180,7 +180,7 @@ function PostSurvey() {
     const handleKeyDown = (event: KeyboardEvent) => {
         // Before the chart simulation, let the user know the command works.
         if (currentPage < 7) {
-            if ((event.key === "L" && event.altKey && event.shiftKey) || (event.key === "L" && event.metaKey && event.shiftKey)) {
+            if ((event.key === "L" && event.altKey && event.shiftKey) || (event.key === "l" && event.metaKey && event.shiftKey)) {
                 event.preventDefault();
                 ttsRead("You pressed the command to ask a question about a graph! This command will be useful in a later section of the survey, and we'll let you know when to use it.");
             }
