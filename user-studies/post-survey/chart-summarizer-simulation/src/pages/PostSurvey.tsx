@@ -128,8 +128,9 @@ function PostSurvey() {
             const counterSnap = await firestore.getDoc(counterRef);
 
             if (counterSnap.exists()) {
+                await firestore.updateDoc(counterRef, { value: counter + 4 });
                 const data = counterSnap.data();
-                setCounter(data?.value ?? 0);
+                setCounter(data.value);
             } else {
                 setCounter(0);
                 await firestore.setDoc(counterRef, { value: counter });
@@ -157,8 +158,6 @@ function PostSurvey() {
             }
 
             setGraphs(selectedGraphs);
-
-            await firestore.updateDoc(counterRef, { value: counter + 4 });
         } catch (err) {
             console.error("Error fetching graphs:", err);
         }
