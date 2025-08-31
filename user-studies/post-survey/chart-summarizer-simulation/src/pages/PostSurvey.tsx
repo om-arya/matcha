@@ -133,7 +133,7 @@ function PostSurvey() {
                 await firestore.updateDoc(counterRef, { value: counter + 4 });
             } else {
                 setCounter(0);
-                await firestore.setDoc(counterRef, { value: counter });
+                await firestore.setDoc(counterRef, { value: 4 });
             }
 
             let selectedGraphs = [];
