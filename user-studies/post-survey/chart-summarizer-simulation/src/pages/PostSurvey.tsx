@@ -383,6 +383,7 @@ function PostSurvey() {
                    />
 
                    <MultipleChoiceQuestion
+                        key="BLVNDScreener"
                         label="Do you identify as blind, low-vision, or neurodivergent?"
                         options={[
                             "Yes",
@@ -411,6 +412,7 @@ function PostSurvey() {
                     <SectionHeader label="Screen Readers (Part 2)" />
 
                     <MultipleChoiceQuestion
+                        key="currentScreenReaderScreener"
                         label="Are you currently using your screen reader while taking this survey?"
                         options={[
                             "Yes",
