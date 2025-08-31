@@ -119,7 +119,7 @@ function PostSurvey() {
     })
     
     const [graphs, setGraphs] = useState<GraphData[]>([]);
-    const [counter, setCounter] = useState(0);
+    let counter;
 
     useEffect(() => {
         const fetchGraphs = async () => {
@@ -129,10 +129,10 @@ function PostSurvey() {
 
             if (counterSnap.exists()) {
                 const data = counterSnap.data();
-                setCounter(data.value);
+                counter = data.value;
                 await firestore.updateDoc(counterRef, { value: firestore.increment(4) });
             } else {
-                setCounter(0);
+                counter = 0;
                 await firestore.setDoc(counterRef, { value: 4 });
             }
 
