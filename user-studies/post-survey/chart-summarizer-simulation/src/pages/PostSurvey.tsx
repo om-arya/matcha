@@ -130,7 +130,7 @@ function PostSurvey() {
             if (counterSnap.exists()) {
                 const data = counterSnap.data();
                 setCounter(data.value);
-                await firestore.updateDoc(counterRef, { value: counter + 4 });
+                await firestore.updateDoc(counterRef, { value: firestore.increment(4) });
             } else {
                 setCounter(0);
                 await firestore.setDoc(counterRef, { value: 4 });
