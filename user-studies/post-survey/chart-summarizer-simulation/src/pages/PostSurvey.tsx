@@ -22,13 +22,6 @@ import SelectMultipleQuestion from "../components/questions/SelectMultipleQuesti
 import GraphContainer from "../components/GraphContainer.tsx";
 import Error from "../components/Error.tsx";
 
-/**
- * TODO:
- * - Make sure all graph questions are good and have answers.
- * - Make sure errors are screen reader-friendly.
- * - Make headers matcha color.
- */
-
 interface GraphData {
     filename: string;
     question: string;
@@ -197,7 +190,7 @@ function PostSurvey() {
 
         if (currentPage === 1) {
             const urlParams = new URLSearchParams(window.location.search);
-            const prolificID = urlParams.get("PROLIFIC_ID");
+            const prolificID = urlParams.get("PROLIFIC_PID");
             if (!!prolificID) {
                 handleChange("prolificID", prolificID);
                 return true;
