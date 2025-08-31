@@ -114,7 +114,6 @@ async function geminiGenerateContent(base64: string, mimeType: string, prompt: s
 }
 
 async function handleAskQuestion(imageFilepath: string) {
-  console.log("Called handleAskQuestion()");
   ttsRead("I'm listening. Please ask your question.");
 
   const imageFile = await urlToFile(imageFilepath);

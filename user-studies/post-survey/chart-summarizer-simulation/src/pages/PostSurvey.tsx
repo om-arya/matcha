@@ -24,6 +24,7 @@ interface GraphData {
     filename: string;
     question: string;
     summary: string;
+    summaryType: string;
 }
 
 interface PostSurveyData {
@@ -135,6 +136,7 @@ function PostSurvey() {
                     filename: row.filename,
                     question: row.question,
                     summary: idx < 2 ? row.baseline_summary : row.optimized_summary,
+                    summaryType: idx < 2 ? "baseline" : "optimized"
                 }));
             } else {
                 // Case 2: baseline for 3 and 4, optimized for 1 and 2
@@ -142,6 +144,7 @@ function PostSurvey() {
                     filename: row.filename,
                     question: row.question,
                     summary: idx < 2 ? row.optimized_summary : row.baseline_summary,
+                    summaryType: idx < 2 ? "optimized" : "baseline"
                 }));
             }
 
@@ -225,7 +228,7 @@ function PostSurvey() {
             }
 
             if ((field === "BLVNDScreener" || field === "useScreenReadersScreener" || field === "currentScreenReaderScreener") && answer === "No") {
-                handleSkipToEnd();
+                handleFormSubmission();
             }
         }
 
@@ -233,32 +236,25 @@ function PostSurvey() {
         return true;
     };
 
-    const handleSubmit = async () => {
+    const validateForm = () => {
         for (const [_, value] of Object.entries(answersRef.current)) {
             if (value === '') {
                 setError("Cannot submit: You have not completed one or more sections in the form");
-                return;
+                return false;
             }
         }
+        return true;
+    }
 
+    const handleFormSubmission = async () => {
         const submissionObj: Record<string, string> = {};
         Object.keys(answersRef.current).forEach((field) => {
             submissionObj[field] = answersRef.current[field as keyof PostSurveyData];
         });
-
-        try {
-            await firestore.addDoc(collectionRef, submissionObj);
-            setIsSubmitted(true);
-        } catch (error) {
-            setError("Server error. Please try again later.");
-        }
-    };
-
-    const handleSkipToEnd = async () => {
-        const submissionObj: Record<string, string> = {};
-        Object.keys(answersRef.current).forEach((field) => {
-            submissionObj[field] = answersRef.current[field as keyof PostSurveyData];
-        });
+        graphs.map((graph, i) => {
+            submissionObj[`graphFilename${i}`] = graph.filename;
+            submissionObj[`graphSummaryType${i}`] = graph.filename;
+        })
 
         try {
             await firestore.addDoc(collectionRef, submissionObj);
@@ -267,6 +263,14 @@ function PostSurvey() {
             setError("Server error. Please try again later.");
         }
     }
+
+    const handleSubmitClick = async () => {
+        if (!(validateForm())) {
+            return;
+        };
+
+        handleFormSubmission();
+    };
 
     // Navigate to confirmation page
     if (isSubmitted) {
@@ -496,6 +500,7 @@ function PostSurvey() {
                     />
                     
                     <MultipleChoiceQuestion
+                        key="confidence1"
                         label={"To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
                         options={[
                             "1 (Not at all)",
@@ -508,6 +513,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="informativeness1"
                         label={"To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
                         options={[
                             "1 (Not at all)",
@@ -520,6 +526,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="usability1"
                         label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
                         options={[
                             "1 (Not at all)",
@@ -543,12 +550,14 @@ function PostSurvey() {
                     />
 
                     <TextQuestion
+                        key="findAndAnswer2"
                         label={graphs[1].question}
                         controlledValue={answersRef.current.findAndAnswer2}
                         onChange={(value) => handleChange("findAndAnswer2", value)}
                     />
                     
                     <MultipleChoiceQuestion
+                        key="confidence2"
                         label={"To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
                         options={[
                             "1 (Not at all)",
@@ -561,6 +570,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="informativeness2"
                         label={"To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
                         options={[
                             "1 (Not at all)",
@@ -573,6 +583,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="usability2"
                         label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
                         options={[
                             "1 (Not at all)",
@@ -596,12 +607,14 @@ function PostSurvey() {
                     />
 
                     <TextQuestion
+                        key="findAndAnswer3"
                         label={graphs[2].question}
                         controlledValue={answersRef.current.findAndAnswer3}
                         onChange={(value) => handleChange("findAndAnswer3", value)}
                     />
                     
                     <MultipleChoiceQuestion
+                        key="confidence3"
                         label={"To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
                         options={[
                             "1 (Not at all)",
@@ -614,6 +627,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="informativeness3"
                         label={"To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
                         options={[
                             "1 (Not at all)",
@@ -626,6 +640,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="usability3"
                         label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
                         options={[
                             "1 (Not at all)",
@@ -640,6 +655,7 @@ function PostSurvey() {
             ) : (currentPage === 9) ? (
                 <>
                     {progressBar}
+
                     <SectionHeader label="Chart Summarizer Simulation (Part 4)" />
 
                     <GraphContainer
@@ -648,12 +664,14 @@ function PostSurvey() {
                     />
 
                     <TextQuestion
+                        key="findAndAnswer4"
                         label={graphs[3].question}
                         controlledValue={answersRef.current.findAndAnswer4}
                         onChange={(value) => handleChange("findAndAnswer4", value)}
                     />
                     
                     <MultipleChoiceQuestion
+                        key="confidence4"
                         label={"To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
                         options={[
                             "1 (Not at all)",
@@ -666,6 +684,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="informativeness4"
                         label={"To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
                         options={[
                             "1 (Not at all)",
@@ -678,6 +697,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="usability4"
                         label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
                         options={[
                             "1 (Not at all)",
@@ -721,7 +741,7 @@ function PostSurvey() {
                     if (currentPage < totalPages) {
                         setCurrentPage(currentPage + 1);
                     } else {
-                        handleSubmit();
+                        handleSubmitClick();
                     }
                 }}
                 onBack={() => {
