@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDtd26RpwRYHVdnp5m1vIxAX3ClVs0sTR0", // process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "matcha-post-survey.firebaseapp.com",
   projectId: "matcha-post-survey",
   storageBucket: "matcha-post-survey.firebasestorage.app",
