@@ -215,7 +215,7 @@ def design_question_for_image(image_filepath: str, flaws: list[str]):
             - Ensure the question is answerable by someone who can see the chart.
             - Output ONLY the question text, without any additional commentary.
             - Keep the question concise (1-2 sentences).
-            - Questions must be at a basic and accessible level, suitable for a general audience, such as "What trend is shown in the chart?" or "What does the title of the chart indicate?
+            - Questions must be at a basic and accessible level, suitable for a general audience.
 
         Flaws: {flaws}
     """
