@@ -119,7 +119,7 @@ function PostSurvey() {
     })
     
     const [graphs, setGraphs] = useState<GraphData[]>([]);
-    let counter;
+    let counter: number;
 
     useEffect(() => {
         const fetchGraphs = async () => {

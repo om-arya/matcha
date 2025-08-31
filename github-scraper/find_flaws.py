@@ -268,7 +268,7 @@ def batch_analyze_graphs(input_dir="./graphs", output_csv="postsurvey_graph_anal
         "MISSING_TITLE",
         "MISSING_XLABEL",
         "MISSING_YLABEL",
-        "NON_SEQUENTIAL_AXIS"
+        "NON_SEQUENTIAL_AXIS",
         "TAMPERED_ASPECT_RATIO",
         "TRUNCATED_Y_AXIS",
     ]
@@ -305,4 +305,4 @@ def batch_analyze_graphs(input_dir="./graphs", output_csv="postsurvey_graph_anal
     print(f"Saved flaw analysis for {len(rows)} graphs to {output_csv}")
 
 if __name__ == "__main__":
-    design_question_for_image("./graphs/arc_diagram.png")
+    batch_analyze_graphs()
