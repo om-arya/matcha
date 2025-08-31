@@ -8,7 +8,6 @@ declare global {
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models";
 
 async function getGeminiApiKey() {
-  console.log("Called getGeminiApiKey()");
   try {
     const response = await fetch("https://m2th8slkyd.execute-api.us-east-1.amazonaws.com/get_gemini_api_key");
     const responseText = await response.text();
@@ -19,7 +18,6 @@ async function getGeminiApiKey() {
     }
     
     const key = body.gemini_api_key;
-    console.log("key: " + key);
     if (key) {
       sessionStorage.setItem("GEMINI_API_KEY", key);
       console.log("Gemini API key fetched successfully");
@@ -32,14 +30,9 @@ async function getGeminiApiKey() {
 }
 
 async function ensureGeminiApiKey(): Promise<void> {
-  console.log("Called ensureGeminiApiKey()");
   while (!sessionStorage.getItem("GEMINI_API_KEY")) {
-    console.log("sessionStorage does not have GEMINI_API_KEY");
     const success = await getGeminiApiKey();
     if (success && sessionStorage.getItem("GEMINI_API_KEY")) {
-      console.log("Success!");
-      console.log("GEMINI_API_KEY:")
-      console.log(sessionStorage.getItem("GEMINI_API_KEY"))
       break;
     }
     console.log("Waiting 65 seconds before retrying...");
@@ -82,16 +75,13 @@ function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }>
 }
 
 async function geminiGenerateContent(base64: string, mimeType: string, prompt: string) {
-  console.log("Called geminiGenerateContent()");
   let GEMINI_API_KEY: string | null = sessionStorage.getItem('GEMINI_API_KEY');
-  console.log("GEMINI_API_KEY: " + GEMINI_API_KEY)
 
   try {
-    const res = await fetch(`${GEMINI_API_URL}/gemini-2.5-flash:generateContent`, {
+    const res = await fetch(`${GEMINI_API_URL}/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${GEMINI_API_KEY}`
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         contents: [
