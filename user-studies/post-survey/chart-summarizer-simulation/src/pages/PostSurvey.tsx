@@ -59,16 +59,18 @@ interface PostSurveyData {
     findAndAnswer3: string;
     confidence3: string;
     informativeness3: string;
-    qaInformativeness3: string;
     usability3: string;
-    spokenQuestions3: string;
 
     findAndAnswer4: string;
     confidence4: string;
     informativeness4: string;
-    qaInformativeness4: string;
     usability4: string;
-    spokenQuestions4: string;
+
+    qaInformativeness1: string;
+    spokenQuestions1: string;
+
+    qaInformativeness2: string;
+    spokenQuestions2: string;
 
     chartSummarizerRating: string;
     qaRating: string;
@@ -110,15 +112,15 @@ function PostSurvey() {
         findAndAnswer3: "",
         confidence3: "",
         informativeness3: "",
-        qaInformativeness3: "",
         usability3: "",
-        spokenQuestions3: "",
         findAndAnswer4: "",
         confidence4: "",
         informativeness4: "",
-        qaInformativeness4: "",
         usability4: "",
-        spokenQuestions4: "",
+        qaInformativeness1: "",
+        spokenQuestions1: "",
+        qaInformativeness2: "",
+        spokenQuestions2: "",
         chartSummarizerRating: "",
         qaRating: "",
         wouldYouUse: "",
@@ -243,16 +245,32 @@ function PostSurvey() {
                 ];
                 break;
             case 7:
-                requiredFields = ["findAndAnswer1", "confidence1", "informativeness1", "usability1"];
+                if (graphs[0].summaryType === "optimized") {
+                    requiredFields = ["findAndAnswer1", "confidence1", "informativeness1", "usability1", "qaInformativeness1"];
+                } else {
+                    requiredFields = ["findAndAnswer1", "confidence1", "informativeness1", "usability1"];
+                }
                 break;
             case 8:
-                requiredFields = ["findAndAnswer2", "confidence2", "informativeness2", "usability2"];
+                if (graphs[1].summaryType === "optimized") {
+                    requiredFields = ["findAndAnswer2", "confidence2", "informativeness2", "usability2", "qaInformativeness2"];
+                } else {
+                    requiredFields = ["findAndAnswer2", "confidence2", "informativeness2", "usability2"];
+                }
                 break;
             case 9:
-                requiredFields = ["findAndAnswer3", "confidence3", "informativeness3", "qaInformativeness3", "usability3"];
+                if (graphs[2].summaryType === "optimized") {
+                    requiredFields = ["findAndAnswer3", "confidence3", "informativeness3", "usability3", "qaInformativeness1"];
+                } else {
+                    requiredFields = ["findAndAnswer3", "confidence3", "informativeness3", "usability3"];
+                }
                 break;
             case 10:
-                requiredFields = ["findAndAnswer4", "confidence4", "informativeness4", "qaInformativeness4", "usability4"];
+                if (graphs[3].summaryType === "optimized") {
+                    requiredFields = ["findAndAnswer4", "confidence4", "informativeness4", "usability4", "qaInformativeness2"];
+                } else {
+                    requiredFields = ["findAndAnswer4", "confidence4", "informativeness4", "usability4"];
+                }
                 break;
             case 11:
                 requiredFields = ["wouldYouUse", "chartSummarizerFeedback", "qaFeedback"];
@@ -589,6 +607,20 @@ function PostSurvey() {
                         onChange={(value) => handleChange("informativeness1", value)}
                     />
 
+                    {graphs[0].summaryType === "optimized" &&
+                        <MultipleChoiceQuestion
+                            key="qaInformativeness1"
+                            label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                            options={[
+                                "1 (Not at all)",
+                                "2",
+                                "3",
+                                "4 (Extremely)"
+                            ]}
+                            controlledValue={answersRef.current.qaInformativeness1}
+                            onChange={(value) => handleChange("qaInformativeness1", value)}
+                        />}
+
                     <MultipleChoiceQuestion
                         key="usability1"
                         label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
@@ -646,6 +678,20 @@ function PostSurvey() {
                         controlledValue={answersRef.current.informativeness2}
                         onChange={(value) => handleChange("informativeness2", value)}
                     />
+
+                    {graphs[1].summaryType === "optimized" &&
+                        <MultipleChoiceQuestion
+                            key="qaInformativeness2"
+                            label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                            options={[
+                                "1 (Not at all)",
+                                "2",
+                                "3",
+                                "4 (Extremely)"
+                            ]}
+                            controlledValue={answersRef.current.qaInformativeness2}
+                            onChange={(value) => handleChange("qaInformativeness2", value)}
+                        />}
 
                     <MultipleChoiceQuestion
                         key="usability2"
@@ -706,18 +752,19 @@ function PostSurvey() {
                         onChange={(value) => handleChange("informativeness3", value)}
                     />
 
-                    <MultipleChoiceQuestion
-                        key="qaInformativeness3"
-                        label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
-                        options={[
-                            "1 (Not at all)",
-                            "2",
-                            "3",
-                            "4 (Extremely)"
-                        ]}
-                        controlledValue={answersRef.current.qaInformativeness3}
-                        onChange={(value) => handleChange("qaInformativeness3", value)}
-                    />
+                    {graphs[2].summaryType === "optimized" &&
+                        <MultipleChoiceQuestion
+                            key="qaInformativeness1"
+                            label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                            options={[
+                                "1 (Not at all)",
+                                "2",
+                                "3",
+                                "4 (Extremely)"
+                            ]}
+                            controlledValue={answersRef.current.qaInformativeness1}
+                            onChange={(value) => handleChange("qaInformativeness1", value)}
+                        />}
 
                     <MultipleChoiceQuestion
                         key="usability3"
@@ -778,18 +825,19 @@ function PostSurvey() {
                         onChange={(value) => handleChange("informativeness4", value)}
                     />
 
-                    <MultipleChoiceQuestion
-                        key="qaInformativeness4"
-                        label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
-                        options={[
-                            "1 (Not at all)",
-                            "2",
-                            "3",
-                            "4 (Extremely)"
-                        ]}
-                        controlledValue={answersRef.current.qaInformativeness4}
-                        onChange={(value) => handleChange("qaInformativeness4", value)}
-                    />
+                    {graphs[3].summaryType === "optimized" &&
+                        <MultipleChoiceQuestion
+                            key="qaInformativeness2"
+                            label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                            options={[
+                                "1 (Not at all)",
+                                "2",
+                                "3",
+                                "4 (Extremely)"
+                            ]}
+                            controlledValue={answersRef.current.qaInformativeness2}
+                            onChange={(value) => handleChange("qaInformativeness2", value)}
+                        />}
 
                     <MultipleChoiceQuestion
                         key="usability4"
