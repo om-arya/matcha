@@ -716,14 +716,14 @@ function PostSurvey() {
 
                     <TextQuestion
                         key="findAndAnswer2"
-                        label={`${summaryOrderType === 1 ? "18" : "17"}.${graphs[1].question}`}
+                        label={`${summaryOrderType === 1 ? "18" : "17"}. ${graphs[1].question}`}
                         controlledValue={answersRef.current.findAndAnswer2}
                         onChange={(value) => handleChange("findAndAnswer2", value)}
                     />
                     
                     <MultipleChoiceQuestion
                         key="confidence2"
-                        label={`${summaryOrderType === 1 ? "19" : "18"}.To what extent do you agree with the following statement?: \"I am confident my answer was correct.\"`}
+                        label={`${summaryOrderType === 1 ? "19" : "18"}. To what extent do you agree with the following statement?: \"I am confident my answer was correct.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -809,7 +809,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="informativeness3"
-                        label={`${summaryOrderType === 1 ? "25" : "23"}.To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\"`}
+                        label={`${summaryOrderType === 1 ? "25" : "23"}. To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
