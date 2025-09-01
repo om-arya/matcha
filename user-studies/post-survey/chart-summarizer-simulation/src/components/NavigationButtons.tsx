@@ -54,14 +54,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
         <button
           key="next"
           className={`${styles.navigationButton} ${styles.nextButton}`}
-          onClick={() => {
-            window.scrollTo({
-              top: 0,
-              left: 0,
-              behavior: 'smooth'
-            });
-            handleClick(onNext);
-          }}
+          onClick={() => handleClick(onNext)}
           disabled={!canGoNext}
           aria-disabled={!canGoNext}
           aria-label={nextLabel}
