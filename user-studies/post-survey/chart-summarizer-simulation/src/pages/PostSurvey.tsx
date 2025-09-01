@@ -129,6 +129,7 @@ function PostSurvey() {
     })
     
     const [graphs, setGraphs] = useState<GraphData[]>([]);
+    const [summaryOrderType, setSummaryOrderType] = useState<1 | 2>(1);
     let counter: number;
 
     useEffect(() => {
@@ -157,6 +158,7 @@ function PostSurvey() {
                     summary: idx < 2 ? row.baseline_summary : row.optimized_summary,
                     summaryType: idx < 2 ? "baseline" : "optimized"
                 }));
+                setSummaryOrderType(1);
             } else {
                 // Case 2: baseline for 3 and 4, optimized for 1 and 2
                 selectedGraphs = postSurveyGraphData.slice(index, index + 4).map((row, idx) => ({
@@ -165,6 +167,7 @@ function PostSurvey() {
                     summary: idx < 2 ? row.optimized_summary : row.baseline_summary,
                     summaryType: idx < 2 ? "optimized" : "baseline"
                 }));
+                setSummaryOrderType(2);
             }
 
             setGraphs(selectedGraphs);
@@ -199,10 +202,13 @@ function PostSurvey() {
         }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [handleKeyDown]);
 
     const validateCurrentPage = async (): Promise<boolean> => {
-        let requiredFields: (keyof PostSurveyData)[] = [];
+        let questions: {index: number, field: (keyof PostSurveyData)}[] = [];
 
         if (currentPage === 1) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -228,78 +234,140 @@ function PostSurvey() {
 
         switch (currentPage) {
             case 4:
-                requiredFields = ["initialScreener", "informedConsentScreener", "prolificID", "BLVNDScreener"];
+                questions = [
+                    {index: 1, field: "initialScreener"},
+                    {index: 2, field: "informedConsentScreener"},
+                    {index: 3, field: "BLVNDScreener"}
+                ];
                 break;
             case 5:
-                requiredFields = ["useScreenReadersScreener", "currentScreenReaderScreener"];
+                questions = [
+                    {index: 4, field: "useScreenReadersScreener"},
+                    {index: 5, field: "currentScreenReaderScreener"}
+                ];
                 break;
             case 6:
-                requiredFields = [
-                    "age",
-                    "raceAndEthnicity",
-                    "highestLevelOfEducation",
-                    "BLVNDSelection",
-                    "screenReadersSelection",
-                    "chartInterpretationConfidence",
-                    "dataLiteracyTraining"
+                questions = [
+                    {index: 6, field: "age"},
+                    {index: 7, field: "raceAndEthnicity"},
+                    {index: 8, field: "highestLevelOfEducation"},
+                    {index: 9, field: "BLVNDSelection"},
+                    {index: 10, field: "screenReadersSelection"},
+                    {index: 11, field: "chartInterpretationConfidence"},
+                    {index: 12, field: "dataLiteracyTraining"}
                 ];
                 break;
             case 7:
-                if (graphs[0].summaryType === "optimized") {
-                    requiredFields = ["findAndAnswer1", "confidence1", "informativeness1", "usability1", "qaInformativeness1"];
+                if (summaryOrderType === 1) {
+                    questions = [
+                        {index: 13, field: "findAndAnswer1"},
+                        {index: 14, field: "confidence1"},
+                        {index: 15, field: "informativeness1"},
+                        {index: 16, field: "usability1"},
+                        {index: 17, field: "qaInformativeness1"}
+                    ];
                 } else {
-                    requiredFields = ["findAndAnswer1", "confidence1", "informativeness1", "usability1"];
+                    questions = [
+                        {index: 13, field: "findAndAnswer1"},
+                        {index: 14, field: "confidence1"},
+                        {index: 15, field: "informativeness1"},
+                        {index: 16, field: "usability1"}
+                    ];
                 }
                 break;
             case 8:
-                if (graphs[1].summaryType === "optimized") {
-                    requiredFields = ["findAndAnswer2", "confidence2", "informativeness2", "usability2", "qaInformativeness2"];
+                if (summaryOrderType === 1) {
+                    questions = [
+                        {index: 18, field: "findAndAnswer2"},
+                        {index: 19, field: "confidence2"},
+                        {index: 20, field: "informativeness2"},
+                        {index: 21, field: "usability2"},
+                        {index: 22, field: "qaInformativeness2"}
+                    ];
                 } else {
-                    requiredFields = ["findAndAnswer2", "confidence2", "informativeness2", "usability2"];
+                    questions = [
+                        {index: 17, field: "findAndAnswer2"},
+                        {index: 18, field: "confidence2"},
+                        {index: 19, field: "informativeness2"},
+                        {index: 20, field: "usability2"}
+                    ];
                 }
                 break;
             case 9:
-                if (graphs[2].summaryType === "optimized") {
-                    requiredFields = ["findAndAnswer3", "confidence3", "informativeness3", "usability3", "qaInformativeness1"];
+                if (summaryOrderType === 1) {
+                    questions = [
+                        {index: 23, field: "findAndAnswer3"},
+                        {index: 24, field: "confidence3"},
+                        {index: 25, field: "informativeness3"},
+                        {index: 26, field: "usability3"}
+                    ];
                 } else {
-                    requiredFields = ["findAndAnswer3", "confidence3", "informativeness3", "usability3"];
+                    questions = [
+                        {index: 21, field: "findAndAnswer3"},
+                        {index: 22, field: "confidence3"},
+                        {index: 23, field: "informativeness3"},
+                        {index: 24, field: "usability3"},
+                        {index: 25, field: "qaInformativeness1"}
+                    ];
                 }
                 break;
             case 10:
-                if (graphs[3].summaryType === "optimized") {
-                    requiredFields = ["findAndAnswer4", "confidence4", "informativeness4", "usability4", "qaInformativeness2"];
+                if (summaryOrderType === 1) {
+                    questions = [
+                        {index: 27, field: "findAndAnswer4"},
+                        {index: 28, field: "confidence4"},
+                        {index: 29, field: "informativeness4"},
+                        {index: 30, field: "usability4"}
+                    ];
                 } else {
-                    requiredFields = ["findAndAnswer4", "confidence4", "informativeness4", "usability4"];
+                    questions = [
+                        {index: 26, field: "findAndAnswer4"},
+                        {index: 27, field: "confidence4"},
+                        {index: 28, field: "informativeness4"},
+                        {index: 29, field: "usability4"},
+                        {index: 30, field: "qaInformativeness2"}
+                    ];
                 }
                 break;
             case 11:
-                requiredFields = ["wouldYouUse", "chartSummarizerFeedback", "qaFeedback"];
+                questions = [
+                    {index: 31, field: "chartSummarizerRating"},
+                    {index: 32, field: "qaRating"},
+                    {index: 33, field: "wouldYouUse"},
+                    {index: 34, field: "chartSummarizerFeedback"},
+                    {index: 35, field: "qaFeedback"}
+                ];
                 break;
             default:
                 return true; // Pages like instructions and consent don’t require validation
         }
 
-        for (const field of requiredFields) {
-            if (!answersRef.current[field] || answersRef.current[field].trim() === "") {
-                setError("Please complete all required fields on this page before proceeding.");
-                return false;
+        let unansweredQuestions = [];
+        for (const question of questions) {
+            if (!answersRef.current[question.field] || answersRef.current[question.field].trim() === "") {
+                unansweredQuestions.push(question);
             }
 
-            const answer = answersRef.current[field].trim();
+            const answer = answersRef.current[question.field].trim();
 
-            if (field === "initialScreener" && !(answer.toLowerCase().startsWith("yes"))) {
+            if (question.field === "initialScreener" && !(answer.toLowerCase().startsWith("yes"))) {
                 setError("You must type \"Yes\" for the first question on this page.")
                 return false;
             }
 
-            if (field === "informedConsentScreener" && !(answer.toLowerCase().startsWith("i agree"))) {
+            if (question.field === "informedConsentScreener" && !(answer.toLowerCase().startsWith("i agree"))) {
                 setError("You must type \"I agree\" for the second question on this page.")
                 return false;
             }
 
-            if ((field === "BLVNDScreener" || field === "useScreenReadersScreener" || field === "currentScreenReaderScreener") && answer === "No") {
+            if ((question.field === "BLVNDScreener" || question.field === "useScreenReadersScreener" || question.field === "currentScreenReaderScreener") && answer === "No") {
                 handleFormSubmission();
             }
+        }
+
+        if (unansweredQuestions) {
+            setError(`You have not answered question(s) ${unansweredQuestions.map((question) => question.index)}. You must answer all questions on this page before proceeding.`)
+            return false;
         }
 
         setError("");
@@ -387,19 +455,19 @@ function PostSurvey() {
 
                    <SectionHeader label="Initial Questions" />
                    <TextQuestion
-                        label={"Please answer all questions independently and to the best of your ability. Since you were identified as a screen reader user on Prolific, you must use your screen reader to take this survey. If do not use your screen reader for the following questions, your submission will be disqualified.\n\n\n\nThe use of artificial intelligence tools or copying and pasting from external sources is strictly prohibited. Any indication of such use will result in the immediate return of your submission and will disqualify your participation. Type \"Yes\" if you understand."}
+                        label={"1. Please answer all questions independently and to the best of your ability. Since you were identified as a screen reader user on Prolific, you must use your screen reader to take this survey. If do not use your screen reader for the following questions, your submission will be disqualified.\n\n\n\nThe use of artificial intelligence tools or copying and pasting from external sources is strictly prohibited. Any indication of such use will result in the immediate return of your submission and will disqualify your participation. Type \"Yes\" if you understand."}
                         controlledValue={answersRef.current.initialScreener}
                         onChange={(value) => handleChange("initialScreener", value)}
                    />
 
                    <TextQuestion
-                        label={"To proceed with the survey, type \"I agree\" in the box below. This confirms you have read the consent form from the previous page and agree to participate in this research study."}
+                        label={"2. To proceed with the survey, type \"I agree\" in the box below. This confirms you have read the consent form from the previous page and agree to participate in this research study."}
                         controlledValue={answersRef.current.informedConsentScreener}
                         onChange={(value) => handleChange("informedConsentScreener", value)}
                    />
 
                    <MultipleChoiceQuestion
-                        key="BLVNDScreener"
+                        key="3. BLVNDScreener"
                         label="Do you identify as blind, low-vision, or neurodivergent?"
                         options={[
                             "Yes",
@@ -416,7 +484,7 @@ function PostSurvey() {
                     <SectionHeader label="Screen Readers (Part 1)" />
 
                     <MultipleChoiceQuestion
-                        label="Do you use screen readers? (for example, NVDA, JAWS)"
+                        label="4. Do you use screen readers? (for example, NVDA, JAWS)"
                         options={[
                             "Yes",
                             "No"
@@ -429,7 +497,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="currentScreenReaderScreener"
-                        label="Are you currently using your screen reader while taking this survey?"
+                        label="5. Are you currently using your screen reader while taking this survey?"
                         options={[
                             "Yes",
                             "No"
@@ -445,7 +513,7 @@ function PostSurvey() {
                     <SectionHeader label="Demographics (Part 1)" />
 
                     <MultipleChoiceQuestion
-                        label="What is your age?"
+                        label="6. What is your age?"
                         options={[
                             "18 to 24",
                             "25 to 34",
@@ -460,7 +528,7 @@ function PostSurvey() {
                     />
 
                     <SelectMultipleQuestion
-                        label="What is your self-identified race and ethnicity?"
+                        label="7. What is your self-identified race and ethnicity?"
                         options={[
                             "American Indian or Alaska Native",
                             "Asian",
@@ -477,7 +545,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
-                        label="What is your highest level of education?"
+                        label="8. What is your highest level of education?"
                         options={[
                             "Less than high school diploma",
                             "High school diploma/G.E.D.",
@@ -496,7 +564,7 @@ function PostSurvey() {
                     <SectionHeader label="Demographics (Part 2)" />
 
                     <SelectMultipleQuestion
-                        label="Which of the following blind, low-vision, or neurodivergent conditions apply to you? (Select all that apply)"
+                        label="9. Which of the following blind, low-vision, or neurodivergent conditions apply to you? (Select all that apply)"
                         options={[
                             "Blind",
                             "Low-vision",
@@ -511,7 +579,7 @@ function PostSurvey() {
                     />
 
                     <SelectMultipleQuestion
-                        label="Which screen readers do you use? (Select all that apply)"
+                        label="10. Which screen readers do you use? (Select all that apply)"
                         options={[
                             "NVDA",
                             "JAWS",
@@ -527,7 +595,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
-                        label="How confident are you (on a 4-point scale: Not at all to Extremely) in interpreting data from charts?"
+                        label="11. How confident are you (on a 4-point scale: Not at all to Extremely) in interpreting data from charts?"
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -539,7 +607,7 @@ function PostSurvey() {
                     />
 
                     <TextQuestion
-                        label="Do you have any formal training in data literacy (for example, coursework, workshops)? If so, describe it briefly."
+                        label="12. Do you have any formal training in data literacy (for example, coursework, workshops)? If so, describe it briefly."
                         controlledValue={answersRef.current.dataLiteracyTraining}
                         onChange={(value) => handleChange("dataLiteracyTraining", value)}
                    />
@@ -554,19 +622,19 @@ function PostSurvey() {
                         filename={graphs[0].filename}
                         summary={graphs[0].summary}
                         summaryType={graphs[0].summaryType}
-                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions1([...spokenQuestions1, spokenQuestion])}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions1(prev => [...prev, spokenQuestion])}
                     />
 
                     <TextQuestion
                         key="findAndAnswer1"
-                        label={graphs[0].question}
+                        label={`13. ${graphs[0].question}`}
                         controlledValue={answersRef.current.findAndAnswer1}
                         onChange={(value) => handleChange("findAndAnswer1", value)}
                     />
                     
                     <MultipleChoiceQuestion
                         key="confidence1"
-                        label={"To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
+                        label={"14. To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -579,7 +647,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="informativeness1"
-                        label={"To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
+                        label={"15. To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -590,10 +658,10 @@ function PostSurvey() {
                         onChange={(value) => handleChange("informativeness1", value)}
                     />
 
-                    {graphs[0].summaryType === "optimized" &&
+                    {summaryOrderType === 1 &&
                         <MultipleChoiceQuestion
                             key="qaInformativeness1"
-                            label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                            label={"16. To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
                             options={[
                                 "1 (Not at all)",
                                 "2",
@@ -606,7 +674,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="usability1"
-                        label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
+                        label={`${summaryOrderType === 1 ? "17" : "16"}. To what extent do you agree with the following statement?: \"It was easy to understand the summary.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -627,19 +695,19 @@ function PostSurvey() {
                         filename={graphs[1].filename}
                         summary={graphs[1].summary}
                         summaryType={graphs[1].summaryType}
-                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions2([...spokenQuestions2, spokenQuestion])}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions2(prev => [...prev, spokenQuestion])}
                     />
 
                     <TextQuestion
                         key="findAndAnswer2"
-                        label={graphs[1].question}
+                        label={`${summaryOrderType === 1 ? "18" : "17"}.${graphs[1].question}`}
                         controlledValue={answersRef.current.findAndAnswer2}
                         onChange={(value) => handleChange("findAndAnswer2", value)}
                     />
                     
                     <MultipleChoiceQuestion
                         key="confidence2"
-                        label={"To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
+                        label={`${summaryOrderType === 1 ? "19" : "18"}.To what extent do you agree with the following statement?: \"I am confident my answer was correct.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -652,7 +720,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="informativeness2"
-                        label={"To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
+                        label={`${summaryOrderType === 1 ? "20" : "19"}. To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -663,10 +731,10 @@ function PostSurvey() {
                         onChange={(value) => handleChange("informativeness2", value)}
                     />
 
-                    {graphs[1].summaryType === "optimized" &&
+                    {summaryOrderType === 1 &&
                         <MultipleChoiceQuestion
                             key="qaInformativeness2"
-                            label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                            label={"21. To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
                             options={[
                                 "1 (Not at all)",
                                 "2",
@@ -679,7 +747,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="usability2"
-                        label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
+                        label={`${summaryOrderType === 1 ? "22" : "20"}. To what extent do you agree with the following statement?: \"It was easy to understand the summary.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -700,19 +768,19 @@ function PostSurvey() {
                         filename={graphs[2].filename}
                         summary={graphs[2].summary}
                         summaryType={graphs[2].summaryType}
-                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions1([...spokenQuestions1, spokenQuestion])}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions1(prev => [...prev, spokenQuestion])}
                     />
 
                     <TextQuestion
                         key="findAndAnswer3"
-                        label={graphs[2].question}
+                        label={`${summaryOrderType === 1 ? "23" : "21"}. ${graphs[2].question}`}
                         controlledValue={answersRef.current.findAndAnswer3}
                         onChange={(value) => handleChange("findAndAnswer3", value)}
                     />
                     
                     <MultipleChoiceQuestion
                         key="confidence3"
-                        label={"To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
+                        label={`${summaryOrderType === 1 ? "24" : "22"}. To what extent do you agree with the following statement?: \"I am confident my answer was correct.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -725,7 +793,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="informativeness3"
-                        label={"To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
+                        label={`${summaryOrderType === 1 ? "25" : "23"}.To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -736,10 +804,10 @@ function PostSurvey() {
                         onChange={(value) => handleChange("informativeness3", value)}
                     />
 
-                    {graphs[2].summaryType === "optimized" &&
+                    {summaryOrderType === 2 &&
                         <MultipleChoiceQuestion
                             key="qaInformativeness1"
-                            label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                            label={`24. To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\"`}
                             options={[
                                 "1 (Not at all)",
                                 "2",
@@ -752,7 +820,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="usability3"
-                        label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
+                        label={`${summaryOrderType === 1 ? "26" : "25"}. To what extent do you agree with the following statement?: \"It was easy to understand the summary.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -773,19 +841,19 @@ function PostSurvey() {
                         filename={graphs[3].filename}
                         summary={graphs[3].summary}
                         summaryType={graphs[3].summaryType}
-                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions2([...spokenQuestions2, spokenQuestion])}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions2(prev => [...prev, spokenQuestion])}
                     />
 
                     <TextQuestion
                         key="findAndAnswer4"
-                        label={graphs[3].question}
+                        label={`${summaryOrderType === 1 ? "27" : "26"}. ${graphs[3].question}`}
                         controlledValue={answersRef.current.findAndAnswer4}
                         onChange={(value) => handleChange("findAndAnswer4", value)}
                     />
                     
                     <MultipleChoiceQuestion
                         key="confidence4"
-                        label={"To what extent do you agree with the following statement?: \"I am confident my answer was correct.\""}
+                        label={`${summaryOrderType === 1 ? "28" : "27"}. To what extent do you agree with the following statement?: \"I am confident my answer was correct.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -798,7 +866,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="informativeness4"
-                        label={"To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\""}
+                        label={`${summaryOrderType === 1 ? "29" : "28"}. To what extent do you agree with the following statement?: \"I could rely on this summary alone to interpret the chart.\"`}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -809,10 +877,10 @@ function PostSurvey() {
                         onChange={(value) => handleChange("informativeness4", value)}
                     />
 
-                    {graphs[3].summaryType === "optimized" &&
+                    {summaryOrderType === 2 &&
                         <MultipleChoiceQuestion
                             key="qaInformativeness2"
-                            label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                            label={`29. To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\"`}
                             options={[
                                 "1 (Not at all)",
                                 "2",
@@ -825,7 +893,7 @@ function PostSurvey() {
 
                     <MultipleChoiceQuestion
                         key="usability4"
-                        label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
+                        label={"30. To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
                         options={[
                             "1 (Not at all)",
                             "2",
@@ -843,7 +911,7 @@ function PostSurvey() {
                     <SectionHeader label="Final Feedback" />
 
                     <MultipleChoiceQuestion
-                        label={"Based on your interaction with the chart summarizer, what would you rate your experience from 1 (Very Negative) to 4 (Very Positive)?"}
+                        label={"31. Based on your interaction with the chart summarizer, what would you rate your experience from 1 (Very Negative) to 4 (Very Positive)?"}
                         options={[
                             "1 (Very Negative)",
                             "2 (Slightly Negative)",
@@ -855,7 +923,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
-                        label={"Based on your interaction with the chart Q&A feature, what would you rate your experience from 1 (Very Negative) to 4 (Very Positive)?"}
+                        label={"32. Based on your interaction with the chart Q&A feature, what would you rate your experience from 1 (Very Negative) to 4 (Very Positive)?"}
                         options={[
                             "1 (Very Negative)",
                             "2 (Slightly Negative)",
@@ -867,7 +935,7 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
-                        label={"Based on your interaction with the chart summarizer, would you incorporate this tool into your life?"}
+                        label={"33. Based on your interaction with the chart summarizer, would you incorporate this tool into your life?"}
                         options={[
                             "Yes",
                             "No",
@@ -878,18 +946,20 @@ function PostSurvey() {
                     />
 
                     <TextQuestion
-                        label={"Please provide feedback on your overall experience with the chart summarizer. Answer in at least 2-3 sentences."}
+                        label={"34. Please provide feedback on your overall experience with the chart summarizer. Answer in at least 2-3 sentences."}
                         controlledValue={answersRef.current.chartSummarizerFeedback}
                         onChange={(value) => handleChange("chartSummarizerFeedback", value)}
                     />
 
                     <TextQuestion
-                        label={"Please provide feedback on your experience with the Q&A feature. Answer in at least 2-3 sentences."}
+                        label={"35. Please provide feedback on your experience with the Q&A feature. Answer in at least 2-3 sentences."}
                         controlledValue={answersRef.current.qaFeedback}
                         onChange={(value) => handleChange("qaFeedback", value)}
                     />
                 </>
             )}
+            
+            <Error message={error} />
 
             <NavigationButtons
                 onNext={async () => {
@@ -911,8 +981,6 @@ function PostSurvey() {
                 canGoBack={currentPage > 1}
                 nextLabel={currentPage === totalPages ? 'Submit' : 'Next'}
             />
-
-            <Error message={error} />
         </>
     );
 }

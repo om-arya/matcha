@@ -178,6 +178,8 @@ async function handleAskQuestion(imageFilepath: string) {
       throw err;
   });
 
+  ttsRead(`You asked: ${spokenQuestion}`);
+
   const prompt = `You are a screen reader looking at a data visualization image and were asked the following question: "${spokenQuestion}". ` +
                   "Answer the question in a paragraph or shorter, using the content of the chart image. " +
                   "You have already provided a summary of the chart image, so no need to do it again. You also do not need to repeat the question. Just answer the question." +
