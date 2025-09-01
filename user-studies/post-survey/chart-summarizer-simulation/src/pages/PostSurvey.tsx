@@ -470,8 +470,8 @@ function PostSurvey() {
                    />
 
                    <MultipleChoiceQuestion
-                        key="3. BLVNDScreener"
-                        label="Do you identify as blind, low-vision, or neurodivergent?"
+                        key="BLVNDScreener"
+                        label="3. Do you identify as blind, low-vision, or neurodivergent?"
                         options={[
                             "Yes",
                             "No"
