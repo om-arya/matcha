@@ -131,7 +131,6 @@ function PostSurvey() {
     const [graphs, setGraphs] = useState<GraphData[]>([]);
     const [summaryOrderType, setSummaryOrderType] = useState<1 | 2>(1);
     let counter: number;
-    const [counterState, setCounterState] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchGraphs = async () => {
@@ -142,11 +141,9 @@ function PostSurvey() {
             if (counterSnap.exists()) {
                 const data = counterSnap.data();
                 counter = data.value;
-                setCounterState(data.value);
                 await firestore.updateDoc(counterRef, { value: firestore.increment(4) });
             } else {
                 counter = 0;
-                setCounterState(0);
                 await firestore.setDoc(counterRef, { value: 4 });
             }
 
@@ -389,7 +386,13 @@ function PostSurvey() {
     const handleFormSubmission = async () => {
         const submissionObj: Record<string, string> = {};
 
-        submissionObj["participantNumber"] = (counterState! / 4).toString();
+        let counter;
+        const counterRef = firestore.doc(db, "post-survey", "counter");
+        const counterSnap = await firestore.getDoc(counterRef);
+        const data = counterSnap.data();
+        counter = data!.value;
+
+        submissionObj["participantNumber"] = (counter / 4).toString();
         submissionObj["submissionTimestamp"] = new Date().toISOString();
         Object.keys(answersRef.current).forEach((field) => {
             submissionObj[field] = answersRef.current[field as keyof PostSurveyData];
