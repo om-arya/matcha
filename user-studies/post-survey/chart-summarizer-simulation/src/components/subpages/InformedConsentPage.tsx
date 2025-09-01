@@ -30,10 +30,7 @@ function InformedConsentPage() {
                 You may take breaks or stop at any point.</p>
 
                 <p><strong>Compensation:</strong><br />
-                You will receive $15.00 USD via Prolific upon completion. If you withdraw early, you will receive partial compensation proportional to your time spent.<br />
-                If you receive any payments for taking part in this study, the University of Michigan finance department will need your name and address for tax reporting purposes.</p>
-
-                <p>If you receive any payments for taking part in this study, the University of Michigan finance department will need your name and address for tax reporting purposes. In a calendar year if: 1) your payments total greater than $400 for this study or 2) if you receive payments of greater than $400 for being in more than one study, the University of Michigan finance department will also require your Social Security Number for tax reporting purposes. If you do not wish to provide your Social Security Number, you may continue to participate in research studies, but you will not be able to receive payment for the remainder of the calendar year.</p>
+                You will receive $7.50 USD via Prolific upon completion. If you withdraw early, you will receive partial compensation proportional to your time spent.<br /></p>
 
                 <p>Participating in this study is completely voluntary. Even if you decide to participate now, you may change your mind and stop at any time. You may choose not to answer any survey question or continue the session for any reason.</p>
 

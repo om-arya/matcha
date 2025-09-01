@@ -188,6 +188,8 @@ async function handleAskQuestion(imageFilepath: string) {
   const response = await geminiGenerateContent(base64, mimeType, prompt);
   const answer = response || "I'm sorry, I couldn't answer that.";
   ttsRead(answer);
+
+  return spokenQuestion;
 }
 
 export {

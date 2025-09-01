@@ -6,29 +6,33 @@ interface GraphContainerProps {
     filename: string;
     summary: string;
     summaryType: string;
+    onQuestionAsk?: (spokenQuestion: string) => void;
 }
 
-function GraphContainer({ filename, summary, summaryType }: GraphContainerProps) {
+function GraphContainer({ filename, summary, summaryType, onQuestionAsk }: GraphContainerProps) {
     const imageFilepath = `/graphs/${filename}`;
 
-        useEffect(() => {
-            const handleKeyDown = (event: KeyboardEvent) => {
-                if ((event.key === "L" && event.altKey && event.shiftKey) || (event.key === "l" && event.metaKey && event.shiftKey)) {
-                    event.preventDefault();
-                    if (summaryType === "optimized") {
-                        handleAskQuestion(imageFilepath);
-                    } else {
-                        ttsRead("The Q&A feature is unavailable for this graph.")
+    useEffect(() => {
+        const handleKeyDown = async (event: KeyboardEvent) => {
+            if ((event.key === "L" && event.altKey && event.shiftKey) || (event.key === "l" && event.metaKey && event.shiftKey)) {
+                event.preventDefault();
+                if (summaryType === "optimized") {
+                    const spokenQuestion = await handleAskQuestion(imageFilepath);
+                    if (onQuestionAsk) {
+                        onQuestionAsk(spokenQuestion);
                     }
+                } else {
+                    ttsRead("The Q&A feature is unavailable for this graph.")
                 }
-            };
+            }
+        };
 
-            window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keydown", handleKeyDown);
 
-            return () => {
-                window.removeEventListener("keydown", handleKeyDown);
-            };
-        }, [filename]);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [filename]);
 
     return (
         <div className={styles.graphContainer}>

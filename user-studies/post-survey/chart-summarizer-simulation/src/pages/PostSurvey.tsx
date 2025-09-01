@@ -59,12 +59,16 @@ interface PostSurveyData {
     findAndAnswer3: string;
     confidence3: string;
     informativeness3: string;
+    qaInformativeness3: string;
     usability3: string;
+    spokenQuestions3: string;
 
     findAndAnswer4: string;
     confidence4: string;
     informativeness4: string;
+    qaInformativeness4: string;
     usability4: string;
+    spokenQuestions4: string;
 
     chartSummarizerRating: string;
     qaRating: string;
@@ -106,11 +110,15 @@ function PostSurvey() {
         findAndAnswer3: "",
         confidence3: "",
         informativeness3: "",
+        qaInformativeness3: "",
         usability3: "",
+        spokenQuestions3: "",
         findAndAnswer4: "",
         confidence4: "",
         informativeness4: "",
+        qaInformativeness4: "",
         usability4: "",
+        spokenQuestions4: "",
         chartSummarizerRating: "",
         qaRating: "",
         wouldYouUse: "",
@@ -176,6 +184,9 @@ function PostSurvey() {
         };
     };
 
+    const [spokenQuestions3, setSpokenQuestions3] = useState<string[]>([]);
+    const [spokenQuestions4, setSpokenQuestions4] = useState<string[]>([]);
+
     const handleKeyDown = (event: KeyboardEvent) => {
         if (currentPage < 7) {
             // Before the chart simulation, let the user know the command works.
@@ -238,10 +249,10 @@ function PostSurvey() {
                 requiredFields = ["findAndAnswer2", "confidence2", "informativeness2", "usability2"];
                 break;
             case 9:
-                requiredFields = ["findAndAnswer3", "confidence3", "informativeness3", "usability3"];
+                requiredFields = ["findAndAnswer3", "confidence3", "informativeness3", "qaInformativeness3", "usability3"];
                 break;
             case 10:
-                requiredFields = ["findAndAnswer4", "confidence4", "informativeness4", "usability4"];
+                requiredFields = ["findAndAnswer4", "confidence4", "informativeness4", "qaInformativeness4", "usability4"];
                 break;
             case 11:
                 requiredFields = ["wouldYouUse", "chartSummarizerFeedback", "qaFeedback"];
@@ -299,6 +310,8 @@ function PostSurvey() {
             submissionObj[`graphFilename${i}`] = graph.filename;
             submissionObj[`graphSummaryType${i}`] = graph.summaryType;
         })
+        submissionObj["spokenQuestions3"] = spokenQuestions3.toLocaleString();
+        submissionObj["spokenQuestions4"] = spokenQuestions4.toLocaleString();
 
         try {
             await firestore.addDoc(collectionRef, submissionObj);
@@ -657,6 +670,7 @@ function PostSurvey() {
                         filename={graphs[2].filename}
                         summary={graphs[2].summary}
                         summaryType={graphs[2].summaryType}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions3([...spokenQuestions3, spokenQuestion])}
                     />
 
                     <TextQuestion
@@ -693,6 +707,19 @@ function PostSurvey() {
                     />
 
                     <MultipleChoiceQuestion
+                        key="qaInformativeness3"
+                        label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                        options={[
+                            "1 (Not at all)",
+                            "2",
+                            "3",
+                            "4 (Extremely)"
+                        ]}
+                        controlledValue={answersRef.current.qaInformativeness3}
+                        onChange={(value) => handleChange("qaInformativeness3", value)}
+                    />
+
+                    <MultipleChoiceQuestion
                         key="usability3"
                         label={"To what extent do you agree with the following statement?: \"It was easy to understand the summary.\""}
                         options={[
@@ -715,6 +742,7 @@ function PostSurvey() {
                         filename={graphs[3].filename}
                         summary={graphs[3].summary}
                         summaryType={graphs[3].summaryType}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions4([...spokenQuestions4, spokenQuestion])}
                     />
 
                     <TextQuestion
@@ -748,6 +776,19 @@ function PostSurvey() {
                         ]}
                         controlledValue={answersRef.current.informativeness4}
                         onChange={(value) => handleChange("informativeness4", value)}
+                    />
+
+                    <MultipleChoiceQuestion
+                        key="qaInformativeness4"
+                        label={"To what extent do you agree with the following statement?: \"I could rely on the summary, along with the Q&A feature, to interpret the chart.\""}
+                        options={[
+                            "1 (Not at all)",
+                            "2",
+                            "3",
+                            "4 (Extremely)"
+                        ]}
+                        controlledValue={answersRef.current.qaInformativeness4}
+                        onChange={(value) => handleChange("qaInformativeness4", value)}
                     />
 
                     <MultipleChoiceQuestion
