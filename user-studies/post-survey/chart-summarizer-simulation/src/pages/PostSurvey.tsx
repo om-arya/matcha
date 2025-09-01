@@ -186,8 +186,8 @@ function PostSurvey() {
         };
     };
 
-    const [spokenQuestions3, setSpokenQuestions3] = useState<string[]>([]);
-    const [spokenQuestions4, setSpokenQuestions4] = useState<string[]>([]);
+    const [spokenQuestions1, setSpokenQuestions1] = useState<string[]>([]);
+    const [spokenQuestions2, setSpokenQuestions2] = useState<string[]>([]);
 
     const handleKeyDown = (event: KeyboardEvent) => {
         if (currentPage < 7) {
@@ -318,8 +318,8 @@ function PostSurvey() {
             submissionObj[`graphFilename${i}`] = graph.filename;
             submissionObj[`graphSummaryType${i}`] = graph.summaryType;
         })
-        submissionObj["spokenQuestions3"] = spokenQuestions3.toLocaleString();
-        submissionObj["spokenQuestions4"] = spokenQuestions4.toLocaleString();
+        submissionObj["spokenQuestions1"] = spokenQuestions1.toLocaleString();
+        submissionObj["spokenQuestions2"] = spokenQuestions2.toLocaleString();
 
         try {
             await firestore.addDoc(collectionRef, submissionObj);
@@ -554,6 +554,7 @@ function PostSurvey() {
                         filename={graphs[0].filename}
                         summary={graphs[0].summary}
                         summaryType={graphs[0].summaryType}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions1([...spokenQuestions1, spokenQuestion])}
                     />
 
                     <TextQuestion
@@ -626,6 +627,7 @@ function PostSurvey() {
                         filename={graphs[1].filename}
                         summary={graphs[1].summary}
                         summaryType={graphs[1].summaryType}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions2([...spokenQuestions2, spokenQuestion])}
                     />
 
                     <TextQuestion
@@ -698,7 +700,7 @@ function PostSurvey() {
                         filename={graphs[2].filename}
                         summary={graphs[2].summary}
                         summaryType={graphs[2].summaryType}
-                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions3([...spokenQuestions3, spokenQuestion])}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions1([...spokenQuestions1, spokenQuestion])}
                     />
 
                     <TextQuestion
@@ -771,7 +773,7 @@ function PostSurvey() {
                         filename={graphs[3].filename}
                         summary={graphs[3].summary}
                         summaryType={graphs[3].summaryType}
-                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions4([...spokenQuestions4, spokenQuestion])}
+                        onQuestionAsk={(spokenQuestion: string) => setSpokenQuestions2([...spokenQuestions2, spokenQuestion])}
                     />
 
                     <TextQuestion
