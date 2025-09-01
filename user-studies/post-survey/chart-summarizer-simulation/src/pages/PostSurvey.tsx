@@ -365,8 +365,11 @@ function PostSurvey() {
             }
         }
 
-        if (unansweredQuestions) {
-            setError(`You have not answered question(s) ${unansweredQuestions.map((question) => question.index)}. You must answer all questions on this page before proceeding.`)
+        if (unansweredQuestions.length > 1) {
+            setError(`You have not answered questions ${unansweredQuestions.map((question) => question.index)}. You must answer all questions on this page before proceeding.`)
+            return false;
+        } else if (unansweredQuestions.length === 1) {
+            setError(`You have not answered question ${unansweredQuestions[0].index}. You must answer all questions on this page before proceeding.`)
             return false;
         }
 
@@ -958,8 +961,6 @@ function PostSurvey() {
                     />
                 </>
             )}
-            
-            <Error message={error} />
 
             <NavigationButtons
                 onNext={async () => {
@@ -981,6 +982,8 @@ function PostSurvey() {
                 canGoBack={currentPage > 1}
                 nextLabel={currentPage === totalPages ? 'Submit' : 'Next'}
             />
+
+            <Error message={error} />
         </>
     );
 }
