@@ -366,10 +366,13 @@ function PostSurvey() {
         }
 
         if (unansweredQuestions.length > 1) {
-            setError(`You have not answered questions ${unansweredQuestions.map((question, i) => {
-                i === 0 ? question.index :
-                i === unansweredQuestions.length - 1 ? ` and ${question.index}` :
-                ` ${question.index}`})}. You must answer all questions on this page before proceeding.`)
+            const indices = unansweredQuestions.map(q => q.index);
+            const indicesString =
+                indices.length === 2
+                    ? indices.join(" and ")
+                    : indices.slice(0, -1).join(", ") + " and " + indices[indices.length - 1];
+
+            setError(`You have not answered questions ${indicesString}. You must answer all questions on this page before proceeding.`);
             return false;
         } else if (unansweredQuestions.length === 1) {
             setError(`You have not answered question ${unansweredQuestions[0].index}. You must answer all questions on this page before proceeding.`)
