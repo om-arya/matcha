@@ -366,7 +366,10 @@ function PostSurvey() {
         }
 
         if (unansweredQuestions.length > 1) {
-            setError(`You have not answered questions ${unansweredQuestions.map((question) => question.index)}. You must answer all questions on this page before proceeding.`)
+            setError(`You have not answered questions ${unansweredQuestions.map((question, i) => {
+                i === 0 ? question.index :
+                i === unansweredQuestions.length - 1 ? ` and ${question.index}` :
+                ` ${question.index}`})}. You must answer all questions on this page before proceeding.`)
             return false;
         } else if (unansweredQuestions.length === 1) {
             setError(`You have not answered question ${unansweredQuestions[0].index}. You must answer all questions on this page before proceeding.`)
