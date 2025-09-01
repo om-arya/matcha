@@ -283,6 +283,7 @@ def batch_analyze_graphs(input_dir="./graphs", output_csv="postsurvey_graph_anal
 
         flaws: list[str] = find_flaws_from_image(image_filepath)
         question: str = design_question_for_image(image_filepath, flaws)
+        print(f"Question for {filename}: {question}")
         baseline_summary: str = generate_baseline_summary(image_filepath)
         optimized_summary: str = generate_optimized_summary(image_filepath)
 
