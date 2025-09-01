@@ -177,8 +177,8 @@ function PostSurvey() {
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-        // Before the chart simulation, let the user know the command works.
         if (currentPage < 7) {
+            // Before the chart simulation, let the user know the command works.
             if ((event.key === "L" && event.altKey && event.shiftKey) || (event.key === "l" && event.metaKey && event.shiftKey)) {
                 event.preventDefault();
                 ttsRead("You pressed the command to ask a question about a graph! This command will be useful in a later section of the survey, and we'll let you know when to use it.");
@@ -540,6 +540,7 @@ function PostSurvey() {
                     <GraphContainer
                         filename={graphs[0].filename}
                         summary={graphs[0].summary}
+                        summaryType={graphs[0].summaryType}
                     />
 
                     <TextQuestion
@@ -597,6 +598,7 @@ function PostSurvey() {
                     <GraphContainer
                         filename={graphs[1].filename}
                         summary={graphs[1].summary}
+                        summaryType={graphs[1].summaryType}
                     />
 
                     <TextQuestion
@@ -654,6 +656,7 @@ function PostSurvey() {
                     <GraphContainer
                         filename={graphs[2].filename}
                         summary={graphs[2].summary}
+                        summaryType={graphs[2].summaryType}
                     />
 
                     <TextQuestion
@@ -711,6 +714,7 @@ function PostSurvey() {
                     <GraphContainer
                         filename={graphs[3].filename}
                         summary={graphs[3].summary}
+                        summaryType={graphs[3].summaryType}
                     />
 
                     <TextQuestion
