@@ -306,16 +306,6 @@ function PostSurvey() {
         return true;
     };
 
-    const validateForm = () => {
-        for (const [_, value] of Object.entries(answersRef.current)) {
-            if (value === '') {
-                setError("Cannot submit: You have not completed one or more sections in the form");
-                return false;
-            }
-        }
-        return true;
-    }
-
     const handleFormSubmission = async () => {
         const submissionObj: Record<string, string> = {};
 
@@ -338,14 +328,6 @@ function PostSurvey() {
             setError("Server error. Please try again later.");
         }
     }
-
-    const handleSubmitClick = async () => {
-        if (!(validateForm())) {
-            return;
-        };
-
-        handleFormSubmission();
-    };
 
     // Navigate to confirmation page
     if (isSubmitted) {
@@ -915,7 +897,7 @@ function PostSurvey() {
                     if (currentPage < totalPages) {
                         setCurrentPage(currentPage + 1);
                     } else {
-                        handleSubmitClick();
+                        handleFormSubmission();
                     }
                 }}
                 onBack={() => {
