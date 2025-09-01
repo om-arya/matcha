@@ -362,6 +362,7 @@ function PostSurvey() {
 
             if ((question.field === "BLVNDScreener" || question.field === "useScreenReadersScreener" || question.field === "currentScreenReaderScreener") && answer === "No") {
                 handleFormSubmission();
+                return false;
             }
         }
 
