@@ -1,7 +1,8 @@
+/*
 import * as fs from 'fs';
 import * as path from 'path';
 import Papa from 'papaparse';
-
+*/
 
 export type PostSurveyData = {
   filename: string;
@@ -27,6 +28,7 @@ export type PostSurveyData = {
   optimized_summary: string;
 };
 
+/*
 function parseCSVFile(filePath: string): PostSurveyData[] {
   const csv = fs.readFileSync(path.resolve(filePath), 'utf-8');
 
@@ -72,3 +74,4 @@ export const postSurveyGraphData: PostSurveyData[] = ${JSON.stringify(data, null
 fs.writeFileSync(path.resolve('./postsurvey_graph_data.ts'), tsContent, 'utf-8');
 
 console.log('Data saved to postsurvey_graph_data.ts');
+*/
