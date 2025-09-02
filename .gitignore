@@ -29,3 +29,4 @@ HUGGINGFACE_HUB_TOKEN.*
 GITHUB_TOKEN.*
 VSCE_PAT.*
 AWS_Secrets.*
+serviceAccountKey.*
