@@ -130,6 +130,7 @@ function PostSurvey() {
     
     const [graphs, setGraphs] = useState<GraphData[]>([]);
     const [summaryOrderType, setSummaryOrderType] = useState<1 | 2>(1);
+    const startTimestampRef = useRef<string>(new Date().toISOString());
     let counter: number;
 
     useEffect(() => {
@@ -394,7 +395,8 @@ function PostSurvey() {
         counter = data!.value;
 
         submissionObj["participantNumber"] = (counter / 4).toString();
-        submissionObj["submissionTimestamp"] = new Date().toISOString();
+        submissionObj["startTimestamp"] = startTimestampRef.current;;
+        submissionObj["endTimestamp"] = new Date().toISOString();
         Object.keys(answersRef.current).forEach((field) => {
             submissionObj[field] = answersRef.current[field as keyof PostSurveyData];
         });

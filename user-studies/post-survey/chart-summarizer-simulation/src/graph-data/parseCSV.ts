@@ -1,8 +1,7 @@
-/**
 import * as fs from 'fs';
 import * as path from 'path';
 import Papa from 'papaparse';
-*/
+
 
 export type PostSurveyData = {
   filename: string;
@@ -20,14 +19,13 @@ export type PostSurveyData = {
   MISSING_TITLE: number;
   MISSING_XLABEL: number;
   MISSING_YLABEL: number;
-  NON_SEQUENTIAL_AXISTAMPERED_ASPECT_RATIO: number;
+  NON_SEQUENTIAL_AXIS: number;
+  TAMPERED_ASPECT_RATIO: number;
   TRUNCATED_Y_AXIS: number;
   question: string;
   baseline_summary: string;
   optimized_summary: string;
 };
-
-/**
 
 function parseCSVFile(filePath: string): PostSurveyData[] {
   const csv = fs.readFileSync(path.resolve(filePath), 'utf-8');
@@ -42,7 +40,7 @@ function parseCSVFile(filePath: string): PostSurveyData[] {
     'DUAL_Y_AXES','FIGSIZE_TOO_SMALL','FONTSIZE_TOO_SMALL',
     'INSUFFICIENT_COLOR_CONTRAST','INVERTED_Y_AXIS',
     'MISLEADING_ANNOTATIONS','MISSING_LEGEND','MISSING_TITLE',
-    'MISSING_XLABEL','MISSING_YLABEL','NON_SEQUENTIAL_AXISTAMPERED_ASPECT_RATIO',
+    'MISSING_XLABEL','MISSING_YLABEL','NON_SEQUENTIAL_AXIS','TAMPERED_ASPECT_RATIO',
     'TRUNCATED_Y_AXIS'
   ];
 
@@ -74,4 +72,3 @@ export const postSurveyGraphData: PostSurveyData[] = ${JSON.stringify(data, null
 fs.writeFileSync(path.resolve('./postsurvey_graph_data.ts'), tsContent, 'utf-8');
 
 console.log('Data saved to postsurvey_graph_data.ts');
-*/
