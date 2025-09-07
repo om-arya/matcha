@@ -214,9 +214,30 @@ function PostSurvey() {
         if (currentPage === 1) {
             const urlParams = new URLSearchParams(window.location.search);
             const prolificID = urlParams.get("PROLIFIC_PID");
+
             if (!!prolificID) {
-                handleChange("prolificID", prolificID);
-                return true;
+                // Check if prolificID already exists in the database
+                try {
+                    const q = firestore.query(
+                        collectionRef,
+                        firestore.where("prolificID", "==", prolificID)
+                    );
+                    const querySnapshot = await firestore.getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        // prolificID already recorded (block submission)
+                        handleInvalidFormSubmission();
+                        return false;
+                    }
+
+                    // Otherwise, record it locally and continue
+                    handleChange("prolificID", prolificID);
+                    return true;
+                } catch (err) {
+                    console.error("Error checking prolificID:", err);
+                    setError("A server error occurred while verifying your ID. Please try again.");
+                    return false;
+                }
             } else {
                 setError("We could not determine your Prolific ID. Please retry the survey link on Prolific.");
                 return false;
@@ -413,6 +434,10 @@ function PostSurvey() {
         } catch (error) {
             setError("Server error. Please try again later.");
         }
+    }
+
+    const handleInvalidFormSubmission = () => {
+        setIsSubmitted(true);
     }
 
     // Navigate to confirmation page

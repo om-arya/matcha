@@ -1,6 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-import csv
+import csv, re
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate('serviceAccountKey.json') # Path to the key file
@@ -8,14 +8,54 @@ firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-def export_firestore_to_csv(collection_name, output_csv_file):
-    """
-    Exports data from a Firestore collection to a CSV file.
+# Strip values like '3 (Slightly Positive)' to just '3'.
+def clean_value(val):
+    if isinstance(val, str):
+        match = re.match(r'^(\d+)\s*\(.*\)$', val)
+        if match:
+            return match.group(1)
+    return val
 
-    Args:
-        collection_name (str): The name of the Firestore collection to export.
-        output_csv_file (str): The path to the output CSV file.
-    """
+def process_document(doc_data):
+    if "value" in doc_data: del doc_data["value"]
+
+    # Clean all field values
+    doc_data = {k: clean_value(v) for k, v in doc_data.items()}
+
+    # Swap values if necessary
+    if doc_data.get("graphSummaryType0") == "optimized":
+        doc_data["graphFilename0"], doc_data["graphFilename2"] = doc_data.get("graphFilename2"), doc_data.get("graphFilename0")
+        doc_data["graphFilename1"], doc_data["graphFilename3"] = doc_data.get("graphFilename3"), doc_data.get("graphFilename1")
+
+        doc_data["findAndAnswer1"], doc_data["findAndAnswer3"] = doc_data.get("findAndAnswer3"), doc_data.get("findAndAnswer1")
+        doc_data["findAndAnswer2"], doc_data["findAndAnswer4"] = doc_data.get("findAndAnswer4"), doc_data.get("findAndAnswer2")
+        
+        doc_data["confidence1"], doc_data["confidence3"] = doc_data.get("confidence3"), doc_data.get("confidence1")
+        doc_data["confidence2"], doc_data["confidence4"] = doc_data.get("confidence4"), doc_data.get("confidence2")
+
+        doc_data["informativeness1"], doc_data["informativeness3"] = doc_data.get("informativeness3"), doc_data.get("informativeness1")
+        doc_data["informativeness2"], doc_data["informativeness4"] = doc_data.get("informativeness4"), doc_data.get("informativeness2")
+
+        doc_data["usability1"], doc_data["usability3"] = doc_data.get("usability3"), doc_data.get("usability1")
+        doc_data["usability2"], doc_data["usability4"] = doc_data.get("usability4"), doc_data.get("usability2")
+
+    if "graphSummaryType0" in doc_data: del doc_data["graphSummaryType0"]
+    if "graphSummaryType1" in doc_data: del doc_data["graphSummaryType1"]
+    if "graphSummaryType2" in doc_data: del doc_data["graphSummaryType2"]
+    if "graphSummaryType3" in doc_data: del doc_data["graphSummaryType3"]
+
+    # Shift graphSummaryTypeX -> graphSummaryType(X+1)
+    new_data = {}
+    for k, v in doc_data.items():
+        if k.startswith("graphFilename"):
+            idx = int(k.replace("graphFilename", ""))
+            new_data[f"graphFilename{idx+1}"] = v
+        else:
+            new_data[k] = v
+
+    return new_data
+
+def export_firestore_to_csv(collection_name, output_csv_file, prolific_ids=None):
     try:
         collection_ref = db.collection(collection_name)
         docs = collection_ref.stream()
@@ -25,17 +65,26 @@ def export_firestore_to_csv(collection_name, output_csv_file):
 
         for doc in docs:
             doc_data = doc.to_dict()
-            data_rows.append(doc_data)
-            headers.update(doc_data.keys()) # Collect all unique keys for headers
+
+            # If prolific_ids filter is provided, skip docs not in list
+            if prolific_ids and doc_data.get("prolificID") not in prolific_ids:
+                continue
+
+            processed = process_document(doc_data)
+            data_rows.append(processed)
+            headers.update(processed.keys())
 
         if not data_rows:
-            print(f"No documents found in collection '{collection_name}'.")
+            print(f"No matching documents found in collection '{collection_name}'.")
             return
 
-        sorted_headers = sorted(list(headers)) # Sort headers alphabetically
+        # Sort by participantNumber
+        data_rows.sort(key=lambda x: int(x.get("participantNumber", 0)))
 
+        # Write CSV
+        headers = sorted(headers)
         with open(output_csv_file, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=sorted_headers)
+            writer = csv.DictWriter(csvfile, fieldnames=headers)
             writer.writeheader()
             writer.writerows(data_rows)
 
@@ -48,4 +97,48 @@ if __name__ == "__main__":
     collection_to_export = 'post-survey'
     output_file = 'post_survey_firestore_data.csv'
 
-    export_firestore_to_csv(collection_to_export, output_file)
+    prolific_ids = [
+        # BLV
+        "5c50b6dc172b6c000177a036",
+        "5d730aab6b4b16001ab9699e",
+        "672c18b9a6c9d7bb286cd039",
+        "66f0c33279c43367bd7542c4",
+        "6774630907f0abb2253c5a05",
+        "6728cf34e77227d41aec736c",
+        "60e282f9202a8126e2ea0315",
+        "5de58f7433a3aa000b024461",
+        "66a39e4133c215f408c9cd0c",
+        "67d6b89ed0d843d5b37b667a",
+        "67ebb7fcb7728fc1387839b9",
+        "669bce49fe5a1987b0767370",
+        "67ac32ed0bac98257abc2c04",
+        "67de5fc8362f9d15ab677d05",
+        "67402eca3dd0d3cc8ca11df3",
+        "671a442156d47b923c0c4f7a"
+
+        # ND
+        "67cf6dfb019a3a7d53e9dc7e",
+        "66311db2f9d3b238692d2972",
+        "63d82b2de40f94ceb14816cc",
+        "67a796cd3ddc2ecc4a26fa35",
+        "5dc916d584b21f64f98d61dd",
+        "667c86d3b9ca760b999914f3",
+        "654beb18b762f5afea837c8b",
+        "667bd5012a43ab2c51a565ce",
+        "67a3b1205dced1eb520e10f1",
+        "5a147e755d06850001b00937",
+        "603e27e4689f94dfc6590465",
+        "67a92eb40002d1f843008b03",
+        "66445cba51653be6d03587f1",
+        "65eb3a99355a9dc09c32dc23",
+        "66353ccc7ee2fcdbd28ea518",
+        "5e74ff093115e00576f0187c",
+        "6672d7c8f27a75aa9998abab",
+        "66b267d5f67b576d7d188f0d"
+        "66ae590a965e76c5cd7b67d7",
+        "67458d30882b7993b554543d",
+        "67d127361e372345da2a9149",
+        "66cec53bdc37b68c08c86c51"
+    ]
+
+    export_firestore_to_csv(collection_to_export, output_file, prolific_ids)
