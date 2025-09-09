@@ -114,7 +114,12 @@ if __name__ == "__main__":
         "67ac32ed0bac98257abc2c04",
         "67de5fc8362f9d15ab677d05",
         "67402eca3dd0d3cc8ca11df3",
-        "671a442156d47b923c0c4f7a"
+        "671a442156d47b923c0c4f7a",
+        "667d80e9999f7d4918f9fc94",
+        "666f0fb7d9900bb03f5d99a1",
+        "61031f137855ff378d67c2fc",
+        "60d5a860b6472cfdc1885684",
+        "66f3f19a6de8f0b0cdf9eb45"
 
         # ND
         "67cf6dfb019a3a7d53e9dc7e",
@@ -138,7 +143,28 @@ if __name__ == "__main__":
         "66ae590a965e76c5cd7b67d7",
         "67458d30882b7993b554543d",
         "67d127361e372345da2a9149",
-        "66cec53bdc37b68c08c86c51"
+        "66cec53bdc37b68c08c86c51",
+        "66f59c766e7e22e1f90d08f6",
+        "67048c644ae2740b0d23f015",
+        "656dfef713b8d414bd002040",
+        "67caef1c20cd519bfabedda9",
+        "611cdcbb1152bad5b9abdc92",
+        "66d7095ab1d3e9fc57d0ed98",
+        "67af30076947c47af4af18d8",
+        "610c3dca3aa9f75d7057307d",
+        "66a7af39796ea115d89dca18",
+        "67dbfd5c13f69f693d27d691",
+        "67d548fa5d8f6873fccfca3a",
+        "6788da2a096d1243e779a70a",
+        "665cc0ef4fa57fdf6f53ab2d",
+        "664e326b5579c6f6ca3fd1ff",
+        "6743278eba3a6dfeeeb53b00",
+        "68238de3a3ba8b99fef9b7ca",
+        "67dab725b93f66976ef0bdfb",
+        "66bd001bdff5991cf61b905e",
+        "67ff743c31d72095f14687e3",
+        "674d99171387dca1d58cb882",
+        "66cf524e6b2a5e244325a533"
     ]
 
     export_firestore_to_csv(collection_to_export, output_file, prolific_ids)

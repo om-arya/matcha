@@ -226,7 +226,7 @@ function PostSurvey() {
 
                     if (!querySnapshot.empty) {
                         // prolificID already recorded (block submission)
-                        handleInvalidFormSubmission();
+                        setError("You have already taken this survey.");
                         return false;
                     }
 
@@ -434,10 +434,6 @@ function PostSurvey() {
         } catch (error) {
             setError("Server error. Please try again later.");
         }
-    }
-
-    const handleInvalidFormSubmission = () => {
-        setIsSubmitted(true);
     }
 
     // Navigate to confirmation page
